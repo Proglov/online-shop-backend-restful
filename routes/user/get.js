@@ -10,8 +10,6 @@ const {
 } = require('../../controller/users/get');
 
 
-// get
-
 router.get('/getMe', async (req, res) => {
     const userInfo = req?.userInfo
 

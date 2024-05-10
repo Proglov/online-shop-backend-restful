@@ -8,10 +8,7 @@ const app = express()
 const { setUserInfo } = require('./lib/middlewares');
 
 const usersRouterGet = require('./routes/user/get');
-
-// const { User, Product, Comment, TransAction } = require('./models/dbModels');
-
-// const { getUserFromToken } = require('./lib/Functions');
+const usersRouterPost = require('./routes/user/post');
 
 
 const PORT = process.env.PORT || 3500;
@@ -24,6 +21,7 @@ connectDB()
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/user', setUserInfo, usersRouterGet)
+app.use('/userGet', setUserInfo, usersRouterGet);
+app.use('/userPost', setUserInfo, usersRouterPost);
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
