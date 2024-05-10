@@ -26,12 +26,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    },
-    role: {
-        type: String,
-        default: process.env.NORMAL_ROLE
     }
 });
+
+const adminSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
+}, { timestamps: { createdAt: true } });
 
 const sellerSchema = new mongoose.Schema({
     name: {
@@ -127,12 +131,15 @@ const commentSchema = new mongoose.Schema({
         default: false
     },
 })
-//uncompleted
+
 const transActionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    discountId: {
+        type: String //because they could be from different discounts
     },
     totalPrice: {
         type: Number,
@@ -210,7 +217,12 @@ const majorShoppingSchema = new mongoose.Schema({
 }, { timestamps: { createdAt: true } })
 
 // give a coupon to sb to get some offPercentage with max and min price for a specific product 
+// this coupon starts with COA
 const couponForAProductSchema = new mongoose.Schema({
+    body: {
+        type: String,
+        required: true
+    },
     productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
@@ -234,7 +246,12 @@ const couponForAProductSchema = new mongoose.Schema({
 }, { timestamps: { createdAt: true } })
 
 // give a coupon to sb to get some offPercentage with max and min price for all products of the seller
+// this coupon starts with COL
 const couponForAllProductsSchema = new mongoose.Schema({
+    body: {
+        type: String,
+        required: true
+    },
     sellerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller',
@@ -257,8 +274,13 @@ const couponForAllProductsSchema = new mongoose.Schema({
     },
 }, { timestamps: { createdAt: true } })
 
-// give a complimentary coupon to sb to get some (quantity) products with max and min price of shopping for all products of the seller
+// give a complimentary coupon to sb to get some (quantity) products with min price of shopping for all products of the seller
+// this coupon starts with COM
 const complimentaryCouponSchema = new mongoose.Schema({
+    body: {
+        type: String,
+        required: true
+    },
     sellerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller',
@@ -292,6 +314,7 @@ sellerSchema.plugin(uniqueValidator, {
 })
 
 const User = mongoose.model('User', userSchema);
+const Admin = mongoose.model('Admin', adminSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
 const Product = mongoose.model('Product', productSchema);
 const Comment = mongoose.model('Comment', commentSchema);
@@ -303,4 +326,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, Seller, Product, Comment, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, Admin, Seller, Product, Comment, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
