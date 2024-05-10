@@ -3,7 +3,7 @@ const { User } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 
 
-const UserUpdate = async (_parent, args, context) => {
+const UserUpdate = async (args, context) => {
     const {
         id,
         name,
@@ -13,43 +13,66 @@ const UserUpdate = async (_parent, args, context) => {
         address,
         phone
     } = args.input;
-    const { User } = context.db;
     const { userInfo } = context;
 
     try {
 
         //check if req contains token
         if (!userInfo) {
-            throw new Error("You are not authorized!")
+            return {
+                message: "You are not authorized!",
+                token: null,
+                status: 401
+            }
         }
 
         //don't let the user if they're neither admin nor they don't own the account
         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== id) {
-            throw new Error("You are not authorized!")
+            return {
+                message: "You are not authorized!",
+                token: null,
+                status: 401
+            }
         }
 
         const user = await User.findById(id);
 
         //check if there is a new password and it's valid
-        if (password && password !== user.password && password.length < 8) {
-            throw new Error("Password Should have more than 8 characters")
+        if (password && password.length < 8) {
+            return {
+                message: "Password Should have more than 8 characters",
+                token: null,
+                status: 400
+            }
         }
 
         //check if phone is valid
         if (phone && !isPhoneValid(phone)) {
-            throw new Error("Phone is not valid")
+            return {
+                message: "Phone is not valid",
+                token: null,
+                status: 400
+            }
         }
 
         //check if email is valid
         if (email && !isEmailValid(email)) {
-            throw new Error("Email is not valid")
+            return {
+                message: "Email is not valid",
+                token: null,
+                status: 400
+            }
         }
 
         //check if email already exists
         if (email && email !== user.email) {
             const existingUser = await User.findOne({ email });
             if (existingUser) {
-                throw new Error("Email Already Exists")
+                return {
+                    message: "Email Already Exists",
+                    token: null,
+                    status: 409
+                }
             }
         }
 
@@ -77,14 +100,16 @@ const UserUpdate = async (_parent, args, context) => {
 
         return {
             message: null,
-            token
+            token,
+            status: 205
         }
 
 
     } catch (error) {
         return {
-            message: error.message,
-            User: null
+            message: error,
+            token: null,
+            status: 500
         }
     }
 

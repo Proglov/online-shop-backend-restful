@@ -9,6 +9,8 @@ const { setUserInfo } = require('./lib/middlewares');
 
 const usersRouterGet = require('./routes/user/get');
 const usersRouterPost = require('./routes/user/post');
+const usersRouterUpdate = require('./routes/user/update');
+const usersRouterDelete = require('./routes/user/delete');
 
 
 const PORT = process.env.PORT || 3500;
@@ -23,5 +25,7 @@ app.use(express.json());
 
 app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
+app.use('/userUpdate', setUserInfo, usersRouterUpdate);
+app.use('/userDelete', setUserInfo, usersRouterDelete);
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
