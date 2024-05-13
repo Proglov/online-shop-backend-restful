@@ -1,27 +1,29 @@
-const { Product } = require('../../models/dbModels');
+const express = require('express');
+
+const router = express.Router();
+
+const {
+    getAllProducts,
+    getOneProduct
+} = require('../../controller/products/get');
 
 
-const getAllProducts = async (_parent, args, context) => {
+router.get('/getAllProducts', async (req, res) => {
+    const args = req.query
 
-    const { page, perPage } = args;
-    if (!page || !perPage)
-        return await Product.find({});
-    const skip = (page - 1) * perPage;
-    return await Product.find({}).skip(skip).limit(perPage);
+    const { products, allProductsCount, status, error } = await getAllProducts({ ...args }, null)
 
-}
+    res.status(status).send({ products, allProductsCount, error });
+})
 
-const getProductsCount = async (_parent, _args, context) => {
-    return await Product.where().countDocuments().exec();
+router.get('/getOneProduct', async (req, res) => {
+    const args = req.query
 
-}
+    const { product, status, error } = await getOneProduct({ ...args }, null)
 
-const getOneProduct = async (_parent, args, context) => {
-    const { id } = args
-    return await Product.findById(id);
-}
+    res.status(status).send({ product, error });
+})
 
 
-module.exports = {
 
-}
+module.exports = router;
