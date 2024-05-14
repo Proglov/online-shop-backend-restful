@@ -23,9 +23,9 @@ router.get('/getUsers', async (req, res) => {
 
     const args = req.query
 
-    const { status, users, error } = await getUsers(args, { userInfo })
+    const { status, users, error, usersCount } = await getUsers(args, { userInfo })
 
-    res.status(status).send({ users, error });
+    res.status(status).send({ users, error, usersCount });
 })
 
 

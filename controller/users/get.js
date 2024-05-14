@@ -45,6 +45,7 @@ const getUsers = async (args, context) => {
         if (!userInfo) {
             return {
                 users: null,
+                usersCount: 0,
                 status: 400,
                 error: "You Are Not Authorized"
             }
@@ -54,6 +55,7 @@ const getUsers = async (args, context) => {
         if (!(await isAdmin(userInfo.userId))) {
             return {
                 users: null,
+                usersCount: 0,
                 status: 403,
                 error: "You Are Not Authorized"
             }

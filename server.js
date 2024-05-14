@@ -17,6 +17,11 @@ const productsRouterPost = require('./routes/product/post');
 const productsRouterUpdate = require('./routes/product/update');
 const productsRouterDelete = require('./routes/product/delete');
 
+const commentsRouterGet = require('./routes/comment/get');
+// const commentsRouterPost = require('./routes/comment/post');
+// const commentsRouterUpdate = require('./routes/comment/update');
+// const commentsRouterDelete = require('./routes/comment/delete');
+
 
 const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/db');
@@ -37,5 +42,10 @@ app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
 app.use('/productUpdate', setUserInfo, productsRouterUpdate);
 app.use('/productDelete', setUserInfo, productsRouterDelete);
+
+app.use('/commentGet', commentsRouterGet);
+// app.use('/commentPost', setUserInfo, commentsRouterPost);
+// app.use('/commentUpdate', setUserInfo, commentsRouterUpdate);
+// app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
