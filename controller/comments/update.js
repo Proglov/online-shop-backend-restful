@@ -1,122 +1,243 @@
-// const { User } = require('../../models/dbModels');
+const { Comment } = require('../../models/dbModels');
 
-// const { isAdmin } = require('../../lib/Functions');
-
-
-// const UserUpdate = async (args, context) => {
-//     const {
-//         id,
-//         name,
-//         email,
-//         username,
-//         password,
-//         address,
-//         phone
-//     } = args.input;
-//     const { userInfo } = context;
-
-//     try {
-
-//         //check if req contains token
-//         if (!userInfo) {
-//             return {
-//                 message: "You are not authorized!",
-//                 token: null,
-//                 status: 401
-//             }
-//         }
-
-//         //don't let the user if they're neither admin nor they don't own the account
-//         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== id) {
-//             return {
-//                 message: "You are not authorized!",
-//                 token: null,
-//                 status: 401
-//             }
-//         }
-
-//         const user = await User.findById(id);
-
-//         //check if there is a new password and it's valid
-//         if (password && password.length < 8) {
-//             return {
-//                 message: "Password Should have more than 8 characters",
-//                 token: null,
-//                 status: 400
-//             }
-//         }
-
-//         //check if phone is valid
-//         if (phone && !isPhoneValid(phone)) {
-//             return {
-//                 message: "Phone is not valid",
-//                 token: null,
-//                 status: 400
-//             }
-//         }
-
-//         //check if email is valid
-//         if (email && !isEmailValid(email)) {
-//             return {
-//                 message: "Email is not valid",
-//                 token: null,
-//                 status: 400
-//             }
-//         }
-
-//         //check if email already exists
-//         if (email && email !== user.email) {
-//             const existingUser = await User.findOne({ email });
-//             if (existingUser) {
-//                 return {
-//                     message: "Email Already Exists",
-//                     token: null,
-//                     status: 409
-//                 }
-//             }
-//         }
+const { isAdmin } = require('../../lib/Functions');
 
 
-//         const updatedUser = await User.findByIdAndUpdate(
-//             id,
-//             {
-//                 $set: {
-//                     name,
-//                     email,
-//                     username,
-//                     password,
-//                     address,
-//                     phone
-//                 }
-//             },
-//             { new: true }
-//         );
+const CommentUpdate = async (args, context) => {
+    const {
+        id,
+        body,
+    } = args;
 
-//         const token = await JWT.sign({
-//             userId: updatedUser.id
-//         }, process.env.JWT_SIGNATURE, {
-//             expiresIn: 86400
-//         })
+    const { userInfo } = context
 
-//         return {
-//             message: null,
-//             token,
-//             status: 205
-//         }
+    try {
+        //check for Authorization
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You Are Not Authorized",
+                status: 400
+            }
+        }
 
+        //only admin can update a comment
+        if (!(await isAdmin(userInfo.userId))) {
+            return {
+                message: "You Are Not Authorized",
+                status: 403
+            }
+        }
 
-//     } catch (error) {
-//         return {
-//             message: error,
-//             token: null,
-//             status: 500
-//         }
-//     }
+        //body is required
+        if (!body) {
+            return {
+                message: "body is required",
+                status: 400
+            }
+        }
 
+        await Comment.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    body,
+                }
+            },
+            { new: true }
+        )
 
+        return {
+            message: "Comment has been Updated Successfully",
+            status: 200
+        }
 
-// }
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
 
-// module.exports = {
-//     UserUpdate
-// }
+}
+
+const CommentToggleLike = async (args, context) => {
+    const {
+        id,
+    } = args;
+
+    const { userInfo } = context
+
+    try {
+        //check for Authorization
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You Are Not Authorized",
+                status: 400
+            }
+        }
+
+        // Find the comment by commentId
+        const comment = await Comment.findById(id);
+
+        if (!comment) {
+            return {
+                message: "Comment Not Found",
+                status: 400
+            }
+        }
+
+        // Check if userId is already in the likes array
+        const userIndex = comment.likes.indexOf(userInfo?.userId);
+
+        if (userIndex > -1) {
+            // User already liked the comment, remove from likes array
+            comment.likes.splice(userIndex, 1);
+        } else {
+            // User didn't like the comment, add to likes array
+            comment.likes.push(userInfo?.userId);
+
+            //if user used to dislike the comment, remove it
+            const userIndexDis = comment.disLikes.indexOf(userInfo?.userId);
+
+            if (userIndexDis > -1) {
+                comment.disLikes.splice(userIndexDis, 1);
+            }
+        }
+
+        // Save the updated comment with likes changes
+        await comment.save();
+
+        return {
+            message: "Comment has been toggled like Successfully",
+            status: 200
+        }
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
+const CommentToggleDisLike = async (args, context) => {
+    const {
+        id,
+    } = args;
+
+    const { userInfo } = context
+
+    try {
+        //check for Authorization
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You Are Not Authorized",
+                status: false
+            }
+        }
+
+        // Find the comment by commentId
+        const comment = await Comment.findById(id);
+
+        if (!comment) {
+            return {
+                message: 'Comment Not Found',
+                status: false
+            }
+        }
+
+        // Check if userId is already in the disLikes array
+        const userIndex = comment.disLikes.indexOf(userInfo?.userId);
+
+        if (userIndex > -1) {
+            // User already liked the comment, remove from disLikes array
+            comment.disLikes.splice(userIndex, 1);
+        } else {
+            // User didn't dislike the comment, add to disLikes array
+            comment.disLikes.push(userInfo?.userId);
+
+            //if user used to like the comment, remove it
+            const userIndexLike = comment.likes.indexOf(userInfo?.userId);
+
+            if (userIndexLike > -1) {
+                comment.likes.splice(userIndexLike, 1);
+            }
+        }
+
+        // Save the updated comment with disLikes changes
+        await comment.save();
+
+        return {
+            message: "Comment has been toggled disLike Successfully",
+            status: 200
+        }
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
+const CommentToggleValidate = async (args, context) => {
+    const {
+        id,
+    } = args;
+
+    const { userInfo } = context
+
+    try {
+        //check for Authorization
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You Are Not Authorized",
+                status: 400
+            }
+        }
+
+        //only admin can toggle validated a comment
+        if (!(await isAdmin(userInfo.userId))) {
+            return {
+                message: "You Are Not Authorized",
+                status: 403
+            }
+        }
+
+        // Find the comment by commentId
+        const comment = await Comment.findById(id);
+
+        if (!comment) {
+            return {
+                message: 'Comment Not Found',
+                status: 400
+            }
+        }
+
+        comment.validated = !comment.validated
+
+        // Save the updated comment with disLikes changes
+        await comment.save();
+
+        return {
+            message: "Comment has been toggled validated Successfully",
+            status: 200
+        }
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
+module.exports = {
+    CommentUpdate,
+    CommentToggleLike,
+    CommentToggleDisLike,
+    CommentToggleValidate
+}
