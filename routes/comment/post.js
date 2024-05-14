@@ -1,42 +1,22 @@
-// const express = require('express');
+const express = require('express');
 
-// const router = express.Router();
+const router = express.Router();
 
-// const {
-//     UserSignUp,
-//     UserSignInWithPhone,
-//     UserSignInWithEmailOrUsername
-// } = require('../../controller/users/post');
+const {
+    CommentAdd
+} = require('../../controller/comments/post');
 
 
-// router.post('/UserSignUp', async (req, res) => {
-//     const { phone } = req.body
+router.post('/CommentAdd', async (req, res) => {
+    const userInfo = req?.userInfo
+    const { input } = req.body
 
-//     const { status, message, token } = await UserSignUp({ phone }, null);
+    const { status, message } = await CommentAdd({ ...input }, { userInfo });
 
-//     res.status(status).send({ message, token });
-// })
-
-
-// router.post('/UserSignInWithPhone', async (req, res) => {
-//     const { phone } = req.body
-
-//     const { status, message, token } = await UserSignInWithPhone({ phone }, null)
-
-//     res.status(status).send({ message, token });
-// })
-
-
-// router.post('/UserSignInWithEmailOrUsername', async (req, res) => {
-//     const { emailOrUsername, password } = req.body
-
-//     const { status, message, token } = await UserSignInWithEmailOrUsername({ emailOrUsername, password }, null)
-
-//     res.status(status).send({ message, token });
-// })
+    res.status(status).send({ message });
+})
 
 
 
 
-
-// module.exports = router;
+module.exports = router;

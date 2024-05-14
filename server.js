@@ -18,7 +18,7 @@ const productsRouterUpdate = require('./routes/product/update');
 const productsRouterDelete = require('./routes/product/delete');
 
 const commentsRouterGet = require('./routes/comment/get');
-// const commentsRouterPost = require('./routes/comment/post');
+const commentsRouterPost = require('./routes/comment/post');
 // const commentsRouterUpdate = require('./routes/comment/update');
 // const commentsRouterDelete = require('./routes/comment/delete');
 
@@ -44,7 +44,7 @@ app.use('/productUpdate', setUserInfo, productsRouterUpdate);
 app.use('/productDelete', setUserInfo, productsRouterDelete);
 
 app.use('/commentGet', commentsRouterGet);
-// app.use('/commentPost', setUserInfo, commentsRouterPost);
+app.use('/commentPost', setUserInfo, commentsRouterPost);
 // app.use('/commentUpdate', setUserInfo, commentsRouterUpdate);
 // app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 
