@@ -3,15 +3,15 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    UserDelete
-} = require('../../controller/users/delete');
+    ProductDelete
+} = require('../../controller/products/delete');
 
 
-router.delete('/UserDelete', async (req, res) => {
+router.delete('/ProductDelete', async (req, res) => {
     const userInfo = req?.userInfo
     const { id } = req.body
 
-    const { status, message } = await UserDelete({ id }, { userInfo });
+    const { status, message } = await ProductDelete({ id }, { userInfo });
 
     res.status(status).send({ message });
 })

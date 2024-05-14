@@ -7,7 +7,7 @@ const {
 } = require('../../controller/users/update');
 
 
-router.get('/UserUpdate', async (req, res) => {
+router.patch('/UserUpdate', async (req, res) => {
     const userInfo = req?.userInfo
 
     const { input } = req.body
