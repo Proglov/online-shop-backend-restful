@@ -12,7 +12,7 @@ const getMe = async (_args, context) => {
             return {
                 user: null,
                 status: 400,
-                error: "You Are Not Authorized"
+                message: "You Are Not Authorized"
             }
         }
 
@@ -20,7 +20,7 @@ const getMe = async (_args, context) => {
         return {
             user,
             status: 200,
-            error: null
+            message: null
         }
 
 
@@ -28,7 +28,7 @@ const getMe = async (_args, context) => {
         return {
             user: null,
             status: 500,
-            error
+            message: error
         }
     }
 
@@ -47,7 +47,7 @@ const getUsers = async (args, context) => {
                 users: null,
                 usersCount: 0,
                 status: 400,
-                error: "You Are Not Authorized"
+                message: "You Are Not Authorized"
             }
         }
 
@@ -57,7 +57,7 @@ const getUsers = async (args, context) => {
                 users: null,
                 usersCount: 0,
                 status: 403,
-                error: "You Are Not Authorized"
+                message: "You Are Not Authorized"
             }
         }
 
@@ -71,7 +71,7 @@ const getUsers = async (args, context) => {
                 users,
                 usersCount,
                 status: 200,
-                error: null
+                message: null
             }
         }
 
@@ -84,7 +84,7 @@ const getUsers = async (args, context) => {
             users,
             usersCount,
             status: 200,
-            error: null
+            message: null
         }
 
 
@@ -93,7 +93,7 @@ const getUsers = async (args, context) => {
             users: null,
             usersCount: 0,
             status: 500,
-            error
+            message: error
         }
     }
 
@@ -109,7 +109,7 @@ const isUserAdmin = async (_args, context) => {
             return {
                 status: 400,
                 isAdmin: null,
-                error: 'you are not authorized'
+                message: 'you are not authorized'
             }
         }
 
@@ -118,7 +118,7 @@ const isUserAdmin = async (_args, context) => {
         return {
             status: 200,
             isAdmin: bool,
-            error: null
+            message: null
         }
 
 
@@ -126,7 +126,7 @@ const isUserAdmin = async (_args, context) => {
         return {
             status: 500,
             isAdmin: null,
-            error
+            message: error
         }
     }
 

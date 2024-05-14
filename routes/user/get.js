@@ -12,9 +12,9 @@ const {
 router.get('/getMe', async (req, res) => {
     const userInfo = req?.userInfo
 
-    const { status, user, error } = await getMe(null, { userInfo })
+    const { status, user, message } = await getMe(null, { userInfo })
 
-    res.status(status).send({ user, error });
+    res.status(status).send({ user, message });
 })
 
 
@@ -23,18 +23,18 @@ router.get('/getUsers', async (req, res) => {
 
     const args = req.query
 
-    const { status, users, error, usersCount } = await getUsers(args, { userInfo })
+    const { status, users, message, usersCount } = await getUsers(args, { userInfo })
 
-    res.status(status).send({ users, error, usersCount });
+    res.status(status).send({ users, message, usersCount });
 })
 
 
 router.get('/isUserAdmin', async (req, res) => {
     const userInfo = req?.userInfo
 
-    const { status, isAdmin, error } = await isUserAdmin(null, { userInfo })
+    const { status, isAdmin, message } = await isUserAdmin(null, { userInfo })
 
-    res.status(status).send({ isAdmin, error });
+    res.status(status).send({ isAdmin, message });
 })
 
 

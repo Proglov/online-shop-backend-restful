@@ -11,17 +11,17 @@ const {
 router.get('/getAllProducts', async (req, res) => {
     const args = req.query
 
-    const { products, allProductsCount, status, error } = await getAllProducts({ ...args }, null)
+    const { products, allProductsCount, status, message } = await getAllProducts({ ...args }, null)
 
-    res.status(status).send({ products, allProductsCount, error });
+    res.status(status).send({ products, allProductsCount, message });
 })
 
 router.get('/getOneProduct', async (req, res) => {
     const args = req.query
 
-    const { product, status, error } = await getOneProduct({ ...args }, null)
+    const { product, status, message } = await getOneProduct({ ...args }, null)
 
-    res.status(status).send({ product, error });
+    res.status(status).send({ product, message });
 })
 
 

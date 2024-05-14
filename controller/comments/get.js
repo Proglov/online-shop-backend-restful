@@ -13,7 +13,7 @@ const getAllComments = async (args, _context) => {
                     comments,
                     allCommentsCount: comments.length,
                     status: 200,
-                    error: null
+                    message: null
                 }
             }
 
@@ -23,7 +23,7 @@ const getAllComments = async (args, _context) => {
                 comments,
                 allCommentsCount: comments.length,
                 status: 200,
-                error: null
+                message: null
             }
 
         }
@@ -36,7 +36,7 @@ const getAllComments = async (args, _context) => {
                     comments,
                     allCommentsCount: comments.length,
                     status: 200,
-                    error: null
+                    message: null
                 }
             }
 
@@ -46,7 +46,7 @@ const getAllComments = async (args, _context) => {
                 comments,
                 allCommentsCount: comments.length,
                 status: 200,
-                error: null
+                message: null
             }
         }
 
@@ -57,7 +57,7 @@ const getAllComments = async (args, _context) => {
                 comments,
                 allCommentsCount: comments.length,
                 status: 200,
-                error: null
+                message: null
             }
         }
         const skip = (page - 1) * perPage;
@@ -66,7 +66,7 @@ const getAllComments = async (args, _context) => {
             comments,
             allCommentsCount: comments.length,
             status: 200,
-            error: null
+            message: null
         }
 
     } catch (error) {
@@ -74,7 +74,7 @@ const getAllComments = async (args, _context) => {
             comments: null,
             allCommentsCount: 0,
             status: 500,
-            error
+            message: error
         }
     }
 
@@ -87,13 +87,13 @@ const getOneComment = async (args, _context) => {
         return {
             comment,
             status: 200,
-            error: null
+            message: null
         }
     } catch (error) {
         return {
             comment: null,
             status: 500,
-            error
+            message: error
         }
     }
 }

@@ -14,7 +14,7 @@ const getAllProducts = async (args, _context) => {
                 products,
                 allProductsCount,
                 status: 200,
-                error: null
+                message: null
             }
         }
 
@@ -26,7 +26,7 @@ const getAllProducts = async (args, _context) => {
             products,
             allProductsCount,
             status: 200,
-            error: null
+            message: null
         }
 
     } catch (error) {
@@ -34,7 +34,7 @@ const getAllProducts = async (args, _context) => {
             products: null,
             allProductsCount: 0,
             status: 500,
-            error
+            message: error
         }
     }
 
@@ -47,13 +47,13 @@ const getOneProduct = async (args, _context) => {
         return {
             product,
             status: 200,
-            error: null
+            message: null
         }
     } catch (error) {
         return {
             product: null,
             status: 500,
-            error
+            message: error
         }
     }
 
