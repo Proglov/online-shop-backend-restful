@@ -1,48 +1,67 @@
-// const { User } = require('../../models/dbModels');
+const { Product, Comment } = require('../../models/dbModels');
 
-// const { isAdmin } = require('../../lib/Functions');
-
-// const UserDelete = async (args, context) => {
-//     const { id } = args;
-//     const { userInfo } = context;
-
-//     try {
-//         //check if req contains token
-//         if (!userInfo) {
-//             return {
-//                 message: "You are not authorized!",
-//                 status: 401
-//             }
-//         }
-
-//         //don't let the user if they're neither admin nor they don't own the account
-//         if (!(await isAdmin(userInfo?.userId))) {
-//             return {
-//                 message: "You are not authorized!",
-//                 status: 401
-//             }
-//         }
-
-//         const user = await User.findByIdAndDelete(id)
-
-//         return {
-//             message: `User ${user.id} has been deleted`,
-//             status: 202
-//         }
+const { isAdmin } = require('../../lib/Functions');
 
 
-//     } catch (error) {
-//         return {
-//             message: error,
-//             status: 500
-//         }
-//     }
+const CommentDelete = async (args, context) => {
+    const {
+        id
+    } = args;
 
+    const { userInfo } = context
 
+    try {
+        //check for Authorization
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You Are Not Authorized",
+                status: 400
+            }
+        }
 
-// }
+        //only admin can Delete a comment
+        if (!(await isAdmin(userInfo.userId))) {
+            return {
+                message: "You Are Not Authorized",
+                status: 403
+            }
+        }
 
+        const deletedComment = await Comment.findByIdAndDelete(id);
 
-// module.exports = {
-//     UserDelete
-// }
+        if (deletedComment) {
+            // Also delete the children comments
+            if (deletedComment.validated) {
+                await Comment.deleteMany({ parentCommentId: id });
+            }
+
+            //also delete from product comments
+            await Product.findOneAndUpdate(
+                { commentsIds: { $in: [id] } },
+                { $pull: { commentsIds: { $in: [id] } } },
+                { new: true }
+            );
+
+            return {
+                message: "Comment has been Deleted Successfully",
+                status: 200
+            }
+        }
+
+        return {
+            message: "Comment not found",
+            status: 400
+        }
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
+module.exports = {
+    CommentDelete
+}

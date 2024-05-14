@@ -20,7 +20,7 @@ const productsRouterDelete = require('./routes/product/delete');
 const commentsRouterGet = require('./routes/comment/get');
 const commentsRouterPost = require('./routes/comment/post');
 // const commentsRouterUpdate = require('./routes/comment/update');
-// const commentsRouterDelete = require('./routes/comment/delete');
+const commentsRouterDelete = require('./routes/comment/delete');
 
 
 const PORT = process.env.PORT || 3500;
@@ -46,6 +46,6 @@ app.use('/productDelete', setUserInfo, productsRouterDelete);
 app.use('/commentGet', commentsRouterGet);
 app.use('/commentPost', setUserInfo, commentsRouterPost);
 // app.use('/commentUpdate', setUserInfo, commentsRouterUpdate);
-// app.use('/commentDelete', setUserInfo, commentsRouterDelete);
+app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
