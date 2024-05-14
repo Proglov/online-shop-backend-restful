@@ -22,6 +22,11 @@ const commentsRouterPost = require('./routes/comment/post');
 const commentsRouterUpdate = require('./routes/comment/update');
 const commentsRouterDelete = require('./routes/comment/delete');
 
+const transactionsRouterGet = require('./routes/transaction/get');
+// const transactionsRouterPost = require('./routes/transaction/post');
+// const transactionsRouterUpdate = require('./routes/transaction/update');
+// const transactionsRouterDelete = require('./routes/transaction/delete');
+
 
 const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/db');
@@ -47,5 +52,8 @@ app.use('/commentGet', commentsRouterGet);
 app.use('/commentPost', setUserInfo, commentsRouterPost);
 app.use('/commentUpdate', setUserInfo, commentsRouterUpdate);
 app.use('/commentDelete', setUserInfo, commentsRouterDelete);
+
+app.use('/transactionGet', setUserInfo, transactionsRouterGet);
+// app.use('/transactionPost', setUserInfo, transactionsRouterPost);
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
