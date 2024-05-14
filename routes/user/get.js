@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
     getMe,
+    getUser,
     getUsers,
     isUserAdmin
 } = require('../../controller/users/get');
@@ -13,6 +14,17 @@ router.get('/getMe', async (req, res) => {
     const userInfo = req?.userInfo
 
     const { status, user, message } = await getMe(null, { userInfo })
+
+    res.status(status).send({ user, message });
+})
+
+
+router.get('/getUser', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { status, user, message } = await getUser(args, { userInfo })
 
     res.status(status).send({ user, message });
 })

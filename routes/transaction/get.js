@@ -19,5 +19,16 @@ router.get('/getAllTransActions', async (req, res) => {
 })
 
 
+router.get('/getOneTransAction', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { status, transaction, message } = await getOneTransAction(args, { userInfo })
+
+    res.status(status).send({ transaction, message });
+})
+
+
 
 module.exports = router;

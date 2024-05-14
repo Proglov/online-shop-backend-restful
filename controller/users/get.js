@@ -34,6 +34,50 @@ const getMe = async (_args, context) => {
 
 }
 
+const getUser = async (args, context) => {
+
+    const { userInfo } = context;
+    let { id } = args;
+
+
+    try {
+        //check if req contains token
+        if (!userInfo) {
+            return {
+                user: null,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        //only admin can get the users
+        if (!(await isAdmin(userInfo.userId))) {
+            return {
+                user: null,
+                status: 403,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        const user = await User.findById(id)
+
+        return {
+            user,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        return {
+            user: null,
+            status: 500,
+            message: error
+        }
+    }
+
+}
+
 const getUsers = async (args, context) => {
 
     const { userInfo } = context;
@@ -135,6 +179,7 @@ const isUserAdmin = async (_args, context) => {
 
 module.exports = {
     getMe,
+    getUser,
     getUsers,
     isUserAdmin
 }
