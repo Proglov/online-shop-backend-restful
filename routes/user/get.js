@@ -5,8 +5,7 @@ const router = express.Router();
 const {
     getMe,
     getUsers,
-    isUserAdmin,
-    getUsersCount
+    isUserAdmin
 } = require('../../controller/users/get');
 
 
@@ -38,14 +37,6 @@ router.get('/isUserAdmin', async (req, res) => {
     res.status(status).send({ isAdmin, error });
 })
 
-
-router.get('/getUsersCount', async (req, res) => {
-    const userInfo = req?.userInfo
-
-    const { status, usersCount, error } = await getUsersCount(null, { userInfo })
-
-    res.status(status).send({ usersCount, error });
-})
 
 
 

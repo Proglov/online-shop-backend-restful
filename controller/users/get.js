@@ -59,11 +59,15 @@ const getUsers = async (args, context) => {
             }
         }
 
+
+        const usersCount = await User.where().countDocuments().exec();
+
         if (!page || !perPage) {
             const users = await User.find().select('-password');
 
             return {
                 users,
+                usersCount,
                 status: 200,
                 error: null
             }
@@ -76,6 +80,7 @@ const getUsers = async (args, context) => {
 
         return {
             users,
+            usersCount,
             status: 200,
             error: null
         }
@@ -84,6 +89,7 @@ const getUsers = async (args, context) => {
     } catch (error) {
         return {
             users: null,
+            usersCount: 0,
             status: 500,
             error
         }
@@ -124,50 +130,9 @@ const isUserAdmin = async (_args, context) => {
 
 }
 
-const getUsersCount = async (_args, context) => {
-    const { userInfo } = context;
-
-    try {
-        //check if req contains token
-        if (!userInfo) {
-            return {
-                status: 400,
-                usersCount: 0,
-                error: 'you are not authorized'
-            }
-        }
-
-        //only admin can get the users
-        if (!(await isAdmin(userInfo.userId))) {
-            return {
-                status: 403,
-                usersCount: 0,
-                error: 'you are not authorized'
-            }
-        }
-        const usersCount = await User.where().countDocuments().exec();
-
-        return {
-            status: 200,
-            usersCount,
-            error: null
-        }
-
-
-    } catch (error) {
-        return {
-            status: 500,
-            usersCount: 0,
-            error
-        }
-    }
-
-}
-
 
 module.exports = {
     getMe,
     getUsers,
-    isUserAdmin,
-    getUsersCount
+    isUserAdmin
 }
