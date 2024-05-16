@@ -40,10 +40,15 @@ const adminSchema = new mongoose.Schema({
 const sellerSchema = new mongoose.Schema({
     name: {
         type: String,
-        default: ""
+        required: true
+    },
+    storeName: {
+        type: String,
+        required: true
     },
     email: {
         type: String,
+        default: "",
         unique: true,
         uniqueCaseInsensitive: true
     },
@@ -53,7 +58,7 @@ const sellerSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        default: ""
+        required: true
     },
     address: [{
         type: String
@@ -65,7 +70,11 @@ const sellerSchema = new mongoose.Schema({
     },
     bio: {
         type: String,
-        default: ""
+        required: true
+    },
+    validated: {
+        type: Boolean,
+        default: false
     },
 });
 

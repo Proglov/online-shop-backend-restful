@@ -1,17 +1,19 @@
 const { User } = require('../../models/dbModels');
 
-const { isAdmin } = require('../../lib/Functions');
+const { isAdmin, isWorkingPhoneValid } = require('../../lib/Functions');
 
 
-const UserUpdate = async (args, context) => {
+const SellerUpdate = async (args, context) => {
     const {
         id,
         name,
+        storeName,
         email,
         username,
         password,
+        phone,
         address,
-        phone
+        bio
     } = args;
     const { userInfo } = context;
 
@@ -26,7 +28,7 @@ const UserUpdate = async (args, context) => {
             }
         }
 
-        //don't let the user if they're neither admin nor they don't own the account
+        //don't let the seller if they're neither admin nor they don't own the account
         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== id) {
             return {
                 message: "You are not authorized!",
@@ -35,7 +37,7 @@ const UserUpdate = async (args, context) => {
             }
         }
 
-        const user = await User.findById(id);
+        const seller = await Seller.findById(id);
 
         //check if there is a new password and it's valid
         if (password && password.length < 8) {
@@ -47,7 +49,7 @@ const UserUpdate = async (args, context) => {
         }
 
         //check if phone is valid
-        if (phone && !isPhoneValid(phone)) {
+        if (phone && !isWorkingPhoneValid(phone)) {
             return {
                 message: "Phone is not valid",
                 token: null,
@@ -65,11 +67,32 @@ const UserUpdate = async (args, context) => {
         }
 
         //check if email already exists
-        if (email && email !== user.email) {
-            const existingUser = await User.findOne({ email });
-            if (existingUser) {
+        if (email && email !== seller.email) {
+            const existingSeller = await Seller.findOne({ email });
+            if (existingSeller) {
                 return {
                     message: "Email Already Exists",
+                    token: null,
+                    status: 409
+                }
+            }
+
+            // ***********  check the email with sending a code    ************** \\
+        }
+
+        //check if username already exists
+        if (username) {
+            if (username?.length < 8) {
+                return {
+                    message: "username is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+            const existingSeller = await Seller.findOne({ username });
+            if (existingSeller) {
+                return {
+                    message: "username Already Exists",
                     token: null,
                     status: 409
                 }
@@ -77,22 +100,24 @@ const UserUpdate = async (args, context) => {
         }
 
 
-        const updatedUser = await User.findByIdAndUpdate(
+        const updatedSeller = await Seller.findByIdAndUpdate(
             id,
             {
                 $set: {
                     name,
+                    storeName,
                     email,
                     username,
                     password,
+                    phone,
                     address,
-                    phone
+                    bio
                 }
             }
         );
 
         const token = await JWT.sign({
-            userId: updatedUser.id
+            userId: updatedSeller.id
         }, process.env.JWT_SIGNATURE, {
             expiresIn: 86400
         })
@@ -117,5 +142,5 @@ const UserUpdate = async (args, context) => {
 }
 
 module.exports = {
-    UserUpdate
+    SellerUpdate
 }

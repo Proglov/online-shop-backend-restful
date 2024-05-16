@@ -1,8 +1,8 @@
-const { User } = require('../../models/dbModels');
+const { Seller } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
-const UserDelete = async (args, context) => {
+const SellerDelete = async (args, context) => {
     const { id } = args;
     const { userInfo } = context;
 
@@ -23,10 +23,10 @@ const UserDelete = async (args, context) => {
             }
         }
 
-        const user = await User.findByIdAndDelete(id)
+        const seller = await Seller.findByIdAndDelete(id)
 
         return {
-            message: `User ${user.id} has been deleted`,
+            message: `Seller ${seller.id} has been deleted`,
             status: 202
         }
 
@@ -44,5 +44,5 @@ const UserDelete = async (args, context) => {
 
 
 module.exports = {
-    UserDelete
+    SellerDelete
 }

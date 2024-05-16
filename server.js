@@ -12,6 +12,11 @@ const usersRouterPost = require('./routes/user/post');
 const usersRouterUpdate = require('./routes/user/update');
 const usersRouterDelete = require('./routes/user/delete');
 
+const sellersRouterGet = require('./routes/seller/get');
+const sellersRouterPost = require('./routes/seller/post');
+const sellersRouterUpdate = require('./routes/seller/update');
+const sellersRouterDelete = require('./routes/seller/delete');
+
 const productsRouterGet = require('./routes/product/get');
 const productsRouterPost = require('./routes/product/post');
 const productsRouterUpdate = require('./routes/product/update');
@@ -40,6 +45,11 @@ app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
 app.use('/userUpdate', setUserInfo, usersRouterUpdate);
 app.use('/userDelete', setUserInfo, usersRouterDelete);
+
+app.use('/sellerGet', setUserInfo, sellersRouterGet);
+app.use('/sellerPost', setUserInfo, sellersRouterPost);
+app.use('/sellerUpdate', setUserInfo, sellersRouterUpdate);
+app.use('/sellerDelete', setUserInfo, sellersRouterDelete);
 
 app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
