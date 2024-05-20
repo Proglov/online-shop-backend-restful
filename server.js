@@ -1,7 +1,8 @@
 require('dotenv').config();
 require('colors');
 const express = require('express');
-// const corsOptions = require('../config/corsOptions');
+const cors = require('cors');
+const corsOptions = require('./config/corsOptions');
 
 const app = express()
 
@@ -31,6 +32,9 @@ const transactionsRouterGet = require('./routes/transaction/get');
 const transactionsRouterPost = require('./routes/transaction/post');
 
 
+const imagesRouterPost = require('./routes/image/post');
+
+
 const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/db');
 
@@ -38,6 +42,7 @@ const connectDB = require('./config/db');
 //connect to the database
 connectDB()
 
+app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -63,5 +68,8 @@ app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 
 app.use('/transactionGet', setUserInfo, transactionsRouterGet);
 app.use('/transactionPost', setUserInfo, transactionsRouterPost);
+
+app.use('/imagePost', setUserInfo, imagesRouterPost);
+
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))

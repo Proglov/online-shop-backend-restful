@@ -40,7 +40,7 @@ const UserSignUp = async (args, _context) => {
             return {
                 message: 'this phone number already exists!',
                 token: null,
-                status: 500
+                status: 401
             }
         return {
             message: error,
