@@ -161,7 +161,8 @@ const isUserSeller = async (_args, context) => {
 
         return {
             status: 200,
-            isSeller: !!seller, message: null
+            isSeller: !!seller,
+            message: null
         }
 
 

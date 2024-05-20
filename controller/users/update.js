@@ -1,6 +1,7 @@
 const { User } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
+const { hash } = require('bcryptjs');
 
 
 const UserUpdate = async (args, context) => {
@@ -76,18 +77,26 @@ const UserUpdate = async (args, context) => {
             }
         }
 
+        var hashedPassword;
+        if (password) {
+            hashedPassword = await hash(password, 10);
+        }
+
+        const userObject = {};
+
+        if (name) userObject.name = name;
+        if (storeName) userObject.storeName = storeName;
+        if (email) userObject.email = email;
+        if (username) userObject.username = username;
+        if (password) userObject.password = hashedPassword;
+        if (phone) userObject.phone = phone;
+        if (address) userObject.address = address;
+        if (bio) userObject.bio = bio;
 
         const updatedUser = await User.findByIdAndUpdate(
             id,
             {
-                $set: {
-                    name,
-                    email,
-                    username,
-                    password,
-                    address,
-                    phone
-                }
+                $set: { ...userObject }
             }
         );
 

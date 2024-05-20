@@ -75,12 +75,17 @@ const SellerSignUp = async (args, _context) => {
             }
         }
 
+        var hashedPassword;
+        if (password) {
+            hashedPassword = await hash(password, 10);
+        }
+
         const newSeller = new Seller({
             name,
             storeName,
             email,
             username,
-            password,
+            password: hashedPassword,
             phone,
             address: [address],
             bio
