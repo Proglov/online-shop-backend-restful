@@ -6,6 +6,7 @@ const {
     getMeSeller,
     getSeller,
     getSellers,
+    isUserSeller
 } = require('../../controller/sellers/get');
 
 
@@ -39,6 +40,14 @@ router.get('/getSellers', async (req, res) => {
     res.status(status).send({ users, message, usersCount });
 })
 
+
+router.get('/isUserSeller', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const { status, isSeller, message } = await isUserSeller(null, { userInfo })
+
+    res.status(status).send({ isSeller, message });
+})
 
 
 module.exports = router;

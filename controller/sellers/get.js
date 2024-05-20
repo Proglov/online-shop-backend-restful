@@ -106,10 +106,10 @@ const getSellers = async (args, context) => {
         }
 
 
-        const sellersCount = await User.where().countDocuments().exec();
+        const sellersCount = await Seller.where().countDocuments().exec();
 
         if (!page || !perPage) {
-            const sellers = await User.find().select('-password');
+            const sellers = await Seller.find().select('-password');
 
             return {
                 sellers,
@@ -122,7 +122,7 @@ const getSellers = async (args, context) => {
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const sellers = await User.find().select('-password').skip(skip).limit(perPage);
+        const sellers = await Seller.find().select('-password').skip(skip).limit(perPage);
 
         return {
             sellers,
@@ -143,8 +143,41 @@ const getSellers = async (args, context) => {
 
 }
 
+const isUserSeller = async (_args, context) => {
+
+    const { userInfo } = context;
+
+    try {
+        //check if req contains token
+        if (!userInfo) {
+            return {
+                status: 400,
+                isSeller: null,
+                message: 'you are not authorized'
+            }
+        }
+
+        const seller = await Seller.findById(userInfo?.userId)
+
+        return {
+            status: 200,
+            isSeller: !!seller, message: null
+        }
+
+
+    } catch (error) {
+        return {
+            status: 500,
+            isSeller: null,
+            message: error
+        }
+    }
+
+}
+
 module.exports = {
     getMeSeller,
     getSeller,
     getSellers,
+    isUserSeller
 }
