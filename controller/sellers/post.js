@@ -1,5 +1,5 @@
 const { Seller } = require('../../models/dbModels');
-const bcrypt = require('bcryptjs');
+const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 
