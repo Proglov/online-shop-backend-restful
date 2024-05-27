@@ -1,4 +1,4 @@
-const { Product } = require('../../models/dbModels');
+const { Product, Seller } = require('../../models/dbModels');
 
 
 const { isAdmin } = require('../../lib/Functions');
@@ -24,7 +24,9 @@ const ProductCreate = async (args, context) => {
             }
         }
 
-        if (!(await isAdmin(userInfo?.userId))) {
+        const seller = await Seller.findById(userInfo?.userId)
+
+        if (!(await isAdmin(userInfo?.userId)) && !seller) {
             return {
                 message: "You are not authorized!",
                 status: 403

@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
     getAllTransActions,
+    getAllMyTransActions,
     getOneTransAction
 } = require('../../controller/transactions/get');
 
@@ -18,6 +19,15 @@ router.get('/getAllTransActions', async (req, res) => {
     res.status(status).send({ transactions, message, transactionsCount });
 })
 
+router.get('/getAllMyTransActions', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { status, transactions, message, transactionsCount } = await getAllMyTransActions(args, { userInfo })
+
+    res.status(status).send({ transactions, message, transactionsCount });
+})
 
 router.get('/getOneTransAction', async (req, res) => {
     const userInfo = req?.userInfo

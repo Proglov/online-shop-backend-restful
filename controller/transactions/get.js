@@ -106,6 +106,100 @@ const getAllTransActions = async (args, context) => {
     }
 }
 
+const getAllMyTransActions = async (args, context) => {
+    const { page, perPage, isFutureOrder } = args;
+    const { userInfo } = context;
+
+    try {
+        //check if req contains token
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+
+        //if isFutureOrder is not specified
+        if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
+            const count = await TransAction.where({ sellerId: userInfo?.userId }).countDocuments().exec();
+            if (!page || !perPage) {
+                const tx = await TransAction.find({ sellerId: userInfo?.userId });
+                return {
+                    transactions: tx,
+                    transactionsCount: count,
+                    status: 200,
+                    message: null
+                }
+            }
+
+            const skip = (page - 1) * perPage;
+            const tx = await TransAction.find({ sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+            return {
+                transactions: tx,
+                transactionsCount: count,
+                status: 200,
+                message: null
+            }
+        }
+
+        const currentDate = (new Date()).getTime();
+
+        //future Orders
+        if (!!isFutureOrder && isFutureOrder == 'true') {
+            const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId }).countDocuments().exec();
+            if (!page || !perPage) {
+                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId });
+                return {
+                    transactions: tx,
+                    transactionsCount: count,
+                    status: 200,
+                    message: null
+                }
+            }
+            const skip = (page - 1) * perPage;
+            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+            return {
+                transactions: tx,
+                transactionsCount: count,
+                status: 200,
+                message: null
+            }
+        }
+
+        //past Orders
+        const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId }).countDocuments().exec();
+        if (!page || !perPage) {
+            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId });
+            return {
+                transactions: tx,
+                transactionsCount: count,
+                status: 200,
+                message: null
+            }
+        }
+        const skip = (page - 1) * perPage;
+        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+        return {
+            transactions: tx,
+            transactionsCount: count,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        return {
+            transactions: null,
+            transactionsCount: 0,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 const getOneTransAction = async (args, context) => {
     const { id } = args
     const { userInfo } = context;
@@ -149,5 +243,6 @@ const getOneTransAction = async (args, context) => {
 
 module.exports = {
     getAllTransActions,
+    getAllMyTransActions,
     getOneTransAction
 }

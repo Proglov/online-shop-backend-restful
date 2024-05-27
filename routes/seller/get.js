@@ -13,9 +13,9 @@ const {
 router.get('/getMeSeller', async (req, res) => {
     const userInfo = req?.userInfo
 
-    const { status, user, message } = await getMeSeller(null, { userInfo })
+    const { status, seller, message } = await getMeSeller(null, { userInfo })
 
-    res.status(status).send({ user, message });
+    res.status(status).send({ seller, message });
 })
 
 
