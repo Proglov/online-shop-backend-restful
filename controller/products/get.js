@@ -7,13 +7,16 @@ const getProductsWithTrueImagesUrl = async (input) => {
 
         for (const product of input) {
             if (product.imagesUrl.length !== 0) {
-                const args = { filenames: product.imagesUrl };
+                const filenames = product.imagesUrl
+                const args = { filenames };
                 const { urls } = await getImages(args, null);
 
                 const updatedProduct = {
                     ...product?._doc,
-                    imagesUrl: urls
+                    imagesUrl: urls,
+                    imagesName: filenames
                 };
+                console.log(updatedProduct);
 
                 newProds.push(updatedProduct);
             } else {
@@ -25,12 +28,14 @@ const getProductsWithTrueImagesUrl = async (input) => {
         return newProds;
     } else if (typeof input === 'object') {
         if (input.imagesUrl.length !== 0) {
-            const args = { filenames: input.imagesUrl };
+            const filenames = input.imagesUrl
+            const args = { filenames };
             const { urls } = await getImages(args, null);
 
             return {
                 ...input?._doc,
-                imagesUrl: urls
+                imagesUrl: urls,
+                imagesName: filenames
             };
         }
         return input
