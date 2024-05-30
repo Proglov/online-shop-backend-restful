@@ -1,4 +1,43 @@
 const { Product } = require('../../models/dbModels');
+const { getImages } = require('../image/get');
+
+const getProductsWithTrueImagesUrl = async (input) => {
+    if (Array.isArray(input)) {
+        const newProds = [];
+
+        for (const product of input) {
+            if (product.imagesUrl.length !== 0) {
+                const args = { filenames: product.imagesUrl };
+                const { urls } = await getImages(args, null);
+
+                const updatedProduct = {
+                    ...product?._doc,
+                    imagesUrl: urls
+                };
+
+                newProds.push(updatedProduct);
+            } else {
+                newProds.push(product);
+            }
+
+        }
+
+        return newProds;
+    } else if (typeof input === 'object') {
+        if (input.imagesUrl.length !== 0) {
+            const args = { filenames: input.imagesUrl };
+            const { urls } = await getImages(args, null);
+
+            return {
+                ...input?._doc,
+                imagesUrl: urls
+            };
+        }
+        return input
+    }
+
+    return null; // Invalid input
+};
 
 
 const getAllProducts = async (args, _context) => {
@@ -10,8 +49,11 @@ const getAllProducts = async (args, _context) => {
 
         if (!page || !perPage) {
             const products = await Product.find({});
+
+            const newProds = await getProductsWithTrueImagesUrl(products);
+
             return {
-                products,
+                products: newProds,
                 allProductsCount,
                 status: 200,
                 message: null
@@ -22,8 +64,9 @@ const getAllProducts = async (args, _context) => {
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
         const products = await Product.find({}).skip(skip).limit(perPage);
+        const newProds = await getProductsWithTrueImagesUrl(products);
         return {
-            products,
+            products: newProds,
             allProductsCount,
             status: 200,
             message: null
@@ -60,8 +103,9 @@ const getAllMyProducts = async (args, context) => {
             const products = await Product.find({
                 sellerId: userInfo?.userId
             });
+            const newProds = await getProductsWithTrueImagesUrl(products);
             return {
-                products,
+                products: newProds,
                 allProductsCount,
                 status: 200,
                 message: null
@@ -74,8 +118,10 @@ const getAllMyProducts = async (args, context) => {
         const products = await Product.find({
             sellerId: userInfo?.userId
         }).skip(skip).limit(perPage);
+        const newProds = await getProductsWithTrueImagesUrl(products);
+        // console.log(newProds);
         return {
-            products,
+            products: newProds,
             allProductsCount,
             status: 200,
             message: null
@@ -96,8 +142,9 @@ const getOneProduct = async (args, _context) => {
     const { id } = args
     try {
         const product = await Product.findById(id);
+        const newProd = await getProductsWithTrueImagesUrl(product);
         return {
-            product,
+            product: newProd,
             status: 200,
             message: null
         }

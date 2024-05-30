@@ -1,38 +1,34 @@
 const express = require('express');
 const multer = require('multer');
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-require("dotenv").config();
+
+const {
+    uploadImages
+} = require('../../controller/image/post');
+
 const router = express.Router();
 
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage })
 
-const s3 = new S3Client({
-    region: "default",
-    endpoint: process.env.LIARA_ENDPOINT,
-    credentials: {
-        accessKeyId: process.env.LIARA_ACCESS_KEY,
-        secretAccessKey: process.env.LIARA_SECRET_KEY
-    },
-});
 
 
 router.post('/uploadImages', upload.single('images'), async (req, res) => {
 
     try {
-        const date = new Date();
-        const now = date.getTime();
-        const params = {
-            Body: req.file.buffer,
-            Bucket: process.env.LIARA_BUCKET_NAME,
-            Key: now + "_" + req.file.originalname,
-            ContentType: req.file.mimetype
-        };
-        await s3.send(new PutObjectCommand(params));
+
+        const args = {
+            buffer: req.file?.buffer,
+            mimetype: req.file?.mimetype
+        }
+
+        const { status, message, name } = await uploadImages({ ...args }, null);
+
+        res.status(status).send({ message, name });
     } catch (error) {
-        console.log(error);
+        res.status(500).send({ message: error, name: null });
     }
+
 })
 
 
