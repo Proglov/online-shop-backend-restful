@@ -176,6 +176,13 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
     const { emailOrUsername, password } = args;
 
     try {
+        if (!emailOrUsername || !password) {
+            return {
+                message: "Invalid Credentials",
+                token: null,
+                status: 401
+            }
+        }
         const sellerWithEmail = await Seller.findOne({
             email: emailOrUsername
         })
@@ -184,7 +191,11 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
 
             const isMatch = await bcrypt.compare(password, sellerWithEmail.password)
 
-            if (!isMatch) throw new Error("Invalid Credentials")
+            if (!isMatch) return {
+                message: "Invalid Credentials",
+                token: null,
+                status: 401
+            }
 
             const token = await JWT.sign({
                 sellerId: sellerWithEmail.id
@@ -207,7 +218,11 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
 
             const isMatch = await bcrypt.compare(password, sellerWithUsername.password)
 
-            if (!isMatch) throw new Error("Invalid Credentials")
+            if (!isMatch) return {
+                message: "Invalid Credentials",
+                token: null,
+                status: 401
+            }
 
             const token = await JWT.sign({
                 userId: sellerWithUsername.id
