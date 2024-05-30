@@ -12,12 +12,10 @@ const userSchema = new mongoose.Schema({
         uniqueCaseInsensitive: true
     },
     username: {
-        type: String,
-        default: ""
+        type: String
     },
     password: {
-        type: String,
-        default: ""
+        type: String
     },
     address: [{
         type: String
@@ -48,13 +46,13 @@ const sellerSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        default: "",
+        required: true,
         unique: true,
         uniqueCaseInsensitive: true
     },
     username: {
         type: String,
-        default: ""
+        required: true,
     },
     password: {
         type: String,
