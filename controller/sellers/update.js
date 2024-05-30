@@ -1,6 +1,6 @@
 const { User } = require('../../models/dbModels');
 
-const { isAdmin, isWorkingPhoneValid } = require('../../lib/Functions');
+const { isAdmin, isWorkingPhoneValid, isPhoneValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
 
 
@@ -13,6 +13,7 @@ const SellerUpdate = async (args, context) => {
         username,
         password,
         phone,
+        workingPhone,
         address,
         bio
     } = args;
@@ -49,8 +50,17 @@ const SellerUpdate = async (args, context) => {
             }
         }
 
+        //check if working phone is valid
+        if (workingPhone && !isWorkingPhoneValid(workingPhone)) {
+            return {
+                message: "working phone is not valid",
+                token: null,
+                status: 400
+            }
+        }
+
         //check if phone is valid
-        if (phone && !isWorkingPhoneValid(phone)) {
+        if (phone && !isPhoneValid(phone)) {
             return {
                 message: "Phone is not valid",
                 token: null,

@@ -63,6 +63,11 @@ const sellerSchema = new mongoose.Schema({
     address: [{
         type: String
     }],
+    workingPhone: {
+        type: String,
+        required: true,
+        unique: true
+    },
     phone: {
         type: String,
         required: true,

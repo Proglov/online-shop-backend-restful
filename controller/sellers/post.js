@@ -3,7 +3,7 @@ const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 
-const { isWorkingPhoneValid, isEmailValid } = require('../../lib/Functions');
+const { isWorkingPhoneValid, isEmailValid, isPhoneValid } = require('../../lib/Functions');
 
 const SellerSignUp = async (args, _context) => {
     const {
@@ -13,12 +13,20 @@ const SellerSignUp = async (args, _context) => {
         username,
         password,
         phone,
+        workingPhone,
         address,
         bio
     } = args;
 
     try {
-        if (!isWorkingPhoneValid(phone)) {
+        if (!isWorkingPhoneValid(workingPhone)) {
+            return {
+                message: "working phone number is invalid!",
+                token: null,
+                status: 400
+            }
+        }
+        if (!isPhoneValid(phone)) {
             return {
                 message: "phone number is invalid!",
                 token: null,

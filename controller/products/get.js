@@ -16,7 +16,6 @@ const getProductsWithTrueImagesUrl = async (input) => {
                     imagesUrl: urls,
                     imagesName: filenames
                 };
-                console.log(updatedProduct);
 
                 newProds.push(updatedProduct);
             } else {
