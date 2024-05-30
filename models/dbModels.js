@@ -8,8 +8,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,
-        uniqueCaseInsensitive: true
     },
     username: {
         type: String
@@ -316,10 +314,6 @@ const complimentaryCouponSchema = new mongoose.Schema({
         default: 1
     },
 }, { timestamps: { createdAt: true } })
-
-userSchema.plugin(uniqueValidator, {
-    message: '{PATH} already exists'
-})
 
 sellerSchema.plugin(uniqueValidator, {
     message: '{PATH} already exists'
