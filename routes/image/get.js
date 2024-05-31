@@ -1,9 +1,13 @@
+const express = require('express');
+
 const {
     getImage
 } = require('../../controller/image/get');
 
 
-router.get('/getImages', async (req, res) => {
+const router = express.Router();
+
+router.get('/getImage', async (req, res) => {
 
     try {
         const { filename } = req.body
