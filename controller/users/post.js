@@ -9,30 +9,42 @@ const UserSignUp = async (args, _context) => {
     const { phone } = args;
 
     try {
-        if (isPhoneValid(phone)) {
-            const newUser = new User({
-                phone
-            })
-
-            await newUser.save();
-
-            const token = await JWT.sign({
-                userId: newUser.id
-            }, process.env.JWT_SIGNATURE, {
-                expiresIn: 86400
-            })
-
+        if (!isPhoneValid(phone)) {
             return {
-                message: null,
-                token,
-                status: 201
+                message: "phone number is invalid!",
+                token: null,
+                status: 400
             }
         }
-        return {
-            message: "phone number is invalid!",
-            token: null,
-            status: 400
+
+        const existingUser = await User.findOne({ phone });
+
+        if (existingUser) {
+            return {
+                message: "Phone Already Exists",
+                token: null,
+                status: 409
+            }
         }
+
+        const newUser = new User({
+            phone
+        })
+
+        await newUser.save();
+
+        const token = await JWT.sign({
+            userId: newUser.id
+        }, process.env.JWT_SIGNATURE, {
+            expiresIn: 86400
+        })
+
+        return {
+            message: null,
+            token,
+            status: 201
+        }
+
 
 
     } catch (error) {

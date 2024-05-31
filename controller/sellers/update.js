@@ -50,21 +50,43 @@ const SellerUpdate = async (args, context) => {
             }
         }
 
-        //check if working phone is valid
-        if (workingPhone && !isWorkingPhoneValid(workingPhone)) {
-            return {
-                message: "working phone is not valid",
-                token: null,
-                status: 400
+        //check the working phone
+        if (workingPhone) {
+            if (!!isWorkingPhoneValid(workingPhone)) {
+                return {
+                    message: "working phone is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+            const existingSellerByWorkingPhone = await Seller.findOne({ workingPhone });
+
+            if (existingSellerByWorkingPhone) {
+                return {
+                    message: "working phone Already Exists",
+                    token: null,
+                    status: 409
+                }
             }
         }
 
-        //check if phone is valid
-        if (phone && !isPhoneValid(phone)) {
-            return {
-                message: "Phone is not valid",
-                token: null,
-                status: 400
+        //check the phone
+        if (phone) {
+            if (!isPhoneValid(phone)) {
+                return {
+                    message: "Phone is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+            const existingSellerByPhone = await Seller.findOne({ phone });
+
+            if (existingSellerByPhone) {
+                return {
+                    message: "Phone Already Exists",
+                    token: null,
+                    status: 409
+                }
             }
         }
 
@@ -75,20 +97,6 @@ const SellerUpdate = async (args, context) => {
                 token: null,
                 status: 400
             }
-        }
-
-        //check if email already exists
-        if (email && email !== seller.email) {
-            const existingSeller = await Seller.findOne({ email });
-            if (existingSeller) {
-                return {
-                    message: "Email Already Exists",
-                    token: null,
-                    status: 409
-                }
-            }
-
-            // ***********  check the email with sending a code    ************** \\
         }
 
         //check if username already exists
@@ -108,6 +116,20 @@ const SellerUpdate = async (args, context) => {
                     status: 409
                 }
             }
+        }
+
+        //check if email already exists
+        if (email && email !== seller.email) {
+            const existingSeller = await Seller.findOne({ email });
+            if (existingSeller) {
+                return {
+                    message: "Email Already Exists",
+                    token: null,
+                    status: 409
+                }
+            }
+
+            // ***********  check the email with sending a code    ************** \\
         }
 
         var hashedPassword;

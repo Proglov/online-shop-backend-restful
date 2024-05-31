@@ -47,12 +47,23 @@ const UserUpdate = async (args, context) => {
             }
         }
 
-        //check if phone is valid
-        if (phone && !isPhoneValid(phone)) {
-            return {
-                message: "Phone is not valid",
-                token: null,
-                status: 400
+        //check the phone
+        if (phone) {
+            if (!isPhoneValid(phone)) {
+                return {
+                    message: "Phone is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+            const existingUser = await User.findOne({ phone });
+
+            if (existingUser) {
+                return {
+                    message: "Phone Already Exists",
+                    token: null,
+                    status: 409
+                }
             }
         }
 

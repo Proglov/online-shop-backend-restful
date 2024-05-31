@@ -83,6 +83,26 @@ const SellerSignUp = async (args, _context) => {
             }
         }
 
+        const existingSellerByPhone = await Seller.findOne({ phone });
+
+        if (existingSellerByPhone) {
+            return {
+                message: "Phone Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        const existingSellerByWorkingPhone = await Seller.findOne({ workingPhone });
+
+        if (existingSellerByWorkingPhone) {
+            return {
+                message: "Working Phone Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
         var hashedPassword;
         if (password) {
             hashedPassword = await hash(password, 10);
