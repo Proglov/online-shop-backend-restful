@@ -40,7 +40,7 @@ const CommentAdd = async (args, context) => {
         }
 
         return {
-            message: "Comment is NOT added due to bad request",
+            message: "parentProductId is required!",
             status: 400
         }
 
