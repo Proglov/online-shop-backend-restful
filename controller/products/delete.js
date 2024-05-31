@@ -1,5 +1,7 @@
 const { Product } = require('../../models/dbModels');
-
+const {
+    deleteImages
+} = require('../image/delete');
 const { isAdmin } = require('../../lib/Functions');
 
 const ProductDelete = async (args, context) => {
@@ -30,6 +32,10 @@ const ProductDelete = async (args, context) => {
                 status: 403
             }
         }
+
+        const filenames = existingProduct.imagesUrl;
+
+        await deleteImages({ filenames }, null);
 
         await Product.findByIdAndDelete(id)
 

@@ -1,22 +1,47 @@
-// const express = require('express');
+const express = require('express');
 
-// const router = express.Router();
+const {
+    deleteImage,
+    deleteImages
+} = require('../../controller/image/delete');
 
-// const {
-//     UserDelete
-// } = require('../../controller/users/delete');
-
-
-// router.delete('/UserDelete', async (req, res) => {
-//     const userInfo = req?.userInfo
-//     const { id } = req.body
-
-//     const { status, message } = await UserDelete({ id }, { userInfo });
-
-//     res.status(status).send({ message });
-// })
+const router = express.Router();
 
 
+router.delete('/deleteImage', async (req, res) => {
+
+    try {
+
+        const args = {
+            filename: req.body.filename
+        }
+
+        const { status, message } = await deleteImage({ ...args }, null);
+
+        res.status(status).send({ message });
+    } catch (error) {
+        res.status(500).send({ message: error });
+    }
+
+})
 
 
-// module.exports = router;
+router.delete('/deleteImages', async (req, res) => {
+
+    try {
+
+        const args = {
+            filenames: req.body.filenames
+        }
+
+        const { status, message } = await deleteImages({ ...args }, null);
+
+        res.status(status).send({ message });
+    } catch (error) {
+        res.status(500).send({ message: error });
+    }
+
+})
+
+
+module.exports = router;

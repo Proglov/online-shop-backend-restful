@@ -1,23 +1,35 @@
-// const express = require('express');
+const express = require('express');
+const multer = require('multer');
 
-// const router = express.Router();
+const {
+    updateImage
+} = require('../../controller/image/update');
 
-// const {
-//     UserUpdate
-// } = require('../../controller/users/update');
+const router = express.Router();
 
 
-// router.patch('/UserUpdate', async (req, res) => {
-//     const userInfo = req?.userInfo
-
-//     const { input } = req.body
-
-//     const { status, message, token } = await UserUpdate({ ...input }, { userInfo })
-
-//     res.status(status).send({ message, token });
-// })
+const storage = multer.memoryStorage();
+const upload = multer({ storage })
 
 
 
+router.post('/updateImage', upload.single('images'), async (req, res) => {
 
-// module.exports = router;
+    try {
+
+        const args = {
+            buffer: req.file?.buffer,
+            filename: req.body.filename
+        }
+
+        const { status, message, name } = await updateImage({ ...args }, null);
+
+        res.status(status).send({ message, name });
+    } catch (error) {
+        res.status(500).send({ message: error, name: null });
+    }
+
+})
+
+
+module.exports = router;

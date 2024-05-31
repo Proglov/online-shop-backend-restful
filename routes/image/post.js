@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 
 const {
-    uploadImages
+    uploadImage
 } = require('../../controller/image/post');
 
 const router = express.Router();
@@ -13,7 +13,7 @@ const upload = multer({ storage })
 
 
 
-router.post('/uploadImages', upload.single('images'), async (req, res) => {
+router.post('/uploadImage', upload.single('images'), async (req, res) => {
 
     try {
 
@@ -22,7 +22,7 @@ router.post('/uploadImages', upload.single('images'), async (req, res) => {
             mimetype: req.file?.mimetype
         }
 
-        const { status, message, name } = await uploadImages({ ...args }, null);
+        const { status, message, name } = await uploadImage({ ...args }, null);
 
         res.status(status).send({ message, name });
     } catch (error) {

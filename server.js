@@ -33,6 +33,9 @@ const transactionsRouterPost = require('./routes/transaction/post');
 
 
 const imagesRouterPost = require('./routes/image/post');
+const imagesRouterGet = require('./routes/image/get');
+const imagesRouterDelete = require('./routes/image/delete');
+const imagesRouterUpdate = require('./routes/image/update');
 
 
 const PORT = process.env.PORT || 3500;
@@ -70,6 +73,9 @@ app.use('/transactionGet', setUserInfo, transactionsRouterGet);
 app.use('/transactionPost', setUserInfo, transactionsRouterPost);
 
 app.use('/imagePost', setUserInfo, imagesRouterPost);
+app.use('/imageGet', setUserInfo, imagesRouterGet);
+app.use('/imageUpdate', setUserInfo, imagesRouterUpdate);
+app.use('/imageDelete', setUserInfo, imagesRouterDelete);
 
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))

@@ -1,6 +1,5 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 require("dotenv").config();
-const crypto = require('crypto');
 const sharp = require('sharp');
 
 const s3 = new S3Client({
@@ -13,27 +12,23 @@ const s3 = new S3Client({
 });
 
 
-const uploadImage = async (args, _context) => {
-    const { buffer, mimetype } = args
+const updateImage = async (args, _context) => {
+    const { buffer, filename } = args
 
     try {
         // resize
         const newBuffer = await sharp(buffer).resize({ height: 1920, width: 1080, fit: "contain" }).toBuffer()
-        //name
-        const date = new Date();
-        const now = date.getTime();
-        const imageName = now + "_" + crypto.randomBytes(32).toString('hex');
+
         const params = {
             Body: newBuffer,
             Bucket: process.env.LIARA_BUCKET_NAME,
-            Key: imageName,
-            ContentType: mimetype
+            Key: filename,
         };
         await s3.send(new PutObjectCommand(params));
         return {
             status: 201,
             message: "Successfully Added",
-            name: imageName
+            name: filename
         }
     } catch (error) {
         return {
@@ -47,5 +42,5 @@ const uploadImage = async (args, _context) => {
 
 
 module.exports = {
-    uploadImage
+    updateImage
 };
