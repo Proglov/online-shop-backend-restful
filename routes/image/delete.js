@@ -12,11 +12,13 @@ router.delete('/deleteImage', async (req, res) => {
 
     try {
 
+
+
         const args = {
             filename: req.body.filename
         }
 
-        const { status, message } = await deleteImage({ ...args }, null);
+        const { status, message } = await deleteImage({ ...args }, { userInfo });
 
         res.status(status).send({ message });
     } catch (error) {
@@ -30,11 +32,13 @@ router.delete('/deleteImages', async (req, res) => {
 
     try {
 
+        const userInfo = req?.userInfo
+
         const args = {
             filenames: req.body.filenames
         }
 
-        const { status, message } = await deleteImages({ ...args }, null);
+        const { status, message } = await deleteImages({ ...args }, { userInfo });
 
         res.status(status).send({ message });
     } catch (error) {

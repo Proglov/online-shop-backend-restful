@@ -2,6 +2,8 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 require("dotenv").config();
 const crypto = require('crypto');
 const sharp = require('sharp');
+const { Seller } = require("../../models/dbModels");
+const { encString, isAdmin } = require('../../lib/Functions');
 
 const s3 = new S3Client({
     region: "default",
@@ -13,16 +15,36 @@ const s3 = new S3Client({
 });
 
 
-const uploadImage = async (args, _context) => {
+const uploadImage = async (args, context) => {
     const { buffer, mimetype } = args
 
+    const { userInfo } = context;
+
     try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized",
+                name: null
+            }
+        }
+
+        const seller = await Seller.findById(userInfo?.userId)
+
+        if (!(await isAdmin(userInfo?.userId)) && !seller) {
+            return {
+                status: 403,
+                message: "you are not authorized",
+                name: null
+            }
+        }
+
         // resize
         const newBuffer = await sharp(buffer).resize({ height: 1920, width: 1080, fit: "contain" }).toBuffer()
         //name
         const date = new Date();
         const now = date.getTime();
-        const imageName = now + "_" + crypto.randomBytes(32).toString('hex');
+        const imageName = now + "_" + encString(userInfo?.userId) + "_" + crypto.randomBytes(32).toString('hex');
         const params = {
             Body: newBuffer,
             Bucket: process.env.LIARA_BUCKET_NAME,

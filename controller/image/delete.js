@@ -1,5 +1,7 @@
 const { S3Client, DeleteObjectCommand, DeleteObjectsCommand } = require("@aws-sdk/client-s3");
+const { Seller } = require("../../models/dbModels");
 require("dotenv").config();
+const { extractSellerIdFromFilename, isAdmin } = require('../../lib/Functions');
 
 
 const s3 = new S3Client({
@@ -12,10 +14,27 @@ const s3 = new S3Client({
 });
 
 
-const deleteImage = async (args, _context) => {
+const deleteImage = async (args, context) => {
     const { filename } = args
+    const { userInfo } = context;
 
     try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
+
+        const seller = await Seller.findById(userInfo?.userId)
+
+        if (!(await isAdmin(userInfo?.userId)) && !seller && extractSellerIdFromFilename(filename) !== userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
+
         const params = {
             Bucket: process.env.LIARA_BUCKET_NAME,
             Key: filename,
@@ -34,10 +53,35 @@ const deleteImage = async (args, _context) => {
 
 }
 
-const deleteImages = async (args, _context) => {
+const deleteImages = async (args, context) => {
     const { filenames } = args
+    const { userInfo } = context;
 
     try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
+
+        for (const filename of filenames) {
+            if (extractSellerIdFromFilename(filename) !== userInfo?.userId) {
+                return {
+                    status: 403,
+                    message: "you are not authorized"
+                }
+            }
+        }
+
+        const seller = await Seller.findById(userInfo?.userId)
+
+        if (!(await isAdmin(userInfo?.userId)) && !seller) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
         const files2Delete = [];
         for (const filename of filenames) {
             files2Delete.push({

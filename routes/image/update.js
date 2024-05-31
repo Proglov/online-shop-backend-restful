@@ -17,12 +17,15 @@ router.post('/updateImage', upload.single('images'), async (req, res) => {
 
     try {
 
+
+        const userInfo = req?.userInfo
+
         const args = {
             buffer: req.file?.buffer,
             filename: req.body.filename
         }
 
-        const { status, message, name } = await updateImage({ ...args }, null);
+        const { status, message, name } = await updateImage({ ...args }, { userInfo });
 
         res.status(status).send({ message, name });
     } catch (error) {

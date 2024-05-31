@@ -17,12 +17,14 @@ router.post('/uploadImage', upload.single('images'), async (req, res) => {
 
     try {
 
+        const userInfo = req?.userInfo
+
         const args = {
             buffer: req.file?.buffer,
             mimetype: req.file?.mimetype
         }
 
-        const { status, message, name } = await uploadImage({ ...args }, null);
+        const { status, message, name } = await uploadImage({ ...args }, { userInfo });
 
         res.status(status).send({ message, name });
     } catch (error) {

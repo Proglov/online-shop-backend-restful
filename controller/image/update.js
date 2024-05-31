@@ -1,6 +1,8 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 require("dotenv").config();
 const sharp = require('sharp');
+const { Seller } = require("../../models/dbModels");
+const { extractSellerIdFromFilename, isAdmin } = require("../../lib/Functions");
 
 const s3 = new S3Client({
     region: "default",
@@ -12,10 +14,27 @@ const s3 = new S3Client({
 });
 
 
-const updateImage = async (args, _context) => {
+const updateImage = async (args, context) => {
     const { buffer, filename } = args
+    const { userInfo } = context;
 
     try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
+
+        const seller = await Seller.findById(userInfo?.userId)
+
+        if (!(await isAdmin(userInfo?.userId)) && !seller && extractSellerIdFromFilename(filename) !== userInfo?.userId) {
+            return {
+                status: 403,
+                message: "you are not authorized"
+            }
+        }
+
         // resize
         const newBuffer = await sharp(buffer).resize({ height: 1920, width: 1080, fit: "contain" }).toBuffer()
 

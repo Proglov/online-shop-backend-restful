@@ -72,8 +72,8 @@ app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 app.use('/transactionGet', setUserInfo, transactionsRouterGet);
 app.use('/transactionPost', setUserInfo, transactionsRouterPost);
 
+app.use('/imageGet', imagesRouterGet);
 app.use('/imagePost', setUserInfo, imagesRouterPost);
-app.use('/imageGet', setUserInfo, imagesRouterGet);
 app.use('/imageUpdate', setUserInfo, imagesRouterUpdate);
 app.use('/imageDelete', setUserInfo, imagesRouterDelete);
 
