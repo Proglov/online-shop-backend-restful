@@ -82,7 +82,6 @@ const getSellers = async (args, context) => {
 
     const { userInfo } = context;
     let { page, perPage } = args;
-    console.log('h');
 
     try {
         //check if req contains token
@@ -94,7 +93,6 @@ const getSellers = async (args, context) => {
                 message: "You Are Not Authorized"
             }
         }
-        console.log('object1');
         //only admin can get the users
         if (!(await isAdmin(userInfo.userId))) {
             return {
@@ -104,10 +102,8 @@ const getSellers = async (args, context) => {
                 message: "You Are Not Authorized"
             }
         }
-        console.log('object');
 
         const sellersCount = await Seller.where().countDocuments().exec();
-        console.log(sellersCount);
         if (!page || !perPage) {
             const sellers = await Seller.find().select('-password');
 
