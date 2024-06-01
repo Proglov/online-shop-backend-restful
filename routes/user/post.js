@@ -10,9 +10,9 @@ const {
 
 
 router.post('/UserSignUp', async (req, res) => {
-    const { phone } = req.body
+    const { input } = req.body
 
-    const { status, message, token } = await UserSignUp({ phone }, null);
+    const { status, message, token } = await UserSignUp({ ...input }, null);
 
     res.status(status).send({ message, token });
 })
