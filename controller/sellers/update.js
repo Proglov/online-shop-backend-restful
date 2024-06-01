@@ -1,4 +1,4 @@
-const { User } = require('../../models/dbModels');
+const { User, Seller } = require('../../models/dbModels');
 
 const { isAdmin, isWorkingPhoneValid, isPhoneValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
@@ -40,6 +40,13 @@ const SellerUpdate = async (args, context) => {
         }
 
         const seller = await Seller.findById(id);
+        if (!seller) {
+            return {
+                message: "No seller found",
+                token: null,
+                status: 404
+            }
+        }
 
         //check if there is a new password and it's valid
         if (password && password.length < 8) {
@@ -51,7 +58,7 @@ const SellerUpdate = async (args, context) => {
         }
 
         //check the working phone
-        if (workingPhone) {
+        if (workingPhone && workingPhone !== seller.workingPhone) {
             if (!!isWorkingPhoneValid(workingPhone)) {
                 return {
                     message: "working phone is not valid",
@@ -71,7 +78,7 @@ const SellerUpdate = async (args, context) => {
         }
 
         //check the phone
-        if (phone) {
+        if (phone && phone !== seller.phone) {
             if (!isPhoneValid(phone)) {
                 return {
                     message: "Phone is not valid",
@@ -88,6 +95,16 @@ const SellerUpdate = async (args, context) => {
                     status: 409
                 }
             }
+
+            const existingSellerByPhoneInUsers = await User.findOne({ phone });
+
+            if (existingSellerByPhoneInUsers) {
+                return {
+                    message: "Phone Already Exists In Users",
+                    token: null,
+                    status: 409
+                }
+            }
         }
 
         //check if email is valid
@@ -100,7 +117,7 @@ const SellerUpdate = async (args, context) => {
         }
 
         //check if username already exists
-        if (username) {
+        if (username && username !== seller.username) {
             if (username?.length < 8) {
                 return {
                     message: "username is not valid",
@@ -145,6 +162,7 @@ const SellerUpdate = async (args, context) => {
         if (username) userObject.username = username;
         if (password) userObject.password = hashedPassword;
         if (phone) userObject.phone = phone;
+        if (workingPhone) userObject.workingPhone = workingPhone;
         if (address) userObject.address = address;
         if (bio) userObject.bio = bio;
 

@@ -1,4 +1,4 @@
-const { Seller } = require('../../models/dbModels');
+const { Seller, User } = require('../../models/dbModels');
 const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
@@ -88,6 +88,16 @@ const SellerSignUp = async (args, _context) => {
         if (existingSellerByPhone) {
             return {
                 message: "Phone Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        const existingSellerByPhoneInUsers = await User.findOne({ phone });
+
+        if (existingSellerByPhoneInUsers) {
+            return {
+                message: "Phone Already Exists In Users",
                 token: null,
                 status: 409
             }
