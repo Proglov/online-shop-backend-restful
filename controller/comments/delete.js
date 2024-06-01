@@ -1,4 +1,4 @@
-const { Product, Comment } = require('../../models/dbModels');
+const { Comment } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
@@ -29,28 +29,21 @@ const CommentDelete = async (args, context) => {
 
         const deletedComment = await Comment.findByIdAndDelete(id);
 
-        if (deletedComment) {
-            // Also delete the children comments
-            if (deletedComment.validated) {
-                await Comment.deleteMany({ parentCommentId: id });
-            }
-
-            //also delete from product comments
-            await Product.findOneAndUpdate(
-                { commentsIds: { $in: [id] } },
-                { $pull: { commentsIds: { $in: [id] } } },
-                { new: true }
-            );
-
+        if (!deletedComment) {
             return {
-                message: "Comment has been Deleted Successfully",
-                status: 200
+                message: "Comment not found",
+                status: 400
             }
         }
 
+        // Also delete the children comments
+        if (deletedComment.validated) {
+            await Comment.deleteMany({ parentCommentId: id });
+        }
+
         return {
-            message: "Comment not found",
-            status: 400
+            message: "Comment has been Deleted Successfully",
+            status: 200
         }
 
     } catch (error) {

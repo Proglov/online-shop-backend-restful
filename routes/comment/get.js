@@ -4,7 +4,8 @@ const router = express.Router();
 
 const {
     getAllComments,
-    getOneComment
+    getOneComment,
+    getCommentsOfAProduct
 } = require('../../controller/comments/get');
 
 
@@ -24,6 +25,15 @@ router.get('/getOneComment', async (req, res) => {
     const { comment, status, message } = await getOneComment({ ...args }, null)
 
     res.status(status).send({ comment, message });
+})
+
+
+router.get('/getCommentsOfAProduct', async (req, res) => {
+    const args = req.query
+
+    const { comments, status, message } = await getCommentsOfAProduct({ ...args }, null)
+
+    res.status(status).send({ comments, message });
 })
 
 

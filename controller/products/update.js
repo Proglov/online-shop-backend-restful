@@ -11,8 +11,7 @@ const ProductUpdate = async (args, context) => {
         price,
         category,
         subcategory,
-        imagesUrl,
-        commentsIds
+        imagesUrl
     } = args;
 
     const { userInfo } = context;
@@ -65,10 +64,6 @@ const ProductUpdate = async (args, context) => {
 
         if (imagesUrl !== undefined && imagesUrl !== null && imagesUrl?.length !== 0) {
             existingProduct.imagesUrl = imagesUrl
-        }
-
-        if (commentsIds !== undefined && commentsIds !== null && commentsIds?.length !== 0) {
-            existingProduct.commentsIds = commentsIds
         }
 
         await existingProduct.save();

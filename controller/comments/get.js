@@ -98,7 +98,26 @@ const getOneComment = async (args, _context) => {
     }
 }
 
+const getCommentsOfAProduct = async (args, _context) => {
+    const { id } = args
+    try {
+        const comments = await Comment.find({ productId: id });
+        return {
+            comments,
+            status: 200,
+            message: null
+        }
+    } catch (error) {
+        return {
+            comments: null,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 module.exports = {
     getAllComments,
-    getOneComment
+    getOneComment,
+    getCommentsOfAProduct
 }

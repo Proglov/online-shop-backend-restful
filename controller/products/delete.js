@@ -1,4 +1,4 @@
-const { Product } = require('../../models/dbModels');
+const { Product, Comment } = require('../../models/dbModels');
 const {
     deleteImages
 } = require('../image/delete');
@@ -33,6 +33,14 @@ const ProductDelete = async (args, context) => {
             }
         }
 
+        //delete the relative comments
+        const comments = await Comment.find({ productId: id });
+
+        // Delete all found comments
+        const deletePromises = comments.map(comment => Comment.findByIdAndDelete(comment._id));
+        await Promise.all(deletePromises);
+
+        //delete the images for the product
         const filenames = existingProduct.imagesUrl;
 
         if (filenames != null && filenames != undefined && filenames?.length !== 0)

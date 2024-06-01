@@ -1,11 +1,11 @@
-const { Comment, Product } = require('../../models/dbModels');
+const { Comment } = require('../../models/dbModels');
 
 
 const CommentAdd = async (args, context) => {
     const {
         body,
         parentCommentId,
-        parentProductId
+        productId
     } = args;
 
     const { userInfo } = context
@@ -19,29 +19,24 @@ const CommentAdd = async (args, context) => {
             }
         }
 
-        const newComment = await Comment({
-            body,
-            userId: userInfo.userId,
-            parentCommentId
-        })
-
-
-        if (parentProductId) {
-            const product = await Product.findById(parentProductId);
-            if (product) {
-                newComment.save();
-                product.commentsIds.push(newComment.id);
-                product.save();
-                return {
-                    message: "Comment has been Added Successfully",
-                    status: 200
-                }
+        if (!productId) {
+            return {
+                message: "productId is required!",
+                status: 400
             }
         }
 
+        const newComment = await Comment({
+            body,
+            userId: userInfo.userId,
+            parentCommentId,
+            productId
+        })
+        newComment.save();
+
         return {
-            message: "parentProductId is required!",
-            status: 400
+            message: "Comment has been Added Successfully",
+            status: 200
         }
 
 

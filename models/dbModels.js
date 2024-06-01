@@ -104,13 +104,7 @@ const productSchema = new mongoose.Schema({
     },
     imagesUrl: [{
         type: String
-    }],
-    commentsIds: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
-        }
-    ]
+    }]
 });
 
 const commentSchema = new mongoose.Schema({
@@ -121,6 +115,11 @@ const commentSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true
+    },
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
         required: true
     },
     parentCommentId: {
