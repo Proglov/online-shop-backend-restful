@@ -12,7 +12,7 @@ router.delete('/deleteImage', async (req, res) => {
 
     try {
 
-
+        const userInfo = req?.userInfo
 
         const args = {
             filename: req.body.filename
