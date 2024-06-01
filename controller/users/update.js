@@ -89,7 +89,7 @@ const UserUpdate = async (args, context) => {
         }
 
         //check if Username already exists
-        if (username) {
+        if (username && username !== user.username) {
             if (username?.length < 8) return {
                 message: "username is not valid",
                 token: null,
