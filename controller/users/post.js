@@ -1,12 +1,17 @@
 const { User } = require('../../models/dbModels');
-const bcrypt = require('bcryptjs');
+const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 
-const { isPhoneValid } = require('../../lib/Functions');
+const { isPhoneValid, isEmailValid } = require('../../lib/Functions');
 
 const UserSignUp = async (args, _context) => {
-    const { phone } = args;
+    const {
+        phone,
+        email,
+        username,
+        password
+    } = args;
 
     try {
         if (!isPhoneValid(phone)) {
@@ -17,9 +22,19 @@ const UserSignUp = async (args, _context) => {
             }
         }
 
-        const existingUser = await User.findOne({ phone });
+        //check if there is a new password and it's valid
+        if (!password || password.length < 8) {
+            return {
+                message: "Password Should have more than 8 characters",
+                token: null,
+                status: 400
+            }
+        }
 
-        if (existingUser) {
+        //check if phone exists
+        const existingUserByPhone = await User.findOne({ phone });
+
+        if (existingUserByPhone) {
             return {
                 message: "Phone Already Exists",
                 token: null,
@@ -27,8 +42,52 @@ const UserSignUp = async (args, _context) => {
             }
         }
 
+        //check if email is valid
+        if (!isEmailValid(email)) {
+            return {
+                message: "Email is not valid",
+                token: null,
+                status: 400
+            }
+        }
+
+        //check if email already exists
+        const existingUserByEmail = await User.findOne({ email });
+        if (existingUserByEmail) {
+            return {
+                message: "Email Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        //check if username is valid
+        if (!username || username?.length < 8) {
+            return {
+                message: "username is not valid",
+                token: null,
+                status: 400
+            }
+        }
+
+        //check if Username already exists
+        const existingUserByUsername = await User.findOne({ username });
+        if (existingUserByUsername) {
+            return {
+                message: "Username Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        var hashedPassword;
+        hashedPassword = await hash(password, 10);
+
         const newUser = new User({
-            phone
+            phone,
+            username,
+            hashedPassword,
+            email
         })
 
         await newUser.save();
