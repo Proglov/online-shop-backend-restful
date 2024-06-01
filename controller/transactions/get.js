@@ -1,4 +1,4 @@
-const { TransAction } = require('../../models/dbModels');
+const { TransAction, Product } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
@@ -121,12 +121,18 @@ const getAllMyTransActions = async (args, context) => {
             }
         }
 
+        // Find all products with the specified sellerId
+        const products = await Product.find({ sellerId: userInfo?.userId });
+
+        // Extract the productIds from the products array
+        const productIds = products.map(product => product._id);
+
 
         //if isFutureOrder is not specified
         if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
-            const count = await TransAction.where({ sellerId: userInfo?.userId }).countDocuments().exec();
+            const count = await TransAction.where({ 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find({ sellerId: userInfo?.userId });
+                const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -136,7 +142,7 @@ const getAllMyTransActions = async (args, context) => {
             }
 
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+            const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -149,9 +155,9 @@ const getAllMyTransActions = async (args, context) => {
 
         //future Orders
         if (!!isFutureOrder && isFutureOrder == 'true') {
-            const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId }).countDocuments().exec();
+            const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId });
+                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -160,7 +166,7 @@ const getAllMyTransActions = async (args, context) => {
                 }
             }
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -170,9 +176,9 @@ const getAllMyTransActions = async (args, context) => {
         }
 
         //past Orders
-        const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId }).countDocuments().exec();
+        const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
         if (!page || !perPage) {
-            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId });
+            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' });
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -181,7 +187,7 @@ const getAllMyTransActions = async (args, context) => {
             }
         }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).skip(skip).limit(perPage);
         return {
             transactions: tx,
             transactionsCount: count,

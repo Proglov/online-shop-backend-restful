@@ -2,7 +2,7 @@ const { TransAction, Product } = require('../../models/dbModels');
 
 
 const TransActionCreate = async (args, context) => {
-    const { shippingCost, boughtProducts, address, shouldBeSentAt } = args;
+    const { discountId, boughtProducts, address, shouldBeSentAt } = args;
 
     const { userInfo } = context;
 
@@ -15,12 +15,18 @@ const TransActionCreate = async (args, context) => {
             }
         }
 
+
         if (!boughtProducts?.length) {
             return {
                 message: "boughtProduct is required",
                 status: 400
             }
         }
+        //shippingCost should be handled properly
+        const shippingCost = 0
+
+        // ************ handle the discount here *************** \\
+        // ***************************************************** \\
 
         let totalPrice = 0;
 
@@ -29,6 +35,7 @@ const TransActionCreate = async (args, context) => {
             const thisPrice = thisProduct.price * boughtProducts[i].quantity
             totalPrice += thisPrice
         }
+        totalPrice += shippingCost;
 
         const newTransAction = new TransAction({
             userId: userInfo.userId,
@@ -36,7 +43,8 @@ const TransActionCreate = async (args, context) => {
             totalPrice,
             boughtProducts,
             address,
-            shouldBeSentAt
+            shouldBeSentAt,
+            discountId
         });
 
         await newTransAction.save();
