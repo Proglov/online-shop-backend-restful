@@ -176,6 +176,10 @@ const transActionSchema = new mongoose.Schema({
     shouldBeSentAt: {
         type: String,
         required: true,
+    },
+    done: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: { createdAt: true } })
 
