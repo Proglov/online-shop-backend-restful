@@ -47,9 +47,9 @@ const SellerSignUp = async (args, _context) => {
                 status: 400
             }
         }
-        if (!address || address?.length < 8) {
+        if (!address || address?.length === 0) {
             return {
-                message: "address is not valid",
+                message: "address is required",
                 token: null,
                 status: 400
             }

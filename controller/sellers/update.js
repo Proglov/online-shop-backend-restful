@@ -1,6 +1,6 @@
 const { User, Seller } = require('../../models/dbModels');
-
-const { isAdmin, isWorkingPhoneValid, isPhoneValid } = require('../../lib/Functions');
+const JWT = require('jsonwebtoken');
+const { isAdmin, isWorkingPhoneValid, isPhoneValid, isEmailValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
 
 
@@ -149,7 +149,7 @@ const SellerUpdate = async (args, context) => {
             // ***********  check the email with sending a code    ************** \\
         }
 
-        var hashedPassword;
+        let hashedPassword;
         if (password) {
             hashedPassword = await hash(password, 10);
         }
