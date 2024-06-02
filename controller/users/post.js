@@ -3,12 +3,11 @@ const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 
-const { isPhoneValid, isEmailValid } = require('../../lib/Functions');
+const { isPhoneValid } = require('../../lib/Functions');
 
 const UserSignUp = async (args, _context) => {
     const {
         phone,
-        email,
         username,
         password
     } = args;
@@ -42,25 +41,6 @@ const UserSignUp = async (args, _context) => {
             }
         }
 
-        //check if email is valid
-        if (!isEmailValid(email)) {
-            return {
-                message: "Email is not valid",
-                token: null,
-                status: 400
-            }
-        }
-
-        //check if email already exists
-        const existingUserByEmail = await User.findOne({ email });
-        if (existingUserByEmail) {
-            return {
-                message: "Email Already Exists",
-                token: null,
-                status: 409
-            }
-        }
-
         //check if username is valid
         if (!username || username?.length < 8) {
             return {
@@ -86,8 +66,7 @@ const UserSignUp = async (args, _context) => {
         const newUser = new User({
             phone,
             username,
-            hashedPassword,
-            email
+            hashedPassword
         })
 
         await newUser.save();
