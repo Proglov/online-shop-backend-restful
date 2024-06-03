@@ -62,7 +62,7 @@ const ProductUpdate = async (args, context) => {
             existingProduct.subcategory = subcategory
         }
 
-        if (imagesUrl !== undefined && imagesUrl !== null && imagesUrl?.length !== 0) {
+        if (imagesUrl !== undefined && imagesUrl !== null) {
             existingProduct.imagesUrl = imagesUrl
         }
 
