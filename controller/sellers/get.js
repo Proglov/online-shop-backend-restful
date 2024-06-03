@@ -81,14 +81,14 @@ const getSeller = async (args, context) => {
 const getSellers = async (args, context) => {
 
     const { userInfo } = context;
-    let { page, perPage } = args;
+    let { page, perPage, validated } = args;
 
     try {
         //check if req contains token
         if (!userInfo) {
             return {
                 sellers: null,
-                sellersCount: 0,
+                allSellersCount: 0,
                 status: 400,
                 message: "You Are Not Authorized"
             }
@@ -97,32 +97,75 @@ const getSellers = async (args, context) => {
         if (!(await isAdmin(userInfo.userId))) {
             return {
                 sellers: null,
-                sellersCount: 0,
+                allSellersCount: 0,
                 status: 403,
                 message: "You Are Not Authorized"
             }
         }
 
-        const sellersCount = await Seller.where().countDocuments().exec();
-        if (!page || !perPage) {
-            const sellers = await Seller.find().select('-password');
+        //get all of them if validated is not specified
+        if ((validated == undefined || validated == null) && validated !== false) {
+            const allSellersCount = await Seller.where().countDocuments().exec();
+            if (!page || !perPage) {
+                const sellers = await Seller.find({}).select('-password');
+                return {
+                    sellers,
+                    allSellersCount,
+                    status: 200,
+                    message: null
+                }
+            }
 
+            const skip = (page - 1) * perPage;
+            const sellers = await Seller.find({}).select('-password').skip(skip).limit(perPage);
             return {
                 sellers,
-                sellersCount,
+                allSellersCount,
+                status: 200,
+                message: null
+            }
+
+        }
+
+        //if validated is true
+        if (validated === "true") {
+            const allSellersCount = await Seller.where({ validated: true }).countDocuments().exec();
+            if (!page || !perPage) {
+                const sellers = await Seller.find({ validated: true }).select('-password');
+                return {
+                    sellers,
+                    allSellersCount,
+                    status: 200,
+                    message: null
+                }
+            }
+
+            const skip = (page - 1) * perPage;
+            const sellers = await Seller.find({ validated: true }).select('-password').skip(skip).limit(perPage);
+            return {
+                sellers,
+                allSellersCount,
                 status: 200,
                 message: null
             }
         }
 
-        page = parseInt(page);
-        perPage = parseInt(perPage);
+        //if validated is false
+        const allSellersCount = await Seller.where({ validated: false }).countDocuments().exec();
+        if (!page || !perPage) {
+            const sellers = await Seller.find({ validated: false }).select('-password');
+            return {
+                sellers,
+                allSellersCount,
+                status: 200,
+                message: null
+            }
+        }
         const skip = (page - 1) * perPage;
-        const sellers = await Seller.find().select('-password').skip(skip).limit(perPage);
-
+        const sellers = await Seller.find({ validated: false }).select('-password').skip(skip).limit(perPage);
         return {
             sellers,
-            sellersCount,
+            allSellersCount,
             status: 200,
             message: null
         }
@@ -131,7 +174,7 @@ const getSellers = async (args, context) => {
     } catch (error) {
         return {
             sellers: null,
-            sellersCount: 0,
+            allSellersCount: 0,
             status: 500,
             message: error
         }

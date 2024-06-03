@@ -198,6 +198,65 @@ const SellerUpdate = async (args, context) => {
 
 }
 
+const SellerValidate = async (args, context) => {
+    const { id } = args;
+    const { userInfo } = context;
+
+    try {
+
+        //check if req contains token
+        if (!userInfo) {
+            return {
+                message: "You are not authorized!",
+                status: 401
+            }
+        }
+
+        //only admin can validate
+        if (!(await isAdmin(userInfo?.userId))) {
+            return {
+                message: "You are not authorized!",
+                status: 401
+            }
+        }
+
+        const seller = await Seller.findById(id);
+        if (!seller) {
+            return {
+                message: "No seller found",
+                status: 404
+            }
+        }
+
+
+        if (!seller) {
+            return {
+                message: 'Seller Not Found',
+                status: 400
+            }
+        }
+
+        seller.validated = !seller.validated
+
+        // Save the updated seller with disLikes changes
+        await seller.save();
+
+        return {
+            message: "Seller has been toggled validated Successfully",
+            status: 200
+        }
+
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
 module.exports = {
-    SellerUpdate
+    SellerUpdate,
+    SellerValidate
 }

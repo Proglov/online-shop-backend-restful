@@ -35,9 +35,9 @@ router.get('/getSellers', async (req, res) => {
 
     const args = req.query
 
-    const { status, sellers, message, sellersCount } = await getSellers(args, { userInfo })
+    const { status, sellers, message, allSellersCount } = await getSellers(args, { userInfo })
 
-    res.status(status).send({ sellers, message, sellersCount });
+    res.status(status).send({ sellers, message, allSellersCount });
 })
 
 

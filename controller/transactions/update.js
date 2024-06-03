@@ -15,6 +15,11 @@ const TransActionDone = async (args, context) => {
         }
 
         const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId' })
+        if (!tx) return {
+            message: "No transaction found!",
+            status: 404
+        }
+
         if (tx.boughtProducts[0].productId.sellerId != userInfo?.userId) return {
             message: "You are not authorized!",
             status: 403
