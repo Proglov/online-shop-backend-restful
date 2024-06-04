@@ -66,7 +66,7 @@ const UserSignUp = async (args, _context) => {
         const newUser = new User({
             phone,
             username,
-            hashedPassword
+            password: hashedPassword
         })
 
         await newUser.save();
