@@ -1,4 +1,4 @@
-const { User } = require('../../models/dbModels');
+const { User, Comment } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
@@ -24,7 +24,9 @@ const UserDelete = async (args, context) => {
         }
 
         const user = await User.findByIdAndDelete(id)
+        const comments = await Comment.deleteMany({ userId: id })
 
+        console.log(comments);
         return {
             message: `User ${user.id} has been deleted`,
             status: 202
