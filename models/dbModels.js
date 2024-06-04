@@ -98,16 +98,34 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    category: {
-        type: String
-    },
-    subcategory: {
-        type: String
+    subcategoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subcategory',
+        required: true
     },
     imagesUrl: [{
         type: String
     }]
 });
+
+const categorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    }
+})
+
+const subcategorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    }
+})
 
 const commentSchema = new mongoose.Schema({
     body: {
@@ -328,6 +346,8 @@ const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
 const Product = mongoose.model('Product', productSchema);
+const Category = mongoose.model('Category', categorySchema);
+const Subcategory = mongoose.model('Subcategory', subcategorySchema);
 const Comment = mongoose.model('Comment', commentSchema);
 const TransAction = mongoose.model('TransAction', transActionSchema);
 const Festival = mongoose.model('Festival', festivalSchema);
@@ -337,4 +357,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, Admin, Seller, Product, Comment, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, Admin, Seller, Product, Category, Subcategory, Comment, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
