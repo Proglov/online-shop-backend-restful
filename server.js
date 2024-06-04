@@ -26,6 +26,9 @@ const productsRouterDelete = require('./routes/product/delete');
 const categoriesRouterGet = require('./routes/category/get');
 const categoriesRouterPost = require('./routes/category/post');
 
+const subcategoriesRouterGet = require('./routes/subcategory/get');
+const subcategoriesRouterPost = require('./routes/subcategory/post');
+
 const commentsRouterGet = require('./routes/comment/get');
 const commentsRouterPost = require('./routes/comment/post');
 const commentsRouterUpdate = require('./routes/comment/update');
@@ -70,6 +73,9 @@ app.use('/productDelete', setUserInfo, productsRouterDelete);
 
 app.use('/categoriesGet', categoriesRouterGet);
 app.use('/categoriesPost', setUserInfo, categoriesRouterPost);
+
+app.use('/subcategoriesGet', subcategoriesRouterGet);
+app.use('/subcategoriesPost', setUserInfo, subcategoriesRouterPost);
 
 app.use('/commentGet', commentsRouterGet);
 app.use('/commentPost', setUserInfo, commentsRouterPost);
