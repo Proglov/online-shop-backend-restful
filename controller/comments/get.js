@@ -104,12 +104,9 @@ const getOneComment = async (args, _context) => {
 const getCommentsOfAProduct = async (args, _context) => {
     const { id } = args
     try {
-        const allComments = await Comment.find();
-        const comments = allComments.filter(comment => {
-            return comment.productId == id
-        })
+        const allComments = await Comment.find({ productId: id });
         return {
-            comments,
+            comments: allComments,
             status: 200,
             message: null
         }
