@@ -1,6 +1,6 @@
 const { User } = require('../../models/dbModels');
 
-const { isAdmin } = require('../../lib/Functions');
+const { isAdmin, isEmailValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
 
 
