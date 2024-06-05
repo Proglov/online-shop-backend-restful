@@ -182,7 +182,7 @@ const SellerUpdate = async (args, context) => {
         return {
             message: null,
             token,
-            status: 205
+            status: 202
         }
 
 

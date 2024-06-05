@@ -1,9 +1,9 @@
 const { Seller, User } = require('../../models/dbModels');
 const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
-
-
 const { isWorkingPhoneValid, isEmailValid, isPhoneValid } = require('../../lib/Functions');
+
+
 
 const SellerSignUp = async (args, _context) => {
     const {

@@ -31,7 +31,7 @@ const TransActionDone = async (args, context) => {
 
         return {
             message: "TransAction is successfully done",
-            status: 200
+            status: 202
         }
 
 

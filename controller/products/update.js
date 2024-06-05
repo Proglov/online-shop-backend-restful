@@ -65,7 +65,7 @@ const ProductUpdate = async (args, context) => {
 
         return {
             message: "Product updated successfully",
-            status: 200
+            status: 202
         }
 
     } catch (error) {

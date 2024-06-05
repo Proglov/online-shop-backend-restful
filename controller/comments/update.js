@@ -48,7 +48,7 @@ const CommentUpdate = async (args, context) => {
 
         return {
             message: "Comment has been Updated Successfully",
-            status: 200
+            status: 202
         }
 
     } catch (error) {

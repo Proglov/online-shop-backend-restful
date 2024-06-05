@@ -45,7 +45,7 @@ const updateImage = async (args, context) => {
         };
         await s3.send(new PutObjectCommand(params));
         return {
-            status: 201,
+            status: 202,
             message: "Successfully Added",
             name: filename
         }
