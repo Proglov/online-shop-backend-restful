@@ -5,7 +5,8 @@ const router = express.Router();
 const {
     getAllProducts,
     getAllMyProducts,
-    getOneProduct
+    getOneProduct,
+    getAllProductsOfACategory
 } = require('../../controller/products/get');
 
 const { setUserInfo } = require('../../lib/middlewares');
@@ -17,6 +18,7 @@ router.get('/getAllProducts', async (req, res) => {
 
     res.status(status).send({ products, allProductsCount, message });
 })
+
 
 router.get('/getAllMyProducts', setUserInfo, async (req, res) => {
     const userInfo = req?.userInfo
@@ -36,6 +38,13 @@ router.get('/getOneProduct', async (req, res) => {
     res.status(status).send({ product, message });
 })
 
+router.get('/getAllProductsOfACategory', async (req, res) => {
+    const args = req.query
+
+    const { products, allProductsCount, status, message } = await getAllProductsOfACategory({ ...args }, null)
+
+    res.status(status).send({ products, allProductsCount, message });
+})
 
 
 module.exports = router;

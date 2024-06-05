@@ -9,7 +9,7 @@ const getAllComments = async (args, _context) => {
         if ((validated == undefined || validated == null) && validated !== false) {
             const allCommentsCount = await Comment.where().countDocuments().exec();
             if (!page || !perPage) {
-                const comments = await Comment.find({}).populate({ path: "userId", select: 'phone' });
+                const comments = await Comment.find({}).populate({ path: "userId", select: 'name' });
                 return {
                     comments,
                     allCommentsCount,
@@ -19,7 +19,7 @@ const getAllComments = async (args, _context) => {
             }
 
             const skip = (page - 1) * perPage;
-            const comments = await Comment.find({}).populate({ path: "userId", select: 'phone' }).skip(skip).limit(perPage);
+            const comments = await Comment.find({}).populate({ path: "userId", select: 'name' }).skip(skip).limit(perPage);
             return {
                 comments,
                 allCommentsCount,
@@ -33,7 +33,7 @@ const getAllComments = async (args, _context) => {
         if (validated === "true") {
             const allCommentsCount = await Comment.where({ validated: true }).countDocuments().exec();
             if (!page || !perPage) {
-                const comments = await Comment.find({ validated: true }).populate({ path: "userId", select: 'phone' });
+                const comments = await Comment.find({ validated: true }).populate({ path: "userId", select: 'name' });
                 return {
                     comments,
                     allCommentsCount,
@@ -43,7 +43,7 @@ const getAllComments = async (args, _context) => {
             }
 
             const skip = (page - 1) * perPage;
-            const comments = await Comment.find({ validated: true }).populate({ path: "userId", select: 'phone' }).skip(skip).limit(perPage);
+            const comments = await Comment.find({ validated: true }).populate({ path: "userId", select: 'name' }).skip(skip).limit(perPage);
             return {
                 comments,
                 allCommentsCount,
@@ -55,7 +55,7 @@ const getAllComments = async (args, _context) => {
         //if validated is false
         const allCommentsCount = await Comment.where({ validated: false }).countDocuments().exec();
         if (!page || !perPage) {
-            const comments = await Comment.find({ validated: false }).populate({ path: "userId", select: 'phone' });
+            const comments = await Comment.find({ validated: false }).populate({ path: "userId", select: 'name' });
             return {
                 comments,
                 allCommentsCount,
@@ -64,7 +64,7 @@ const getAllComments = async (args, _context) => {
             }
         }
         const skip = (page - 1) * perPage;
-        const comments = await Comment.find({ validated: false }).populate({ path: "userId", select: 'phone' }).skip(skip).limit(perPage);
+        const comments = await Comment.find({ validated: false }).populate({ path: "userId", select: 'name' }).skip(skip).limit(perPage);
         return {
             comments,
             allCommentsCount,
@@ -86,7 +86,9 @@ const getAllComments = async (args, _context) => {
 const getOneComment = async (args, _context) => {
     const { id } = args
     try {
-        const comment = await Comment.findById(id);
+        const comment = await Comment.findById(id).populate({
+            path: "userId", select: 'username'
+        });
         return {
             comment,
             status: 200,
@@ -104,7 +106,9 @@ const getOneComment = async (args, _context) => {
 const getCommentsOfAProduct = async (args, _context) => {
     const { id } = args
     try {
-        const allComments = await Comment.find({ productId: id });
+        const allComments = await Comment.find({ productId: id }).populate({
+            path: "userId", select: 'username'
+        });
         return {
             comments: allComments,
             status: 200,

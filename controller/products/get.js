@@ -187,9 +187,51 @@ const getOneProduct = async (args, _context) => {
 
 }
 
+const getAllProductsOfACategory = async (args, _context) => {
+
+    let { categoryId } = args;
+
+    if (!categoryId) return {
+        products: null,
+        message: "categoryId is required",
+        status: 400
+    }
+
+    try {
+        const allProductsCount = await Product.where().countDocuments().exec();
+        const products = await Product.find().populate({
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name',
+                match: {
+                    categoryId
+                }
+            },
+        });
+        console.log(products);
+        const newProds = await getProductsWithTrueImagesUrl(products);
+
+        return {
+            products: newProds,
+            allProductsCount,
+            status: 200,
+            message: null
+        }
+
+    } catch (error) {
+        return {
+            products: null,
+            allProductsCount: 0,
+            status: 500,
+            message: error
+        }
+    }
+
+}
 
 module.exports = {
     getAllProducts,
     getAllMyProducts,
-    getOneProduct
+    getOneProduct,
+    getAllProductsOfACategory
 }
