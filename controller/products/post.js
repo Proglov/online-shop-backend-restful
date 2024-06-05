@@ -8,8 +8,7 @@ const ProductCreate = async (args, context) => {
         name,
         desc,
         price,
-        category,
-        subcategory,
+        subcategoryId,
         imagesUrl,
     } = args;
 
@@ -37,8 +36,7 @@ const ProductCreate = async (args, context) => {
             name,
             desc,
             price,
-            category,
-            subcategory,
+            subcategoryId,
             sellerId: userInfo?.userId,
             imagesUrl
         })

@@ -9,8 +9,7 @@ const ProductUpdate = async (args, context) => {
         name,
         desc,
         price,
-        category,
-        subcategory,
+        subcategoryId,
         imagesUrl
     } = args;
 
@@ -54,12 +53,8 @@ const ProductUpdate = async (args, context) => {
             existingProduct.price = price
         }
 
-        if (!!category) {
-            existingProduct.category = category
-        }
-
-        if (!!subcategory) {
-            existingProduct.subcategory = subcategory
+        if (!!subcategoryId) {
+            existingProduct.subcategoryId = subcategoryId
         }
 
         if (imagesUrl !== undefined && imagesUrl !== null) {

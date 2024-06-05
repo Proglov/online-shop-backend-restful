@@ -6,7 +6,7 @@ const getCategoriesWithTrueImageUrl = async (input) => {
         const newCategories = [];
 
         for (const category of input) {
-            if (!!category.imageUrl.length) {
+            if (!!category.imageUrl) {
                 const filename = category.imageUrl
                 const args = { filename };
                 const { url } = await getImage(args, null);
@@ -25,7 +25,7 @@ const getCategoriesWithTrueImageUrl = async (input) => {
         return newCategories;
 
     } else if (typeof input === 'object') {
-        if (!!input.imageUrl.length) {
+        if (!!input.imageUrl) {
             const filename = input.imageUrl
             const args = { filename };
             const { url } = await getImage(args, null);
@@ -62,7 +62,6 @@ const getAllCategories = async (args, _context) => {
                 message: null
             }
         }
-
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;

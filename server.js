@@ -71,11 +71,11 @@ app.use('/productPost', setUserInfo, productsRouterPost);
 app.use('/productUpdate', setUserInfo, productsRouterUpdate);
 app.use('/productDelete', setUserInfo, productsRouterDelete);
 
-app.use('/categoriesGet', categoriesRouterGet);
-app.use('/categoriesPost', setUserInfo, categoriesRouterPost);
+app.use('/categoryGet', categoriesRouterGet);
+app.use('/categoryPost', setUserInfo, categoriesRouterPost);
 
-app.use('/subcategoriesGet', subcategoriesRouterGet);
-app.use('/subcategoriesPost', setUserInfo, subcategoriesRouterPost);
+app.use('/subcategoryGet', subcategoriesRouterGet);
+app.use('/subcategoryPost', setUserInfo, subcategoriesRouterPost);
 
 app.use('/commentGet', commentsRouterGet);
 app.use('/commentPost', setUserInfo, commentsRouterPost);

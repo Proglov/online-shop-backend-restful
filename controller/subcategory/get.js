@@ -9,7 +9,7 @@ const getAllSubcategories = async (args, _context) => {
         const allSubcategoriesCount = await Subcategory.where().countDocuments().exec();
 
         if (!page || !perPage) {
-            const subcategories = await Subcategory.find({});
+            const subcategories = await Subcategory.find({}).populate({ path: "categoryId", select: 'name' });
 
             return {
                 subcategories,
@@ -22,7 +22,7 @@ const getAllSubcategories = async (args, _context) => {
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const subcategories = await Subcategory.find({}).skip(skip).limit(perPage);
+        const subcategories = await Subcategory.find({}).populate({ path: "categoryId", select: 'name' }).skip(skip).limit(perPage);
         return {
             subcategories,
             allSubcategoriesCount,
@@ -44,7 +44,7 @@ const getAllSubcategories = async (args, _context) => {
 const getOneSubcategory = async (args, _context) => {
     const { id } = args
     try {
-        const subcategory = await Subcategory.findById(id);
+        const subcategory = await Subcategory.findById(id).populate({ path: "categoryId", select: 'name' });
         return {
             subcategory,
             status: 200,
