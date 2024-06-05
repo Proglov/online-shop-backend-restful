@@ -52,7 +52,12 @@ const getAllProducts = async (args, _context) => {
         const allProductsCount = await Product.where().countDocuments().exec();
 
         if (!page || !perPage) {
-            const products = await Product.find({});
+            const products = await Product.find({}).populate({
+                path: "subcategoryId", select: 'categoryId name', populate: {
+                    path: 'categoryId',
+                    select: 'name'
+                },
+            });
 
             const newProds = await getProductsWithTrueImagesUrl(products);
 
@@ -67,7 +72,12 @@ const getAllProducts = async (args, _context) => {
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const products = await Product.find({}).skip(skip).limit(perPage);
+        const products = await Product.find({}).populate({
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name'
+            },
+        }).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImagesUrl(products);
         return {
             products: newProds,
@@ -106,6 +116,11 @@ const getAllMyProducts = async (args, context) => {
         if (!page || !perPage) {
             const products = await Product.find({
                 sellerId: userInfo?.userId
+            }).populate({
+                path: "subcategoryId", select: 'categoryId name', populate: {
+                    path: 'categoryId',
+                    select: 'name'
+                },
             });
             const newProds = await getProductsWithTrueImagesUrl(products);
             return {
@@ -121,6 +136,11 @@ const getAllMyProducts = async (args, context) => {
         const skip = (page - 1) * perPage;
         const products = await Product.find({
             sellerId: userInfo?.userId
+        }).populate({
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name'
+            },
         }).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImagesUrl(products);
         // console.log(newProds);
@@ -145,7 +165,12 @@ const getAllMyProducts = async (args, context) => {
 const getOneProduct = async (args, _context) => {
     const { id } = args
     try {
-        const product = await Product.findById(id);
+        const product = await Product.findById(id).populate({
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name'
+            },
+        });
         const newProd = await getProductsWithTrueImagesUrl(product);
         return {
             product: newProd,
