@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { Product } = require('../../models/dbModels');
 const { getImages } = require('../image/get');
 
@@ -6,6 +7,7 @@ const getProductsWithTrueImagesUrl = async (input) => {
         const newProds = [];
 
         for (const product of input) {
+            console.log(product);
             if (product.imagesUrl.length !== 0) {
                 const filenames = product.imagesUrl
                 const args = { filenames };
@@ -20,6 +22,7 @@ const getProductsWithTrueImagesUrl = async (input) => {
                 newProds.push(updatedProduct);
             } else {
                 newProds.push(product);
+                console.log('here');
             }
 
         }
@@ -33,6 +36,51 @@ const getProductsWithTrueImagesUrl = async (input) => {
 
             return {
                 ...input?._doc,
+                imagesUrl: urls,
+                imagesName: filenames
+            };
+        }
+        return input
+    }
+
+    return null; // Invalid input
+};
+
+//the difference between these 2 funcs is that the input of the func below, doesn't have ._doc 
+const getProductsWithTrueImagesUrl2 = async (input) => {
+    if (Array.isArray(input)) {
+        const newProds = [];
+
+        for (const product of input) {
+            console.log(product);
+            if (product.imagesUrl.length !== 0) {
+                const filenames = product.imagesUrl
+                const args = { filenames };
+                const { urls } = await getImages(args, null);
+
+                const updatedProduct = {
+                    ...product,
+                    imagesUrl: urls,
+                    imagesName: filenames
+                };
+
+                newProds.push(updatedProduct);
+            } else {
+                newProds.push(product);
+                console.log('here');
+            }
+
+        }
+
+        return newProds;
+    } else if (typeof input === 'object') {
+        if (input.imagesUrl.length !== 0) {
+            const filenames = input.imagesUrl
+            const args = { filenames };
+            const { urls } = await getImages(args, null);
+
+            return {
+                ...input,
                 imagesUrl: urls,
                 imagesName: filenames
             };
@@ -199,17 +247,37 @@ const getAllProductsOfACategory = async (args, _context) => {
 
     try {
         const allProductsCount = await Product.where().countDocuments().exec();
-        const products = await Product.find().populate({
-            path: "subcategoryId", select: 'categoryId name', populate: {
-                path: 'categoryId',
-                select: 'name',
-                match: {
-                    categoryId
+        const products = await Product.aggregate([
+            {
+                "$lookup": {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: '_id',
+                    as: 'subcategory'
                 }
             },
-        });
-        console.log(products);
-        const newProds = await getProductsWithTrueImagesUrl(products);
+            {
+                "$lookup": {
+                    from: "categories",
+                    localField: "subcategory.categoryId",
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                "$match": {
+                    "category._id": new mongoose.Types.ObjectId(categoryId) // Filtering based on categoryId
+                }
+            },
+            {
+                "$project": {
+                    category: 0,
+                    subcategory: 0
+                }
+            }
+        ]).exec();
+
+        const newProds = await getProductsWithTrueImagesUrl2(products);
 
         return {
             products: newProds,
