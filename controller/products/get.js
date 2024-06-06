@@ -7,7 +7,6 @@ const getProductsWithTrueImagesUrl = async (input) => {
         const newProds = [];
 
         for (const product of input) {
-            console.log(product);
             if (product.imagesUrl.length !== 0) {
                 const filenames = product.imagesUrl
                 const args = { filenames };
@@ -22,7 +21,6 @@ const getProductsWithTrueImagesUrl = async (input) => {
                 newProds.push(updatedProduct);
             } else {
                 newProds.push(product);
-                console.log('here');
             }
 
         }
@@ -52,7 +50,6 @@ const getProductsWithTrueImagesUrl2 = async (input) => {
         const newProds = [];
 
         for (const product of input) {
-            console.log(product);
             if (product.imagesUrl.length !== 0) {
                 const filenames = product.imagesUrl
                 const args = { filenames };
@@ -67,7 +64,6 @@ const getProductsWithTrueImagesUrl2 = async (input) => {
                 newProds.push(updatedProduct);
             } else {
                 newProds.push(product);
-                console.log('here');
             }
 
         }
