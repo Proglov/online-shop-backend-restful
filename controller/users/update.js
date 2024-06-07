@@ -1,6 +1,6 @@
 const { User } = require('../../models/dbModels');
 
-const { isAdmin, isEmailValid } = require('../../lib/Functions');
+const { isAdmin, isEmailValid, isPhoneValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
