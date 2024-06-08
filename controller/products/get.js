@@ -242,7 +242,6 @@ const getAllProductsOfACategory = async (args, _context) => {
     }
 
     try {
-        const allProductsCount = await Product.where().countDocuments().exec();
         const products = await Product.aggregate([
             {
                 "$lookup": {
@@ -251,6 +250,9 @@ const getAllProductsOfACategory = async (args, _context) => {
                     foreignField: '_id',
                     as: 'subcategory'
                 }
+            },
+            {
+                "$unwind": "$subcategory"
             },
             {
                 "$lookup": {
@@ -266,9 +268,19 @@ const getAllProductsOfACategory = async (args, _context) => {
                 }
             },
             {
+                "$addFields": {
+                    "subcategoryName": "$subcategory.name",
+                }
+            },
+            {
                 "$project": {
-                    category: 0,
-                    subcategory: 0
+                    "subcategoryName": 1,
+                    "subcategoryId": 1,
+                    "name": 1,
+                    "desc": 1,
+                    "sellerId": 1,
+                    "price": 1,
+                    "imagesUrl": 1,
                 }
             }
         ]).exec();
@@ -277,7 +289,6 @@ const getAllProductsOfACategory = async (args, _context) => {
 
         return {
             products: newProds,
-            allProductsCount,
             status: 200,
             message: null
         }
@@ -285,7 +296,6 @@ const getAllProductsOfACategory = async (args, _context) => {
     } catch (error) {
         return {
             products: null,
-            allProductsCount: 0,
             status: 500,
             message: error
         }

@@ -41,9 +41,9 @@ router.get('/getOneProduct', async (req, res) => {
 router.get('/getAllProductsOfACategory', async (req, res) => {
     const args = req.query
 
-    const { products, allProductsCount, status, message } = await getAllProductsOfACategory({ ...args }, null)
+    const { products, status, message } = await getAllProductsOfACategory({ ...args }, null)
 
-    res.status(status).send({ products, allProductsCount, message });
+    res.status(status).send({ products, message });
 })
 
 
