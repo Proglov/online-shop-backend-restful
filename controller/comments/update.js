@@ -1,4 +1,5 @@
-const { Comment } = require('../../models/dbModels');
+const mongoose = require('mongoose');
+const { Comment, User, Seller } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
@@ -63,6 +64,7 @@ const CommentUpdate = async (args, context) => {
 const CommentToggleLike = async (args, context) => {
     const {
         id,
+        ownerType
     } = args;
 
     const { userInfo } = context
@@ -72,6 +74,13 @@ const CommentToggleLike = async (args, context) => {
         if (!userInfo || !userInfo?.userId) {
             return {
                 message: "You Are Not Authorized",
+                status: 400
+            }
+        }
+
+        if (!id) {
+            return {
+                message: "Comment's id is required!",
                 status: 400
             }
         }
@@ -86,18 +95,48 @@ const CommentToggleLike = async (args, context) => {
             }
         }
 
+        if (!ownerType || (ownerType !== "User" && ownerType !== "Seller")) {
+            return {
+                message: "ownerType is required. it should be User or Seller",
+                status: 400
+            }
+        }
+
+        if (ownerType === "User") {
+            const user = await User.findById(userInfo.userId)
+            if (!user) {
+                return {
+                    message: "You Are Not Authorized",
+                    status: 400
+                }
+            }
+        } else {
+            const seller = await Seller.findById(userInfo.userId)
+            if (!seller) {
+                return {
+                    message: "You Are Not Authorized",
+                    status: 400
+                }
+            }
+        }
+
+        const objToFind = {
+            id: new mongoose.Types.ObjectId(userInfo?.userId),
+            type: ownerType
+        };
+
         // Check if userId is already in the likes array
-        const userIndex = comment.likes.indexOf(userInfo?.userId);
+        const userIndex = comment.likes.findIndex(item => item.id.equals(objToFind.id))
 
         if (userIndex > -1) {
             // User already liked the comment, remove from likes array
             comment.likes.splice(userIndex, 1);
         } else {
             // User didn't like the comment, add to likes array
-            comment.likes.push(userInfo?.userId);
+            comment.likes.push(objToFind);
 
             //if user used to dislike the comment, remove it
-            const userIndexDis = comment.disLikes.indexOf(userInfo?.userId);
+            const userIndexDis = comment.disLikes.findIndex(item => item.id.equals(objToFind.id))
 
             if (userIndexDis > -1) {
                 comment.disLikes.splice(userIndexDis, 1);
@@ -124,6 +163,7 @@ const CommentToggleLike = async (args, context) => {
 const CommentToggleDisLike = async (args, context) => {
     const {
         id,
+        ownerType
     } = args;
 
     const { userInfo } = context
@@ -133,7 +173,14 @@ const CommentToggleDisLike = async (args, context) => {
         if (!userInfo || !userInfo?.userId) {
             return {
                 message: "You Are Not Authorized",
-                status: false
+                status: 400
+            }
+        }
+
+        if (!id) {
+            return {
+                message: "Comment's id is required!",
+                status: 400
             }
         }
 
@@ -142,23 +189,53 @@ const CommentToggleDisLike = async (args, context) => {
 
         if (!comment) {
             return {
-                message: 'Comment Not Found',
-                status: false
+                message: "Comment Not Found",
+                status: 400
             }
         }
 
+        if (!ownerType || (ownerType !== "User" && ownerType !== "Seller")) {
+            return {
+                message: "ownerType is required. it should be User or Seller",
+                status: 400
+            }
+        }
+
+        if (ownerType === "User") {
+            const user = await User.findById(userInfo.userId)
+            if (!user) {
+                return {
+                    message: "You Are Not Authorized",
+                    status: 400
+                }
+            }
+        } else {
+            const seller = await Seller.findById(userInfo.userId)
+            if (!seller) {
+                return {
+                    message: "You Are Not Authorized",
+                    status: 400
+                }
+            }
+        }
+
+        const objToFind = {
+            id: new mongoose.Types.ObjectId(userInfo?.userId),
+            type: ownerType
+        };
+
         // Check if userId is already in the disLikes array
-        const userIndex = comment.disLikes.indexOf(userInfo?.userId);
+        const userIndex = comment.disLikes.findIndex(item => item.id.equals(objToFind.id))
 
         if (userIndex > -1) {
             // User already liked the comment, remove from disLikes array
             comment.disLikes.splice(userIndex, 1);
         } else {
-            // User didn't dislike the comment, add to disLikes array
-            comment.disLikes.push(userInfo?.userId);
+            // User didn't like the comment, add to disLikes array
+            comment.disLikes.push(objToFind);
 
             //if user used to like the comment, remove it
-            const userIndexLike = comment.likes.indexOf(userInfo?.userId);
+            const userIndexLike = comment.likes.findIndex(item => item.id.equals(objToFind.id))
 
             if (userIndexLike > -1) {
                 comment.likes.splice(userIndexLike, 1);

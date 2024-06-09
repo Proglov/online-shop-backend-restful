@@ -135,10 +135,15 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    ownerType: {
+        type: String,
+        enum: ['User', 'Seller'],
         required: true
+    },
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'ownerType'
     },
     productId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -151,18 +156,34 @@ const commentSchema = new mongoose.Schema({
         default: null
     },
     likes: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: {
+            type: String,
+            enum: ['User', 'Seller'],
+            required: true
+        },
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: 'likes.type'
+        }
     }],
     disLikes: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: {
+            type: String,
+            enum: ['User', 'Seller'],
+            required: true
+        },
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: 'disLikes.type'
+        }
     }],
     validated: {
         type: Boolean,
         default: false
     },
-})
+});
 
 const transActionSchema = new mongoose.Schema({
     userId: {
