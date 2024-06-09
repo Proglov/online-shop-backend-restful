@@ -14,7 +14,7 @@
 //     optionsSuccessStatus: 200
 // }
 
-var allowlist = ["http://localhost:3000"]
+var allowlist = ["http://localhost:3000", "https://shop-front3.liara.run"]
 var corsOptions = function (req, callback) {
     var corsOptionsDelegate;
     if (allowlist.indexOf(req.header('Origin')) !== -1) {
