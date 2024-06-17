@@ -51,7 +51,7 @@ const SubcategoryCreate = async (args, context) => {
 
         newSubcategory.categoryId.name = category.name
         return {
-            subcategory: newSubcategory,
+            subcategory: { name: newSubcategory.name, _id: newSubcategory._id, categoryId: { name: category.name } },
             message: 'The Subcategory has been created successfully',
             status: 201
         }
