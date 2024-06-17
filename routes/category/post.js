@@ -12,9 +12,9 @@ router.post('/CategoryCreate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await CategoryCreate({ ...input }, { userInfo });
+    const { status, message, category } = await CategoryCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, category });
 })
 
 
