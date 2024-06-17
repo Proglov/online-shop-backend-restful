@@ -1,4 +1,4 @@
-const { Subcategory } = require('../../models/dbModels');
+const { Subcategory, Category } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
 
@@ -35,8 +35,8 @@ const SubcategoryCreate = async (args, context) => {
             message: "name is required",
             status: 400
         }
-
-        if (!categoryId) return {
+        const category = await Category.findById(categoryId)
+        if (!categoryId || !category) return {
             subcategory: null,
             message: "categoryId is required",
             status: 400
@@ -49,6 +49,7 @@ const SubcategoryCreate = async (args, context) => {
 
         await newSubcategory.save();
 
+        newSubcategory.categoryId.name = category.name
         return {
             subcategory: newSubcategory,
             message: 'The Subcategory has been created successfully',
