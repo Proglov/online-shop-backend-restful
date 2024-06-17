@@ -12,9 +12,9 @@ router.post('/SubcategoryCreate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await SubcategoryCreate({ ...input }, { userInfo });
+    const { status, message, subcategory } = await SubcategoryCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, subcategory });
 })
 
 

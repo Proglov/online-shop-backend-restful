@@ -15,6 +15,7 @@ const SubcategoryCreate = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                subcategory: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -23,17 +24,20 @@ const SubcategoryCreate = async (args, context) => {
 
         if (!(await isAdmin(userInfo?.userId))) {
             return {
+                subcategory: null,
                 message: "You are not authorized!",
                 status: 403
             }
         }
 
         if (!name) return {
+            subcategory: null,
             message: "name is required",
             status: 400
         }
 
         if (!categoryId) return {
+            subcategory: null,
             message: "categoryId is required",
             status: 400
         }
@@ -46,12 +50,14 @@ const SubcategoryCreate = async (args, context) => {
         await newSubcategory.save();
 
         return {
+            subcategory: newSubcategory,
             message: 'The Subcategory has been created successfully',
             status: 201
         }
 
     } catch (error) {
         return {
+            subcategory: null,
             message: error,
             status: 500
         }
