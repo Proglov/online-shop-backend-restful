@@ -121,6 +121,7 @@ const SellerSignUp = async (args, _context) => {
         const newSeller = new Seller({
             name,
             storeName,
+            workingPhone,
             email,
             username,
             password: hashedPassword,
