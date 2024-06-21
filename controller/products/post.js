@@ -1,7 +1,48 @@
-const { Product, Seller } = require('../../models/dbModels');
-
-
+const { Product, Seller, Subcategory } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
+const { getImages } = require('../image/get');
+
+const getProductsWithTrueImagesUrl = async (input) => {
+    if (Array.isArray(input)) {
+        const newProds = [];
+
+        for (const product of input) {
+            if (product.imagesUrl.length !== 0) {
+                const filenames = product.imagesUrl
+                const args = { filenames };
+                const { urls } = await getImages(args, null);
+
+                const updatedProduct = {
+                    ...product?._doc,
+                    imagesUrl: urls,
+                    imagesName: filenames
+                };
+
+                newProds.push(updatedProduct);
+            } else {
+                newProds.push(product);
+            }
+
+        }
+
+        return newProds;
+    } else if (typeof input === 'object') {
+        if (input.imagesUrl.length !== 0) {
+            const filenames = input.imagesUrl
+            const args = { filenames };
+            const { urls } = await getImages(args, null);
+
+            return {
+                ...input?._doc,
+                imagesUrl: urls,
+                imagesName: filenames
+            };
+        }
+        return input
+    }
+
+    return null; // Invalid input
+};
 
 const ProductCreate = async (args, context) => {
     const {
@@ -34,6 +75,14 @@ const ProductCreate = async (args, context) => {
             }
         }
 
+        const subcategory = await Subcategory.findById(subcategoryId).populate({ path: "categoryId", select: 'name' });
+
+        if (!subcategory) return {
+            product: null,
+            message: "subcategory is required",
+            status: 400
+        }
+
         const newProduct = new Product({
             name,
             desc,
@@ -45,8 +94,22 @@ const ProductCreate = async (args, context) => {
 
         await newProduct.save();
 
+        const newProd = await getProductsWithTrueImagesUrl(newProduct);
+
         return {
-            product: newProduct,
+            product: {
+                _id: newProd._id,
+                name,
+                desc,
+                price,
+                imagesUrl: newProd.imagesUrl,
+                subcategoryId: {
+                    name: subcategory.name,
+                    categoryId: {
+                        name: subcategory.categoryId.name,
+                    }
+                }
+            },
             message: 'The product has been created successfully',
             status: 201
         }
