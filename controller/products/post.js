@@ -18,6 +18,7 @@ const ProductCreate = async (args, context) => {
     try {
         if (!userInfo) {
             return {
+                product: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -27,6 +28,7 @@ const ProductCreate = async (args, context) => {
 
         if (!(await isAdmin(userInfo?.userId)) && !seller) {
             return {
+                product: null,
                 message: "You are not authorized!",
                 status: 403
             }
@@ -44,12 +46,14 @@ const ProductCreate = async (args, context) => {
         await newProduct.save();
 
         return {
+            product: newProduct,
             message: 'The product has been created successfully',
             status: 201
         }
 
     } catch (error) {
         return {
+            product: null,
             message: error,
             status: 500
         }

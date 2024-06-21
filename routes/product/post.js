@@ -12,9 +12,9 @@ router.post('/ProductCreate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await ProductCreate({ ...input }, { userInfo });
+    const { status, message, product } = await ProductCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, product });
 })
 
 
