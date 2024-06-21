@@ -12,9 +12,9 @@ router.patch('/ProductUpdate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await ProductUpdate({ ...input }, { userInfo })
+    const { status, message, product } = await ProductUpdate({ ...input }, { userInfo })
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, product });
 })
 
 

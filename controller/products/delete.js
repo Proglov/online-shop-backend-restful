@@ -12,6 +12,7 @@ const ProductDelete = async (args, context) => {
     try {
         if (!userInfo) {
             return {
+                _id: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -21,6 +22,7 @@ const ProductDelete = async (args, context) => {
 
         if (!existingProduct) {
             return {
+                _id: null,
                 message: "Product doesn't exist",
                 status: 400
             }
@@ -28,6 +30,7 @@ const ProductDelete = async (args, context) => {
 
         if (!(await isAdmin(userInfo?.userId)) && existingProduct?.sellerId != userInfo?.userId) {
             return {
+                _id: null,
                 message: "You are not authorized!",
                 status: 403
             }
@@ -49,12 +52,14 @@ const ProductDelete = async (args, context) => {
         await Product.findByIdAndDelete(id)
 
         return {
+            _id: id,
             message: "Product has been deleted successfully",
             status: 200
         }
 
     } catch (error) {
         return {
+            _id: null,
             message: error,
             status: 500
         }

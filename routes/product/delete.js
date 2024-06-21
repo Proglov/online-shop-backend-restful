@@ -11,9 +11,9 @@ router.delete('/ProductDelete', async (req, res) => {
     const userInfo = req?.userInfo
     const { id } = req.body
 
-    const { status, message } = await ProductDelete({ id }, { userInfo });
+    const { status, message, _id } = await ProductDelete({ id }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, _id });
 })
 
 
