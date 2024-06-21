@@ -14,7 +14,8 @@
 //     optionsSuccessStatus: 200
 // }
 
-var allowlist = ["http://localhost:3000", "https://fron.liara.run"]
+var allowlist = ["http://localhost:3000", "https://shopping-front-gamma.vercel.app"]
+
 var corsOptions = function (req, callback) {
     var corsOptionsDelegate;
     if (allowlist.indexOf(req.header('Origin')) !== -1) {
