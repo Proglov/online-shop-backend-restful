@@ -270,6 +270,7 @@ const CommentToggleValidate = async (args, context) => {
         //check for Authorization
         if (!userInfo || !userInfo?.userId) {
             return {
+                comment: null,
                 message: "You Are Not Authorized",
                 status: 400
             }
@@ -278,16 +279,18 @@ const CommentToggleValidate = async (args, context) => {
         //only admin can toggle validated a comment
         if (!(await isAdmin(userInfo.userId))) {
             return {
+                comment: null,
                 message: "You Are Not Authorized",
                 status: 403
             }
         }
 
         // Find the comment by commentId
-        const comment = await Comment.findById(id);
+        const comment = await Comment.findById(id).populate({ path: "ownerId", select: 'name' });
 
         if (!comment) {
             return {
+                comment: null,
                 message: 'Comment Not Found',
                 status: 400
             }
@@ -298,13 +301,18 @@ const CommentToggleValidate = async (args, context) => {
         // Save the updated comment with disLikes changes
         await comment.save();
 
+        const commentToReturn = { ...comment._doc }
+        delete commentToReturn.__v;
+
         return {
+            comment: commentToReturn,
             message: "Comment has been toggled validated Successfully",
             status: 200
         }
 
     } catch (error) {
         return {
+            comment: null,
             message: error,
             status: 500
         }

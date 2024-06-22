@@ -45,9 +45,9 @@ router.patch('/CommentToggleValidate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await CommentToggleValidate({ ...input }, { userInfo })
+    const { status, message, comment } = await CommentToggleValidate({ ...input }, { userInfo })
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, comment });
 })
 
 
