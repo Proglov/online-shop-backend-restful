@@ -113,6 +113,16 @@ const SellerSignUp = async (args, _context) => {
             }
         }
 
+        const existingSellerByUsername = await Seller.findOne({ username });
+
+        if (existingSellerByUsername) {
+            return {
+                message: "username Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
         var hashedPassword;
         if (password) {
             hashedPassword = await hash(password, 10);
