@@ -23,9 +23,9 @@ router.patch('/SellerValidate', async (req, res) => {
 
     const { input } = req.body
 
-    const { status, message } = await SellerValidate({ ...input }, { userInfo })
+    const { status, message, seller } = await SellerValidate({ ...input }, { userInfo })
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, seller });
 })
 
 

@@ -207,6 +207,7 @@ const SellerValidate = async (args, context) => {
         //check if req contains token
         if (!userInfo) {
             return {
+                seller: null,
                 message: "You are not authorized!",
                 status: 401
             }
@@ -215,6 +216,7 @@ const SellerValidate = async (args, context) => {
         //only admin can validate
         if (!(await isAdmin(userInfo?.userId))) {
             return {
+                seller: null,
                 message: "You are not authorized!",
                 status: 401
             }
@@ -223,6 +225,7 @@ const SellerValidate = async (args, context) => {
         const seller = await Seller.findById(id);
         if (!seller) {
             return {
+                seller: null,
                 message: "No seller found",
                 status: 404
             }
@@ -231,6 +234,7 @@ const SellerValidate = async (args, context) => {
 
         if (!seller) {
             return {
+                seller: null,
                 message: 'Seller Not Found',
                 status: 400
             }
@@ -241,7 +245,11 @@ const SellerValidate = async (args, context) => {
         // Save the updated seller with disLikes changes
         await seller.save();
 
+        const sellerToReturn = { ...seller._doc }
+        delete sellerToReturn.__v;
+        delete sellerToReturn.password;
         return {
+            seller: sellerToReturn,
             message: "Seller has been toggled validated Successfully",
             status: 200
         }
@@ -249,6 +257,7 @@ const SellerValidate = async (args, context) => {
 
     } catch (error) {
         return {
+            seller: null,
             message: error,
             status: 500
         }
