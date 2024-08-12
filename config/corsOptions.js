@@ -15,7 +15,7 @@
 // }
 
 // var allowlist = ["http://localhost:3000", "https://onlineshopiranian.liara.run"]
-var allowlist = ["https://onlineshopiranian.liara.run"]
+var allowlist = ["https://onlineshopiranian.liara.run", "https://www.cofeman.ir", "https://cofeman.ir"]
 
 var corsOptions = function (req, callback) {
     var corsOptionsDelegate;
