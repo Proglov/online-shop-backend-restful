@@ -1,4 +1,4 @@
-const { User } = require('../../models/dbModels');
+const { User, Seller } = require('../../models/dbModels');
 
 const { isAdmin, isEmailValid, isPhoneValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
@@ -49,7 +49,7 @@ const UserUpdate = async (args, context) => {
         }
 
         //check the phone
-        if (phone) {
+        if (phone && phone !== user.phone) {
             if (!isPhoneValid(phone)) {
                 return {
                     message: "Phone is not valid",
@@ -66,21 +66,40 @@ const UserUpdate = async (args, context) => {
                     status: 409
                 }
             }
-        }
 
-        //check if email is valid
-        if (email && !isEmailValid(email)) {
-            return {
-                message: "Email is not valid",
-                token: null,
-                status: 400
+            const existingSeller = await Seller.findOne({ phone });
+
+
+            if (existingSeller) {
+                return {
+                    message: "Phone Already Exists in the Sellers",
+                    token: null,
+                    status: 409
+                }
             }
         }
 
-        //check if email already exists
+        //check if email is valid
         if (email && email !== user.email) {
+            if (!isEmailValid(email)) {
+                return {
+                    message: "Email is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+
             const existingUser = await User.findOne({ email });
             if (existingUser) {
+                return {
+                    message: "Email Already Exists",
+                    token: null,
+                    status: 409
+                }
+            }
+
+            const existingSeller = await Seller.findOne({ email });
+            if (existingSeller) {
                 return {
                     message: "Email Already Exists",
                     token: null,
@@ -96,8 +115,18 @@ const UserUpdate = async (args, context) => {
                 token: null,
                 status: 400
             }
+
             const existingUserByUsername = await User.findOne({ username });
             if (existingUserByUsername) {
+                return {
+                    message: "Username Already Exists",
+                    token: null,
+                    status: 409
+                }
+            }
+
+            const existingSellerByUsername = await Seller.findOne({ username });
+            if (existingSellerByUsername) {
                 return {
                     message: "Username Already Exists",
                     token: null,

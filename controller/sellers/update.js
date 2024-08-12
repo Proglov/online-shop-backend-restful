@@ -108,11 +108,33 @@ const SellerUpdate = async (args, context) => {
         }
 
         //check if email is valid
-        if (email && !isEmailValid(email)) {
-            return {
-                message: "Email is not valid",
-                token: null,
-                status: 400
+        if (email && email !== seller.email) {
+            if (email && !isEmailValid(email)) {
+                return {
+                    message: "Email is not valid",
+                    token: null,
+                    status: 400
+                }
+            }
+
+            const existingSellerByEmail = await Seller.findOne({ email });
+
+            if (existingSellerByEmail) {
+                return {
+                    message: "Email Already Exists",
+                    token: null,
+                    status: 409
+                }
+            }
+
+            const existingSellerByEmailInUsers = await User.findOne({ email });
+
+            if (existingSellerByEmailInUsers) {
+                return {
+                    message: "Email Already Exists In Users",
+                    token: null,
+                    status: 409
+                }
             }
         }
 
@@ -133,21 +155,17 @@ const SellerUpdate = async (args, context) => {
                     status: 409
                 }
             }
-        }
 
-        //check if email already exists
-        if (email && email !== seller.email) {
-            const existingSeller = await Seller.findOne({ email });
-            if (existingSeller) {
+            const existingUser = await User.findOne({ username });
+            if (existingUser) {
                 return {
-                    message: "Email Already Exists",
+                    message: "username Already Exists",
                     token: null,
                     status: 409
                 }
             }
-
-            // ***********  check the email with sending a code    ************** \\
         }
+
 
         let hashedPassword;
         if (password) {

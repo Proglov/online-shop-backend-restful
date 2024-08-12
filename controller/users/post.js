@@ -1,5 +1,5 @@
 const { User } = require('../../models/dbModels');
-const { hash } = require('bcryptjs');
+const { hash, compare } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 
@@ -104,32 +104,41 @@ const UserSignUp = async (args, _context) => {
 }
 
 const UserSignInWithPhone = async (args, _context) => {
-    const { phone } = args;
+    const { phone, password } = args;
 
     try {
         const user = await User.findOne({
             phone
         })
 
-        if (user) {
-            const token = await JWT.sign({
-                userId: user.id
-            }, process.env.JWT_SIGNATURE, {
-                expiresIn: 86400
-            })
-
+        if (!user) {
             return {
-                message: null,
-                token,
-                status: 200
+                message: "no user found",
+                token: null,
+                status: 401
             }
-        }
-        return {
-            message: "no user found",
-            token: null,
-            status: 401
+
         }
 
+        const isMatch = await compare(password, user.password)
+
+        if (!isMatch) return {
+            message: "Invalid Credentials",
+            token: null,
+            status: 403
+        }
+
+        const token = await JWT.sign({
+            userId: user.id
+        }, process.env.JWT_SIGNATURE, {
+            expiresIn: 86400
+        })
+
+        return {
+            message: null,
+            token,
+            status: 200
+        }
 
     } catch (error) {
         return {
@@ -160,7 +169,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
 
         if (userWithEmail) {
 
-            const isMatch = await bcrypt.compare(password, userWithEmail.password)
+            const isMatch = await compare(password, userWithEmail.password)
 
             if (!isMatch) return {
                 message: "Invalid Credentials",
@@ -187,7 +196,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
 
         if (userWithUsername) {
 
-            const isMatch = await bcrypt.compare(password, userWithUsername.password)
+            const isMatch = await compare(password, userWithUsername.password)
 
             if (!isMatch) return {
                 message: "Invalid Credentials",

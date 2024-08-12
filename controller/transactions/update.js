@@ -2,8 +2,8 @@ const { isAdmin } = require('../../lib/Functions');
 const { TransAction } = require('../../models/dbModels');
 
 
-const TransActionDone = async (args, context) => {
-    const { id } = args
+const TransActionStatus = async (args, context) => {
+    const { id, newStatus } = args
     const { userInfo } = context;
 
     try {
@@ -14,6 +14,12 @@ const TransActionDone = async (args, context) => {
                 message: "You are not authorized!",
                 status: 403
             }
+        }
+
+        if (newStatus !== 'Received' && newStatus !== 'Sent' && newStatus !== 'Canceled') return {
+            transaction: null,
+            message: "status is not acceptable",
+            status: 400
         }
 
         const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId name' }).populate({ path: "userId", select: 'name phone' })
@@ -30,7 +36,7 @@ const TransActionDone = async (args, context) => {
             status: 403
         }
 
-        tx.done = true;
+        tx.status = newStatus;
 
         tx.save();
 
@@ -51,5 +57,5 @@ const TransActionDone = async (args, context) => {
 }
 
 module.exports = {
-    TransActionDone
+    TransActionStatus
 }

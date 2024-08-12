@@ -11,9 +11,9 @@ router.post('/TransActionCreate', async (req, res) => {
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message } = await TransActionCreate({ ...input }, { userInfo });
+    const { status, message, transactionId } = await TransActionCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, transactionId });
 })
 
 

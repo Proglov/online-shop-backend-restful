@@ -73,6 +73,7 @@ const CommentToggleLike = async (args, context) => {
         //check for Authorization
         if (!userInfo || !userInfo?.userId) {
             return {
+                comment: null,
                 message: "You Are Not Authorized",
                 status: 400
             }
@@ -80,6 +81,7 @@ const CommentToggleLike = async (args, context) => {
 
         if (!id) {
             return {
+                comment: null,
                 message: "Comment's id is required!",
                 status: 400
             }
@@ -90,6 +92,7 @@ const CommentToggleLike = async (args, context) => {
 
         if (!comment) {
             return {
+                comment: null,
                 message: "Comment Not Found",
                 status: 400
             }
@@ -97,6 +100,7 @@ const CommentToggleLike = async (args, context) => {
 
         if (!ownerType || (ownerType !== "User" && ownerType !== "Seller")) {
             return {
+                comment: null,
                 message: "ownerType is required. it should be User or Seller",
                 status: 400
             }
@@ -106,6 +110,7 @@ const CommentToggleLike = async (args, context) => {
             const user = await User.findById(userInfo.userId)
             if (!user) {
                 return {
+                    comment: null,
                     message: "You Are Not Authorized",
                     status: 400
                 }
@@ -114,6 +119,7 @@ const CommentToggleLike = async (args, context) => {
             const seller = await Seller.findById(userInfo.userId)
             if (!seller) {
                 return {
+                    comment: null,
                     message: "You Are Not Authorized",
                     status: 400
                 }
@@ -147,12 +153,18 @@ const CommentToggleLike = async (args, context) => {
         await comment.save();
 
         return {
+            comment: {
+                likes: comment.likes,
+                disLikes: comment.disLikes
+            },
+            comment,
             message: "Comment has been toggled like Successfully",
             status: 200
         }
 
     } catch (error) {
         return {
+            comment: null,
             message: error,
             status: 500
         }
@@ -172,6 +184,7 @@ const CommentToggleDisLike = async (args, context) => {
         //check for Authorization
         if (!userInfo || !userInfo?.userId) {
             return {
+                comment: null,
                 message: "You Are Not Authorized",
                 status: 400
             }
@@ -179,6 +192,7 @@ const CommentToggleDisLike = async (args, context) => {
 
         if (!id) {
             return {
+                comment: null,
                 message: "Comment's id is required!",
                 status: 400
             }
@@ -189,6 +203,7 @@ const CommentToggleDisLike = async (args, context) => {
 
         if (!comment) {
             return {
+                comment: null,
                 message: "Comment Not Found",
                 status: 400
             }
@@ -196,6 +211,7 @@ const CommentToggleDisLike = async (args, context) => {
 
         if (!ownerType || (ownerType !== "User" && ownerType !== "Seller")) {
             return {
+                comment: null,
                 message: "ownerType is required. it should be User or Seller",
                 status: 400
             }
@@ -205,6 +221,7 @@ const CommentToggleDisLike = async (args, context) => {
             const user = await User.findById(userInfo.userId)
             if (!user) {
                 return {
+                    comment: null,
                     message: "You Are Not Authorized",
                     status: 400
                 }
@@ -213,6 +230,7 @@ const CommentToggleDisLike = async (args, context) => {
             const seller = await Seller.findById(userInfo.userId)
             if (!seller) {
                 return {
+                    comment: null,
                     message: "You Are Not Authorized",
                     status: 400
                 }
@@ -246,12 +264,17 @@ const CommentToggleDisLike = async (args, context) => {
         await comment.save();
 
         return {
+            comment: {
+                likes: comment.likes,
+                disLikes: comment.disLikes
+            },
             message: "Comment has been toggled disLike Successfully",
             status: 200
         }
 
     } catch (error) {
         return {
+            comment: null,
             message: error,
             status: 500
         }

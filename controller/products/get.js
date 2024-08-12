@@ -231,6 +231,56 @@ const getOneProduct = async (args, _context) => {
 
 }
 
+const getOneProductParams = async (args, _context) => {
+    const { id } = args
+    try {
+        const product = await Product.findById(id).populate({
+            path: "subcategoryId", select: 'categoryId', populate: {
+                path: 'categoryId'
+            },
+        }).select('_id subcategoryId');
+
+        const params = product.subcategoryId.categoryId._id + '/' + product.subcategoryId._id + '/' + id
+        return {
+            params,
+            status: 200,
+            message: null
+        }
+    } catch (error) {
+        return {
+            params: null,
+            status: 500,
+            message: error
+        }
+    }
+
+}
+
+const getSomeProducts = async (args, _context) => {
+    try {
+        const newIds = []
+        const keys = Object.keys(args)
+        for (const key of keys) {
+            newIds.push(args[key])
+        }
+        const products = await Product.find({
+            '_id': { $in: newIds }
+        })
+        const newProds = await getProductsWithTrueImagesUrl(products);
+        return {
+            products: newProds,
+            status: 200,
+            message: null
+        }
+    } catch (error) {
+        return {
+            products: null,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 const getAllProductsOfACategory = async (args, _context) => {
 
     let { categoryId } = args;
@@ -307,5 +357,7 @@ module.exports = {
     getAllProducts,
     getAllMyProducts,
     getOneProduct,
+    getOneProductParams,
+    getSomeProducts,
     getAllProductsOfACategory
 }

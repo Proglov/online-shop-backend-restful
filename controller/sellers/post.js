@@ -1,5 +1,5 @@
 const { Seller, User } = require('../../models/dbModels');
-const { hash } = require('bcryptjs');
+const { hash, compare } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 const { isWorkingPhoneValid, isEmailValid, isPhoneValid } = require('../../lib/Functions');
 
@@ -174,32 +174,41 @@ const SellerSignUp = async (args, _context) => {
 }
 
 const SellerSignInWithPhone = async (args, _context) => {
-    const { phone } = args;
+    const { phone, password } = args;
 
     try {
         const seller = await Seller.findOne({
             phone
         })
 
-        if (seller) {
-            const token = await JWT.sign({
-                userId: seller.id
-            }, process.env.JWT_SIGNATURE, {
-                expiresIn: 86400
-            })
-
+        if (!seller) {
             return {
-                message: null,
-                token,
-                status: 200
+                message: "no seller found",
+                token: null,
+                status: 401
             }
-        }
-        return {
-            message: "no seller found",
-            token: null,
-            status: 401
+
         }
 
+        const isMatch = await compare(password, seller.password)
+
+        if (!isMatch) return {
+            message: "Invalid Credentials",
+            token: null,
+            status: 403
+        }
+
+        const token = await JWT.sign({
+            userId: seller.id
+        }, process.env.JWT_SIGNATURE, {
+            expiresIn: 86400
+        })
+
+        return {
+            message: null,
+            token,
+            status: 200
+        }
 
     } catch (error) {
         return {
@@ -230,7 +239,7 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
 
         if (sellerWithEmail) {
 
-            const isMatch = await bcrypt.compare(password, sellerWithEmail.password)
+            const isMatch = await compare(password, sellerWithEmail.password)
 
             if (!isMatch) return {
                 message: "Invalid Credentials",
@@ -257,7 +266,7 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
 
         if (sellerWithUsername) {
 
-            const isMatch = await bcrypt.compare(password, sellerWithUsername.password)
+            const isMatch = await compare(password, sellerWithUsername.password)
 
             if (!isMatch) return {
                 message: "Invalid Credentials",

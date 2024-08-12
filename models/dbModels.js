@@ -105,7 +105,11 @@ const productSchema = new mongoose.Schema({
     },
     imagesUrl: [{
         type: String
-    }]
+    }],
+    available: {
+        type: Boolean,
+        default: true
+    }
 });
 
 const categorySchema = new mongoose.Schema({
@@ -220,9 +224,10 @@ const transActionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    done: {
-        type: Boolean,
-        default: false
+    status: {
+        type: String,
+        enum: ['Requested', 'Sent', 'Received', 'Canceled'],
+        default: 'Requested'
     }
 }, { timestamps: { createdAt: true } })
 

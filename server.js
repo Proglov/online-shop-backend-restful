@@ -21,7 +21,7 @@ const sellersRouterDelete = require('./routes/seller/delete');
 const productsRouterGet = require('./routes/product/get');
 const productsRouterPost = require('./routes/product/post');
 const productsRouterUpdate = require('./routes/product/update');
-const productsRouterDelete = require('./routes/product/delete');
+// const productsRouterDelete = require('./routes/product/delete');
 
 const categoriesRouterGet = require('./routes/category/get');
 const categoriesRouterPost = require('./routes/category/post');
@@ -69,7 +69,7 @@ app.use('/sellerDelete', setUserInfo, sellersRouterDelete);
 app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
 app.use('/productUpdate', setUserInfo, productsRouterUpdate);
-app.use('/productDelete', setUserInfo, productsRouterDelete);
+// app.use('/productDelete', setUserInfo, productsRouterDelete);
 
 app.use('/categoryGet', categoriesRouterGet);
 app.use('/categoryPost', setUserInfo, categoriesRouterPost);

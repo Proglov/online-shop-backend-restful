@@ -19,9 +19,9 @@ router.post('/UserSignUp', async (req, res) => {
 
 
 router.post('/UserSignInWithPhone', async (req, res) => {
-    const { phone } = req.body
+    const { phone, password } = req.body
 
-    const { status, message, token } = await UserSignInWithPhone({ phone }, null)
+    const { status, message, token } = await UserSignInWithPhone({ phone, password }, null)
 
     res.status(status).send({ message, token });
 })

@@ -3,15 +3,15 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    TransActionDone
+    TransActionStatus
 } = require('../../controller/transactions/update');
 
 
-router.post('/TransActionDone', async (req, res) => {
+router.post('/TransActionStatus', async (req, res) => {
     const userInfo = req?.userInfo
-    const { id } = req.body
+    const { id, newStatus } = req.body
 
-    const { status, message, transaction } = await TransActionDone({ id }, { userInfo });
+    const { status, message, transaction } = await TransActionStatus({ id, newStatus }, { userInfo });
 
     res.status(status).send({ message, transaction });
 })

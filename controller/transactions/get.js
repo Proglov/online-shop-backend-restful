@@ -106,6 +106,7 @@ const getAllTransActions = async (args, context) => {
     }
 }
 
+// this api belongs to the sellers
 const getAllMyTransActions = async (args, context) => {
     const { page, perPage, isFutureOrder } = args;
     const { userInfo } = context;
@@ -206,6 +207,53 @@ const getAllMyTransActions = async (args, context) => {
     }
 }
 
+// this api belongs to the Users
+const getAllMyTransActionsUser = async (args, context) => {
+    //i've omitted the pagination by now
+    // const { page, perPage } = args;
+    const { userInfo } = context;
+
+    try {
+        //check if req contains token
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                transactions: null,
+                // transactionsCount: 0,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        // const count = await TransAction.where({ userId: userInfo?.userId }).countDocuments().exec();
+        // if (!page || !perPage) {
+        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: 'desc' });
+        return {
+            transactions: tx,
+            // transactionsCount: count,
+            status: 200,
+            message: null
+        }
+        // }
+        // const skip = (page - 1) * perPage;
+        // const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+        // return {
+        //     transactions: tx,
+        //     transactionsCount: count,
+        //     status: 200,
+        //     message: null
+        // }
+
+
+    } catch (error) {
+        return {
+            transactions: null,
+            // transactionsCount: 0,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 const getOneTransAction = async (args, context) => {
     const { id } = args
     const { userInfo } = context;
@@ -220,7 +268,12 @@ const getOneTransAction = async (args, context) => {
             }
         }
 
-        const tx = await TransAction.findById(id)
+        const tx = await TransAction.findById(id).populate({
+            path: "boughtProducts", populate: {
+                path: 'productId',
+                select: 'name'
+            }
+        })
 
         //only admin and himself can get the tx
 
@@ -250,5 +303,6 @@ const getOneTransAction = async (args, context) => {
 module.exports = {
     getAllTransActions,
     getAllMyTransActions,
+    getAllMyTransActionsUser,
     getOneTransAction
 }

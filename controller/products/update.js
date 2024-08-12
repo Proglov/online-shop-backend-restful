@@ -140,6 +140,56 @@ const ProductUpdate = async (args, context) => {
 
 }
 
+const ProductAvailability = async (args, context) => {
+    const { id } = args;
+    const { userInfo } = context;
+
+
+    try {
+        if (!userInfo) {
+            return {
+                message: "You are not authorized!",
+                status: 400
+            }
+        }
+
+        const existingProduct = await Product.findById(id);
+
+        if (!existingProduct) {
+            return {
+                message: "Product doesn't exist",
+                status: 400
+            }
+        }
+
+        if (!(await isAdmin(userInfo?.userId)) && existingProduct?.sellerId != userInfo?.userId) {
+            return {
+                message: "You are not authorized!",
+                status: 403
+            }
+        }
+
+
+        existingProduct.available = !existingProduct.available
+
+
+        await existingProduct.save();
+
+        return {
+            message: "Product updated successfully",
+            status: 202
+        }
+
+    } catch (error) {
+        return {
+            message: error,
+            status: 500
+        }
+    }
+
+}
+
 module.exports = {
-    ProductUpdate
+    ProductUpdate,
+    ProductAvailability
 }
