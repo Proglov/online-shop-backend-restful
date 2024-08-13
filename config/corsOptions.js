@@ -1,21 +1,9 @@
-// const allowedOrigins = [
-//     "http://localhost:3000"
-// ]
+require('dotenv').config();
 
 
-// const corsOptions = {
-//     origin: (origin, callback) => {
-//         if (allowedOrigins.indexOf(origin) !== -1) {
-//             callback(null, true)
-//         } else {
-//             callback(new Error('Not Allowed by CORS!'))
-//         }
-//     },
-//     optionsSuccessStatus: 200
-// }
-
-// var allowlist = ["http://localhost:3000", "https://onlineshopiranian.liara.run"]
 var allowlist = ["https://onlineshopiranian.liara.run", "https://www.cofeman.ir", "https://cofeman.ir"]
+
+if (process.env.ENVIRONMENT === 'dev') allowlist.push("http://localhost:3000")
 
 var corsOptions = function (req, callback) {
     var corsOptionsDelegate;
