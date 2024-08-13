@@ -93,9 +93,9 @@ const SellerSignUp = async (args, _context) => {
             }
         }
 
-        const existingSellerByPhoneInUsers = await User.findOne({ phone });
+        const existingUserByPhone = await User.findOne({ phone });
 
-        if (existingSellerByPhoneInUsers) {
+        if (existingUserByPhone) {
             return {
                 message: "Phone Already Exists In Users",
                 token: null,
@@ -118,6 +118,16 @@ const SellerSignUp = async (args, _context) => {
         if (existingSellerByUsername) {
             return {
                 message: "username Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        const existingUserByUsername = await User.findOne({ username });
+
+        if (existingUserByUsername) {
+            return {
+                message: "username Already Exists in users",
                 token: null,
                 status: 409
             }
@@ -260,12 +270,11 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
             }
         }
 
-        const sellerWithUsername = await User.findOne({
+        const sellerWithUsername = await Seller.findOne({
             username: emailOrUsername
         })
 
         if (sellerWithUsername) {
-
             const isMatch = await compare(password, sellerWithUsername.password)
 
             if (!isMatch) return {

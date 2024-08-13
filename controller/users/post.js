@@ -1,4 +1,4 @@
-const { User } = require('../../models/dbModels');
+const { User, Seller } = require('../../models/dbModels');
 const { hash, compare } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
@@ -30,17 +30,6 @@ const UserSignUp = async (args, _context) => {
             }
         }
 
-        //check if phone exists
-        const existingUserByPhone = await User.findOne({ phone });
-
-        if (existingUserByPhone) {
-            return {
-                message: "Phone Already Exists",
-                token: null,
-                status: 409
-            }
-        }
-
         //check if username is valid
         if (!username || username?.length < 8) {
             return {
@@ -50,9 +39,37 @@ const UserSignUp = async (args, _context) => {
             }
         }
 
+        //check if phone exists
+        const existingUserByPhone = await User.findOne({ phone });
+        if (existingUserByPhone) {
+            return {
+                message: "Phone Already Exists",
+                token: null,
+                status: 409
+            }
+        }
+
+        const existingSellerByPhone = await Seller.findOne({ phone });
+        if (existingSellerByPhone) {
+            return {
+                message: "Phone Already Exists in Sellers",
+                token: null,
+                status: 409
+            }
+        }
+
         //check if Username already exists
         const existingUserByUsername = await User.findOne({ username });
         if (existingUserByUsername) {
+            return {
+                message: "Username Already Exists",
+                token: null,
+                status: 409
+            }
+
+        }
+        const existingSellerByUsername = await Seller.findOne({ username });
+        if (existingSellerByUsername) {
             return {
                 message: "Username Already Exists",
                 token: null,
