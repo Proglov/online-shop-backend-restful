@@ -59,7 +59,7 @@ const SellerUpdate = async (args, context) => {
 
         //check the working phone
         if (workingPhone && workingPhone !== seller.workingPhone) {
-            if (!!isWorkingPhoneValid(workingPhone)) {
+            if (!isWorkingPhoneValid(workingPhone)) {
                 return {
                     message: "working phone is not valid",
                     token: null,
@@ -109,7 +109,7 @@ const SellerUpdate = async (args, context) => {
 
         //check if email is valid
         if (email && email !== seller.email) {
-            if (email && !isEmailValid(email)) {
+            if (!isEmailValid(email)) {
                 return {
                     message: "Email is not valid",
                     token: null,
