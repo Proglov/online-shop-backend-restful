@@ -53,20 +53,32 @@ const deleteImage = async (args, context) => {
 
 }
 
-const deleteImages = async (args, context) => {
+const deleteImages = async (args, context, isFromServer) => {
     const { filenames } = args
     const { userInfo } = context;
 
     try {
-        if (!userInfo || !userInfo?.userId) {
-            return {
-                status: 403,
-                message: "you are not authorized"
+        // if isFromServer is false-ish, we need authorization
+        if (!isFromServer) {
+            if (!userInfo || !userInfo?.userId) {
+                return {
+                    status: 403,
+                    message: "you are not authorized"
+                }
             }
-        }
 
-        for (const filename of filenames) {
-            if (extractSellerIdFromFilename(filename) !== userInfo?.userId) {
+            for (const filename of filenames) {
+                if (extractSellerIdFromFilename(filename) !== userInfo?.userId) {
+                    return {
+                        status: 403,
+                        message: "you are not authorized"
+                    }
+                }
+            }
+
+            const seller = await Seller.findById(userInfo?.userId)
+
+            if (!(await isAdmin(userInfo?.userId)) && !seller) {
                 return {
                     status: 403,
                     message: "you are not authorized"
@@ -74,14 +86,6 @@ const deleteImages = async (args, context) => {
             }
         }
 
-        const seller = await Seller.findById(userInfo?.userId)
-
-        if (!(await isAdmin(userInfo?.userId)) && !seller) {
-            return {
-                status: 403,
-                message: "you are not authorized"
-            }
-        }
         const files2Delete = [];
         for (const filename of filenames) {
             files2Delete.push({

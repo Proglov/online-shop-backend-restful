@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 const { Seller } = require("../../models/dbModels");
 const { encString, isAdmin } = require('../../lib/Functions');
+const { addTemporaryImage } = require("../temporaryImage/post");
 
 const s3 = new S3Client({
     region: "default",
@@ -52,6 +53,10 @@ const uploadImage = async (args, context) => {
             ContentType: mimetype
         };
         await s3.send(new PutObjectCommand(params));
+
+        //add in the temporary image
+        await addTemporaryImage({ filename: imageName })
+
         return {
             status: 201,
             message: "Successfully Added",

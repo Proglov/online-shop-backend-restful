@@ -3,6 +3,7 @@ require('colors');
 const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
+const { job } = require('./lib/cronJob');
 
 const app = express()
 
@@ -92,4 +93,7 @@ app.use('/imageUpdate', setUserInfo, imagesRouterUpdate);
 app.use('/imageDelete', setUserInfo, imagesRouterDelete);
 
 
-app.listen(PORT, () => console.log(`server running on port ${PORT}`.blue))
+app.listen(PORT, () => {
+    job.start()
+    console.log(`server running on port ${PORT}`.blue)
+})

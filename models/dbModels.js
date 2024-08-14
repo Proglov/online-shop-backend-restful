@@ -189,6 +189,13 @@ const commentSchema = new mongoose.Schema({
     },
 });
 
+const temporaryImageSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+}, { timestamps: { createdAt: true } })
+
 const transActionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -378,6 +385,7 @@ const Product = mongoose.model('Product', productSchema);
 const Category = mongoose.model('Category', categorySchema);
 const Subcategory = mongoose.model('Subcategory', subcategorySchema);
 const Comment = mongoose.model('Comment', commentSchema);
+const TemporaryImage = mongoose.model('TemporaryImage', temporaryImageSchema);
 const TransAction = mongoose.model('TransAction', transActionSchema);
 const Festival = mongoose.model('Festival', festivalSchema);
 const FloorBuyShippingFree = mongoose.model('FloorBuyShippingFree', floorBuyShippingFreeSchema);
@@ -386,4 +394,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, Admin, Seller, Product, Category, Subcategory, Comment, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, Admin, Seller, Product, Category, Subcategory, Comment, TemporaryImage, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };

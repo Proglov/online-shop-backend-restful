@@ -55,14 +55,14 @@ const CommentAdd = async (args, context) => {
             }
         }
 
-        const newComment = await Comment({
+        const newComment = new Comment({
             body,
             ownerType,
             ownerId: userInfo.userId,
             parentCommentId,
             productId
         })
-        newComment.save();
+        await newComment.save();
 
         return {
             message: "Comment has been Added Successfully",
