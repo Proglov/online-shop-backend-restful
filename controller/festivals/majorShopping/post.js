@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
-const { Festival, Product } = require('../../../models/dbModels');
+const { MajorShopping, Product } = require('../../../models/dbModels');
 
 const { isAdmin } = require('../../../lib/Functions');
 
 
-const FestivalCreate = async (args, context) => {
+const MajorShoppingCreate = async (args, context) => {
     const {
         productId,
         offPercentage,
-        until
+        quantity
     } = args;
 
     const { userInfo } = context;
@@ -36,21 +36,21 @@ const FestivalCreate = async (args, context) => {
             }
         }
 
-        if (typeof offPercentage !== 'number' || typeof until !== 'number') return {
-            message: "offPercentage and until is required",
+        if (typeof offPercentage !== 'number' || typeof quantity !== 'number') return {
+            message: "offPercentage and quantity is required",
             status: 400
         }
 
-        const newFestival = new Festival({
+        const newMajorShopping = new MajorShopping({
             productId,
             offPercentage,
-            until
+            quantity
         })
 
-        newFestival.save();
+        newMajorShopping.save();
 
         return {
-            message: "Festival Has Been Created Successfully!",
+            message: "MajorShopping Has Been Created Successfully!",
             status: 201
         }
 
@@ -67,5 +67,5 @@ const FestivalCreate = async (args, context) => {
 
 
 module.exports = {
-    FestivalCreate
+    MajorShoppingCreate
 }

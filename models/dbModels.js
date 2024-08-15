@@ -255,19 +255,6 @@ const festivalSchema = new mongoose.Schema({
     }
 }, { timestamps: { createdAt: true } })
 
-// the sellers can add a floor buy price, if a user buy at least this much, they will get a free shipping cost
-const floorBuyShippingFreeSchema = new mongoose.Schema({
-    sellerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Seller',
-        required: true
-    },
-    floorPrice: {
-        type: Number,
-        required: true
-    },
-}, { timestamps: { createdAt: true } })
-
 // the sellers can add a major shopping to their products, if a user buy at least this much, they will get a off percentage
 const majorShoppingSchema = new mongoose.Schema({
     productId: {
@@ -280,6 +267,19 @@ const majorShoppingSchema = new mongoose.Schema({
         required: true
     },
     offPercentage: {
+        type: Number,
+        required: true
+    },
+}, { timestamps: { createdAt: true } })
+
+// the sellers can add a floor buy price, if a user buy at least this much, they will get a free shipping cost
+const floorBuyShippingFreeSchema = new mongoose.Schema({
+    sellerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        required: true
+    },
+    floorPrice: {
         type: Number,
         required: true
     },
@@ -305,7 +305,7 @@ const couponForAProductSchema = new mongoose.Schema({
     minBuy: {
         type: Number
     },
-    maxOffPrice: {
+    maxOffPrice: { //for example at most 200thousand tomans off
         type: Number
     },
     offPercentage: {

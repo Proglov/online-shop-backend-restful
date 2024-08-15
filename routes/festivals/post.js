@@ -2,9 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
-const {
-    FestivalCreate
-} = require('../../controller/festivals/festival/post');
+const { FestivalCreate } = require('../../controller/festivals/festival/post');
+const { MajorShoppingCreate } = require('../../controller/festivals/majorShopping/post');
 
 
 router.post('/FestivalCreate', async (req, res) => {
@@ -12,6 +11,15 @@ router.post('/FestivalCreate', async (req, res) => {
     const { input } = req.body
 
     const { status, message } = await FestivalCreate({ ...input }, { userInfo });
+
+    res.status(status).send({ message });
+})
+
+router.post('/MajorShoppingCreate', async (req, res) => {
+    const userInfo = req?.userInfo
+    const { input } = req.body
+
+    const { status, message } = await MajorShoppingCreate({ ...input }, { userInfo });
 
     res.status(status).send({ message });
 })
