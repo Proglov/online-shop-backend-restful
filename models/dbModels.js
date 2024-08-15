@@ -272,6 +272,33 @@ const majorShoppingSchema = new mongoose.Schema({
     },
 }, { timestamps: { createdAt: true } })
 
+// the sellers can add this to some of their products, if a user buy at least this much, they will get an off percentage
+const companyCouponForSomeProductsSchema = new mongoose.Schema({
+    body: {
+        type: String,
+        required: true
+    },
+    productsIds: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+    }],
+    minBuy: {
+        type: Number
+    },
+    maxOffPrice: { //for example at most 200thousand tomans off
+        type: Number
+    },
+    offPercentage: {
+        type: Number,
+        required: true
+    },
+    remainingCount: { // limited people can buy this
+        type: Number,
+        required: true
+    }
+}, { timestamps: { createdAt: true } })
+
 // the sellers can add a floor buy price, if a user buy at least this much, they will get a free shipping cost
 const floorBuyShippingFreeSchema = new mongoose.Schema({
     sellerId: {
@@ -388,10 +415,11 @@ const Comment = mongoose.model('Comment', commentSchema);
 const TemporaryImage = mongoose.model('TemporaryImage', temporaryImageSchema);
 const TransAction = mongoose.model('TransAction', transActionSchema);
 const Festival = mongoose.model('Festival', festivalSchema);
-const FloorBuyShippingFree = mongoose.model('FloorBuyShippingFree', floorBuyShippingFreeSchema);
 const MajorShopping = mongoose.model('MajorShopping', majorShoppingSchema);
+const CompanyCouponForSomeProducts = mongoose.model('CompanyCouponForSomeProducts', companyCouponForSomeProductsSchema);
+const FloorBuyShippingFree = mongoose.model('FloorBuyShippingFree', floorBuyShippingFreeSchema);
 const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductSchema);
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, Admin, Seller, Product, Category, Subcategory, Comment, TemporaryImage, TransAction, Festival, FloorBuyShippingFree, MajorShopping, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, Admin, Seller, Product, Category, Subcategory, Comment, TemporaryImage, TransAction, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
