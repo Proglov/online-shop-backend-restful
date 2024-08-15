@@ -2,12 +2,14 @@ const { TemporaryImage } = require("../../models/dbModels");
 const { deleteImages } = require("../image/delete");
 
 
-const deleteOldTemporaryImages = async (args) => {
-    const { cutoffDate } = args
+const deleteOldTemporaryImages = async () => {
     try {
+
+        const date = new Date()
+        date.setHours(date.getHours() - 3)   // clear the temp images which created before 3 hours ago
         const files = await TemporaryImage.find({
             createdAt: {
-                $lt: cutoffDate,
+                $lt: date,
             },
         }).exec();
         const filenames = files.map(obj => obj.name)
@@ -15,7 +17,7 @@ const deleteOldTemporaryImages = async (args) => {
         await deleteImages({ filenames }, { userInfo: null }, true)
         await TemporaryImage.deleteMany({
             createdAt: {
-                $lt: cutoffDate,
+                $lt: date,
             }
         });
         return { message: 'temporary images deleted', status: 200 }

@@ -29,7 +29,6 @@ const getProductsWithTrueImageUrl = async (input) => {
 
 
 const GetAllFestivalProducts = async (args, _context) => {
-    console.log(args);
     let { page, perPage } = args;
 
     try {

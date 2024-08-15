@@ -3,7 +3,7 @@ require('colors');
 const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
-const { temporaryImageCronJob } = require('./lib/cronJob');
+const { temporaryImageCronJob, festivalsCronJob } = require('./lib/cronJob');
 
 const app = express()
 
@@ -103,5 +103,6 @@ app.use('/festivalsGet', festivalsRouterGet);
 
 app.listen(PORT, () => {
     temporaryImageCronJob.start()
+    festivalsCronJob.start()
     console.log(`server running on port ${PORT}`.blue)
 })
