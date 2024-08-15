@@ -1,4 +1,4 @@
-const { Festival } = require('../../../models/dbModels');
+const { MajorShopping } = require('../../../models/dbModels');
 const { getImage } = require('../../image/get');
 
 const getProductsWithTrueImageUrl = async (input) => {
@@ -28,17 +28,11 @@ const getProductsWithTrueImageUrl = async (input) => {
 
 
 
-const GetAllFestivalProducts = async (args, _context) => {
+const GetAllMajorShoppingProducts = async (args, _context) => {
     let { page, perPage } = args;
 
     try {
-        // const products = await Festival.find().populate();
-        const now = Date.now()
-        const conditionQuery = { until: { $gt: now } }
         const aggregateQuery = [
-            {
-                $match: conditionQuery
-            },
             {
                 $lookup: {
                     from: 'products',
@@ -58,15 +52,14 @@ const GetAllFestivalProducts = async (args, _context) => {
                     price: '$productDetails.price',
                     imagesUrl: '$productDetails.imagesUrl',
                     offPercentage: 1,
-                    until: 1
+                    quantity: 1
                 }
             }
         ]
-        // const products = await Festival.aggregate(aggregateQuery);
-        const allProductsCount = await Festival.where(conditionQuery).countDocuments().exec();
+        const allProductsCount = await MajorShopping.where().countDocuments().exec();
 
         if (!page || !perPage) {
-            const products = await Festival.aggregate(aggregateQuery);
+            const products = await MajorShopping.aggregate(aggregateQuery);
             const newProds = await getProductsWithTrueImageUrl(products);
 
             return {
@@ -80,7 +73,7 @@ const GetAllFestivalProducts = async (args, _context) => {
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const products = await Festival.aggregate(aggregateQuery).skip(skip).limit(perPage);
+        const products = await MajorShopping.aggregate(aggregateQuery).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImageUrl(products);
 
         return {
@@ -104,5 +97,5 @@ const GetAllFestivalProducts = async (args, _context) => {
 }
 
 module.exports = {
-    GetAllFestivalProducts
+    GetAllMajorShoppingProducts
 }

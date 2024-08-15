@@ -32,7 +32,6 @@ const GetAllFestivalProducts = async (args, _context) => {
     let { page, perPage } = args;
 
     try {
-        // const products = await Festival.find().populate();
         const now = Date.now()
         const conditionQuery = { until: { $gt: now } }
         const aggregateQuery = [
@@ -62,7 +61,6 @@ const GetAllFestivalProducts = async (args, _context) => {
                 }
             }
         ]
-        // const products = await Festival.aggregate(aggregateQuery);
         const allProductsCount = await Festival.where(conditionQuery).countDocuments().exec();
 
         if (!page || !perPage) {

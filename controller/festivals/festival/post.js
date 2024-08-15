@@ -29,6 +29,13 @@ const FestivalCreate = async (args, context) => {
             status: 404
         }
 
+        const existingProduct = await Festival.findOne({ productId })
+
+        if (existingProduct) return {
+            message: "this product already exists in the festival!",
+            status: 400
+        }
+
         if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) {
             return {
                 message: "You are not authorized!",

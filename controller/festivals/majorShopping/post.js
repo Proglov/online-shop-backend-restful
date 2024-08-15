@@ -29,11 +29,17 @@ const MajorShoppingCreate = async (args, context) => {
             status: 404
         }
 
-        if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) {
-            return {
-                message: "You are not authorized!",
-                status: 403
-            }
+        const existingProduct = await MajorShopping.findOne({ productId })
+
+
+        if (existingProduct) return {
+            message: "this product already exists in the festival!",
+            status: 400
+        }
+
+        if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+            message: "You are not authorized!",
+            status: 403
         }
 
         if (typeof offPercentage !== 'number' || typeof quantity !== 'number') return {
