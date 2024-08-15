@@ -250,7 +250,7 @@ const festivalSchema = new mongoose.Schema({
         required: true
     },
     until: {
-        type: String,
+        type: Number,
         required: true,
     }
 }, { timestamps: { createdAt: true } })

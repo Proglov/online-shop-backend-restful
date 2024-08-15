@@ -3,7 +3,7 @@ require('colors');
 const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
-const { job } = require('./lib/cronJob');
+const { temporaryImageCronJob } = require('./lib/cronJob');
 
 const app = express()
 
@@ -47,6 +47,7 @@ const imagesRouterUpdate = require('./routes/image/update');
 
 
 const festivalsRouterPost = require('./routes/festivals/post');
+const festivalsRouterGet = require('./routes/festivals/get');
 
 
 const PORT = process.env.PORT || 3500;
@@ -96,10 +97,11 @@ app.use('/imageUpdate', setUserInfo, imagesRouterUpdate);
 app.use('/imageDelete', setUserInfo, imagesRouterDelete);
 
 app.use('/festivalsPost', setUserInfo, festivalsRouterPost);
+app.use('/festivalsGet', festivalsRouterGet);
 
 
 
 app.listen(PORT, () => {
-    job.start()
+    temporaryImageCronJob.start()
     console.log(`server running on port ${PORT}`.blue)
 })
