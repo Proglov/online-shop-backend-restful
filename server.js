@@ -46,6 +46,9 @@ const imagesRouterDelete = require('./routes/image/delete');
 const imagesRouterUpdate = require('./routes/image/update');
 
 
+const festivalsRouterPost = require('./routes/festivals/post');
+
+
 const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/db');
 
@@ -91,6 +94,9 @@ app.use('/imageGet', imagesRouterGet);
 app.use('/imagePost', setUserInfo, imagesRouterPost);
 app.use('/imageUpdate', setUserInfo, imagesRouterUpdate);
 app.use('/imageDelete', setUserInfo, imagesRouterDelete);
+
+app.use('/festivalsPost', setUserInfo, festivalsRouterPost);
+
 
 
 app.listen(PORT, () => {

@@ -47,7 +47,7 @@ const ProductDelete = async (args, context) => {
         const filenames = existingProduct.imagesUrl;
 
         if (filenames != null && filenames != undefined && filenames?.length !== 0)
-            await deleteImages({ filenames }, { userInfo });
+            await deleteImages({ filenames }, { userInfo }, true);
 
         await Product.findByIdAndDelete(id)
 
