@@ -33,7 +33,7 @@ const MajorShoppingCreate = async (args, context) => {
 
 
         if (existingProduct) return {
-            message: "this product already exists in the festival!",
+            message: "this product already exists in the majorShopping!",
             status: 400
         }
 
@@ -66,8 +66,6 @@ const MajorShoppingCreate = async (args, context) => {
             status: 500
         }
     }
-
-
 }
 
 
