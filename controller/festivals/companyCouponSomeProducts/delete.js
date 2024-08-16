@@ -1,28 +1,8 @@
-const { Festival } = require('../../../models/dbModels');
+const { CompanyCouponForSomeProducts } = require('../../../models/dbModels');
 const { isAdmin } = require('../../../lib/Functions');
 
 
-const FestivalsDelete = async (_args, _context) => {
-    try {
-        const now = Date.now()
-        const conditionQuery = { until: { $lte: now } }
-
-        await Festival.deleteMany(conditionQuery)
-
-        return {
-            message: "Old Festival Has Been Deleted Successfully!",
-            status: 200
-        }
-
-    } catch (error) {
-        return {
-            message: error,
-            status: 500
-        }
-    }
-}
-
-const DeleteOneFestival = async (args, context) => {
+const DeleteOneCompanyCouponForSomeProducts = async (args, context) => {
     const { id } = args;
     const { userInfo } = context;
 
@@ -34,22 +14,22 @@ const DeleteOneFestival = async (args, context) => {
             }
         }
 
-        const existingFestival = await Festival.findById(id).populate({ path: "productId", select: 'sellerId' });
+        const existingCompanyCouponForSomeProducts = await CompanyCouponForSomeProducts.findById(id).populate({ path: "productsIds", select: 'sellerId' });
 
-        if (!existingFestival) return {
-            message: "Festival doesn't exist",
+        if (!existingCompanyCouponForSomeProducts) return {
+            message: "CompanyCouponForSomeProducts doesn't exist",
             status: 400
         }
 
-        if (!(await isAdmin(userInfo?.userId)) && existingFestival?.productId.sellerId != userInfo?.userId) return {
+        if (!(await isAdmin(userInfo?.userId)) && existingCompanyCouponForSomeProducts?.productsIds[0].sellerId != userInfo?.userId) return {
             message: "You are not authorized!",
             status: 403
         }
 
-        await Festival.findByIdAndDelete(id)
+        await CompanyCouponForSomeProducts.findByIdAndDelete(id)
 
         return {
-            message: "Festival Has Been Deleted Successfully!",
+            message: "CompanyCouponForSomeProducts Has Been Deleted Successfully!",
             status: 200
         }
 
@@ -64,6 +44,5 @@ const DeleteOneFestival = async (args, context) => {
 
 
 module.exports = {
-    FestivalsDelete,
-    DeleteOneFestival
+    DeleteOneCompanyCouponForSomeProducts
 }
