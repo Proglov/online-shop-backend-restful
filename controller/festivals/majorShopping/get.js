@@ -127,7 +127,7 @@ const GetMyAllMajorShoppingProducts = async (args, context) => {
         const countQuery = [...aggregateQuery, { $count: 'count' }]
         const resultQuery = [...aggregateQuery, { $project: { productId: '$productDetails._id', offPercentage: 1, quantity: 1, name: '$productDetails.name' } }]
 
-        const allProductsCount = (await MajorShopping.aggregate(countQuery))[0].count;
+        const allProductsCount = (await MajorShopping.aggregate(countQuery))[0]?.count;
 
         if (!page || !perPage) {
             const products = await MajorShopping.aggregate(resultQuery);

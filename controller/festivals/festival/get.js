@@ -131,7 +131,7 @@ const GetAllMyFestivalProducts = async (args, context) => {
         const countQuery = [...aggregateQuery, { $count: 'count' }]
         const resultQuery = [...aggregateQuery, { $project: { productId: 1, offPercentage: 1, until: 1, name: '$productDetails.name' } }]
 
-        const allProductsCount = (await Festival.aggregate(countQuery))[0].count;
+        const allProductsCount = (await Festival.aggregate(countQuery))[0]?.count;
 
         if (!page || !perPage) {
             const products = await Festival.aggregate(resultQuery);
