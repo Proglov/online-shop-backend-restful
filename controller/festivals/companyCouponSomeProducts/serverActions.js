@@ -1,3 +1,4 @@
+const JWT = require('jsonwebtoken');
 const { CompanyCouponForSomeProducts } = require('../../../models/dbModels');
 
 
@@ -24,12 +25,6 @@ const verifyCompanyCouponForSomeProductsBody = async (args, context) => {
             message: 'Already entered this code!',
             status: false
         }
-
-
-        let updatedOrDeleted = 'Deleted'
-
-        if (existingCompanyCouponForSomeProducts.remainingCount === 1)
-            await CompanyCouponForSomeProducts.findByIdAndDelete(existingCompanyCouponForSomeProducts._id)
 
         else {
             existingCompanyCouponForSomeProducts.remainingCount = existingCompanyCouponForSomeProducts.remainingCount - 1
@@ -59,7 +54,18 @@ const verifyCompanyCouponForSomeProductsBody = async (args, context) => {
 const verifyCompanyCouponForSomeProductsToken = async (args, _context) => {
     const { token } = args;
     try {
+        if (!token) return null
         return JWT.verify(token, process.env.JWT_SIGNATURE)
+    } catch (error) {
+        return null
+    }
+}
+
+const getOneCompanyCouponForSomeProducts = async (args, _context) => {
+    try {
+        const { body } = args;
+        const res = await CompanyCouponForSomeProducts.findOne({ body }).select('productsIds minBuy maxOffPrice offPercentage')
+        return res
     } catch (error) {
         return null
     }
@@ -68,5 +74,6 @@ const verifyCompanyCouponForSomeProductsToken = async (args, _context) => {
 
 module.exports = {
     verifyCompanyCouponForSomeProductsBody,
-    verifyCompanyCouponForSomeProductsToken
+    verifyCompanyCouponForSomeProductsToken,
+    getOneCompanyCouponForSomeProducts
 }

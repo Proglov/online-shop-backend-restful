@@ -202,8 +202,8 @@ const transActionSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    discountId: {
-        type: String //because they could be from different discounts
+    totalDiscount: {
+        type: Number
     },
     totalPrice: {
         type: Number,
@@ -272,7 +272,7 @@ const majorShoppingSchema = new mongoose.Schema({
     },
 }, { timestamps: { createdAt: true } })
 
-// the sellers can add this to some of their products, if a user buy at least this much, they will get an off percentage
+// the sellers can add this to some of their products, if a user buy at least this much, they will get an off percentage, at most $maxOffPrice tomans
 const companyCouponForSomeProductsSchema = new mongoose.Schema({
     body: {
         type: String,
@@ -290,7 +290,7 @@ const companyCouponForSomeProductsSchema = new mongoose.Schema({
     minBuy: {
         type: Number
     },
-    maxOffPrice: { //for example at most 200thousand tomans off
+    maxOffPrice: {
         type: Number
     },
     offPercentage: {
@@ -301,7 +301,7 @@ const companyCouponForSomeProductsSchema = new mongoose.Schema({
         type: Number,
         required: true
     }
-}, { timestamps: { createdAt: true } })
+}, { timestamps: { createdAt: true, updatedAt: true } })
 
 // the sellers can add a floor buy price, if a user buy at least this much, they will get a free shipping cost
 const floorBuyShippingFreeSchema = new mongoose.Schema({

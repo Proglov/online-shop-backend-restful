@@ -1,8 +1,10 @@
 const { TransAction, Product } = require('../../models/dbModels');
+const { extractCoupon } = require('../../lib/Functions');
+const { verifyCompanyCouponForSomeProductsToken, getOneCompanyCouponForSomeProducts } = require('../festivals/companyCouponSomeProducts/serverActions');
 
 
 const TransActionCreate = async (args, context) => {
-    const { discountId, boughtProducts, address, shouldBeSentAt } = args;
+    const { discountToken, boughtProducts, address, shouldBeSentAt } = args;
 
     const { userInfo } = context;
 
@@ -16,7 +18,6 @@ const TransActionCreate = async (args, context) => {
             }
         }
 
-
         if (!boughtProducts?.length) {
             return {
                 transactionId: null,
@@ -24,30 +25,59 @@ const TransActionCreate = async (args, context) => {
                 status: 400
             }
         }
+
+        const products = await Product.find({
+            _id: {
+                $in: boughtProducts?.map(obj => obj.productId)
+            }
+        })
+        let totalDiscount = 0
+        let totalPrice = boughtProducts.reduce((acc, currentProduct) => {
+            const productIndex = products.findIndex(prod => prod._id == currentProduct.productId)
+            return acc + (products[productIndex].price * currentProduct.quantity)
+        }, 0)
+
+
+        //  handled the discount
+        const tokenRes = await verifyCompanyCouponForSomeProductsToken({ token: discountToken })
+
+        const couponType = extractCoupon(tokenRes?.body)
+
+        if (couponType === "CompanyCouponForSomeProducts") {
+            const discount = await getOneCompanyCouponForSomeProducts({ body: tokenRes?.body })
+
+            if (!!discount && totalPrice >= discount?.minBuy) {
+                const totalDiscountedProducts = boughtProducts.reduce((acc, currentProduct) => {
+                    const currentIndex = discount.productsIds.findIndex(id => id === currentProduct.productId)
+                    if (currentIndex >= 0)
+                        return acc + (currentProduct.price * currentProduct.quantity)
+                    return acc
+                }, 0)
+
+                totalDiscount = Math.min((totalDiscountedProducts * discount.offPercentage / 100), discount?.maxOffPrice)
+
+                totalPrice -= totalDiscount
+            }
+        }
+
+
         //shippingCost should be handled properly
         const shippingCost = 0
-
-        // ************ handle the discount here *************** \\
-        // ***************************************************** \\
-
-        let totalPrice = 0;
-
-        for (let i = 0; i < boughtProducts.length; i++) {
-            const thisProduct = await Product.findById(boughtProducts[i].productId);
-            const thisPrice = thisProduct.price * boughtProducts[i].quantity
-            totalPrice += thisPrice
-        }
         totalPrice += shippingCost;
 
-        const newTransAction = new TransAction({
+
+
+        const newTransActionObj = {
             userId: userInfo.userId,
             shippingCost,
             totalPrice,
             boughtProducts,
             address,
             shouldBeSentAt,
-            discountId
-        });
+            totalDiscount: totalDiscount > 0 ? totalDiscount : undefined
+        }
+
+        const newTransAction = new TransAction(newTransActionObj);
 
         await newTransAction.save();
 
