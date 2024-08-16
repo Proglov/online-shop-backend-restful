@@ -283,6 +283,10 @@ const companyCouponForSomeProductsSchema = new mongoose.Schema({
         ref: 'Product',
         required: true
     }],
+    usersIds: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     minBuy: {
         type: Number
     },

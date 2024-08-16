@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
+const JWT = require('jsonwebtoken');
 const { CompanyCouponForSomeProducts, Product } = require('../../../models/dbModels');
 
 const { isAdmin, getCoupon } = require('../../../lib/Functions');
+const { verifyCompanyCouponForSomeProductsBody } = require('./serverActions');
 
 
 const CompanyCouponForSomeProductsCreate = async (args, context) => {
@@ -98,7 +100,58 @@ const CompanyCouponForSomeProductsCreate = async (args, context) => {
 }
 
 
+const getTokenFromBodyCompanyCouponForSomeProducts = async (args, context) => {
+    const { body } = args;
+    const { userInfo } = context;
+
+    try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                body: null,
+                message: "You are not authorized!",
+                status: 400
+            }
+        }
+        if (typeof body !== 'string') return {
+            token: null,
+            message: 'Body is required',
+            status: 400
+        }
+
+
+        const { status, message } = await verifyCompanyCouponForSomeProductsBody({ body })
+
+        if (!status) return {
+            token: null,
+            message,
+            status: 403
+        }
+
+        const token = await JWT.sign({
+            userId: userInfo?.userId,
+            body
+        }, process.env.JWT_SIGNATURE, {
+            expiresIn: 300
+        })
+
+        return {
+            token,
+            message: null,
+            status: 200
+        }
+    } catch (error) {
+
+        return {
+            token: null,
+            message: error,
+            status: 500
+        }
+    }
+}
+
+
 
 module.exports = {
-    CompanyCouponForSomeProductsCreate
+    CompanyCouponForSomeProductsCreate,
+    getTokenFromBodyCompanyCouponForSomeProducts
 }
