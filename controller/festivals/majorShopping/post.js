@@ -17,6 +17,7 @@ const MajorShoppingCreate = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                majorShopping: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -25,6 +26,7 @@ const MajorShoppingCreate = async (args, context) => {
         const product = await Product.findById(productId)
 
         if (!product) return {
+            majorShopping: null,
             message: "No Product Found!",
             status: 404
         }
@@ -33,16 +35,19 @@ const MajorShoppingCreate = async (args, context) => {
 
 
         if (existingProduct) return {
+            majorShopping: null,
             message: "this product already exists in the majorShopping!",
             status: 400
         }
 
         if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+            majorShopping: null,
             message: "You are not authorized!",
             status: 403
         }
 
         if (typeof offPercentage !== 'number' || typeof quantity !== 'number') return {
+            majorShopping: null,
             message: "offPercentage and quantity is required",
             status: 400
         }
@@ -56,12 +61,19 @@ const MajorShoppingCreate = async (args, context) => {
         newMajorShopping.save();
 
         return {
+            majorShopping: {
+                _id: newMajorShopping._id,
+                productId,
+                offPercentage,
+                quantity
+            },
             message: "MajorShopping Has Been Created Successfully!",
             status: 201
         }
 
     } catch (error) {
         return {
+            majorShopping: null,
             message: error,
             status: 500
         }

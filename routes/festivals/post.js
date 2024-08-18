@@ -20,9 +20,9 @@ router.post('/MajorShoppingCreate', async (req, res) => {
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message } = await MajorShoppingCreate({ ...input }, { userInfo });
+    const { status, message, majorShopping } = await MajorShoppingCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, majorShopping });
 })
 
 router.post('/CompanyCouponForSomeProductsCreate', async (req, res) => {
