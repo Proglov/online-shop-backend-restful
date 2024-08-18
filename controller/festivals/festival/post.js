@@ -57,6 +57,12 @@ const FestivalCreate = async (args, context) => {
         newFestival.save();
 
         return {
+            festival: {
+                _id: newFestival._id,
+                productId,
+                offPercentage,
+                until
+            },
             message: "Festival Has Been Created Successfully!",
             status: 201
         }

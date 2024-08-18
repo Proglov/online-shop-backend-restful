@@ -11,9 +11,9 @@ router.post('/FestivalCreate', async (req, res) => {
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message } = await FestivalCreate({ ...input }, { userInfo });
+    const { status, message, festival } = await FestivalCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).send({ message, festival });
 })
 
 router.post('/MajorShoppingCreate', async (req, res) => {
