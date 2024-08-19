@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { CompanyCouponForSomeProducts } = require('../../../models/dbModels');
+const { isAdmin } = require('../../../lib/Functions');
 
 
 const GetAllCompanyCouponForSomeProducts = async (args, context) => {
@@ -11,6 +12,14 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
             return {
                 message: "You are not authorized!",
                 status: 400
+            }
+        }
+        if (!(await isAdmin(userInfo?.userId))) {
+            return {
+                products: null,
+                allProductsCount: 0,
+                message: "You are not authorized!",
+                status: 403
             }
         }
         const aggregateQuery = [
