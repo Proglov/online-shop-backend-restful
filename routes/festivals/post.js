@@ -29,9 +29,9 @@ router.post('/CompanyCouponForSomeProductsCreate', async (req, res) => {
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message, body } = await CompanyCouponForSomeProductsCreate({ ...input }, { userInfo });
+    const { status, message, coupon } = await CompanyCouponForSomeProductsCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, body });
+    res.status(status).send({ message, coupon });
 })
 
 router.post('/getTokenFromBodyCompanyCouponForSomeProducts', async (req, res) => {

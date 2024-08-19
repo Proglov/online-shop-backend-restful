@@ -109,12 +109,6 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
                 }
             },
             {
-                $unwind: {
-                    path: '$productDetails',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
                 $match: {
                     'productDetails.sellerId': new mongoose.Types.ObjectId(userInfo?.userId)
                 }
@@ -133,7 +127,7 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
             }
         }]
 
-        const allProductsCount = (await CompanyCouponForSomeProducts.aggregate(countQuery))[0]?.count;
+        const allProductsCount = (await CompanyCouponForSomeProducts.aggregate(countQuery))[0]?.count || 0;
 
         if (!page || !perPage) {
             const products = await CompanyCouponForSomeProducts.aggregate(resultQuery)
@@ -170,7 +164,59 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
 
 }
 
+const GetOneCompanyCouponForSomeProducts = async (args, context) => {
+    let { id } = args;
+    const { userInfo } = context;
+
+    try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You are not authorized!",
+                status: 400
+            }
+        }
+
+        if (!id) return {
+            products: null,
+            status: 400,
+            message: 'id is required!'
+        }
+
+        const coupon = await CompanyCouponForSomeProducts.findById(id)
+            .populate({ path: 'productsIds', select: 'name sellerId' }).select('productIds');
+
+        if (!(await isAdmin(userInfo?.userId)) && !coupon?.productsIds[0].sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+            message: "You are not authorized!",
+            status: 400
+        }
+
+
+        if (!coupon) return {
+            products: null,
+            status: 400,
+            message: 'no coupon found!'
+        }
+
+        return {
+            products: coupon?.productsIds,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        console.log(error);
+        return {
+            products: null,
+            status: 500,
+            message: error
+        }
+    }
+
+}
+
 module.exports = {
     GetAllCompanyCouponForSomeProducts,
-    GetAllMyCompanyCouponForSomeProducts
+    GetAllMyCompanyCouponForSomeProducts,
+    GetOneCompanyCouponForSomeProducts
 }

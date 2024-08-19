@@ -21,7 +21,7 @@ const CompanyCouponForSomeProductsCreate = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
-                body: null,
+                coupon: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -34,30 +34,29 @@ const CompanyCouponForSomeProductsCreate = async (args, context) => {
         })
 
         if (products.length == 0) return {
-            body: null,
+            coupon: null,
             message: "at least one product is required",
             status: 400
         }
         const sellerId = products[0].sellerId
 
-        if (!(await isAdmin(userInfo?.userId)) && sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) {
+        if (!(await isAdmin(userInfo?.userId)) && !sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) {
             return {
-                body: null,
+                coupon: null,
                 message: "You are not authorized!",
                 status: 403
             }
         }
-
         for (let i = 0; i < products.length; i++) {
-            if (products[i].sellerId !== sellerId) return {
-                body: null,
+            if (!sellerId.equals(new mongoose.Types.ObjectId(products[i].sellerId))) return {
+                coupon: null,
                 message: "products belong to different sellers!",
                 status: 400
             }
         }
 
         if (typeof offPercentage !== 'number' || typeof minBuy !== 'number' || typeof maxOffPrice !== 'number' || typeof remainingCount !== 'number') return {
-            body: null,
+            coupon: null,
             message: "offPercentage, minBuy, maxOffPrice, and remainingCount are required",
             status: 400
         }
@@ -83,14 +82,14 @@ const CompanyCouponForSomeProductsCreate = async (args, context) => {
         newCompanyCouponForSomeProducts.save();
 
         return {
-            body,
+            coupon: newCompanyCouponForSomeProducts,
             message: "CompanyCouponForSomeProducts Has Been Created Successfully!",
             status: 201
         }
 
     } catch (error) {
         return {
-            body: null,
+            coupon: null,
             message: error,
             status: 500
         }

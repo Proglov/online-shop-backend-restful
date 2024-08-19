@@ -5,7 +5,7 @@ const router = express.Router();
 
 const { GetAllFestivalProducts, GetAllMyFestivalProducts } = require('../../controller/festivals/festival/get');
 const { GetAllMajorShoppingProducts, GetMyAllMajorShoppingProducts } = require('../../controller/festivals/majorShopping/get');
-const { GetAllMyCompanyCouponForSomeProducts, GetAllCompanyCouponForSomeProducts } = require('../../controller/festivals/companyCouponSomeProducts/get');
+const { GetAllMyCompanyCouponForSomeProducts, GetAllCompanyCouponForSomeProducts, GetOneCompanyCouponForSomeProducts } = require('../../controller/festivals/companyCouponSomeProducts/get');
 
 
 router.get('/GetAllFestivalProducts', async (req, res) => {
@@ -60,6 +60,15 @@ router.get('/GetAllMyCompanyCouponForSomeProducts', setUserInfo, async (req, res
     const { status, message, products, allProductsCount } = await GetAllMyCompanyCouponForSomeProducts(args, { userInfo });
 
     res.status(status).send({ message, products, allProductsCount });
+})
+
+router.get('/GetOneCompanyCouponForSomeProducts', setUserInfo, async (req, res) => {
+    const args = req.query
+    const userInfo = req?.userInfo
+
+    const { status, message, products } = await GetOneCompanyCouponForSomeProducts(args, { userInfo });
+
+    res.status(status).send({ message, products });
 })
 
 
