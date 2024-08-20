@@ -118,8 +118,7 @@ const getTokenFromBodyCompanyCouponForSomeProducts = async (args, context) => {
         }
 
 
-        const { status, message } = await verifyCompanyCouponForSomeProductsBody({ body })
-
+        const { status, message } = await verifyCompanyCouponForSomeProductsBody({ body }, { userInfo })
         if (!status) return {
             token: null,
             message,
