@@ -62,6 +62,7 @@ const GetAllFestivalProducts = async (args, _context) => {
                     name: '$productDetails.name',
                     price: '$productDetails.price',
                     imagesUrl: '$productDetails.imagesUrl',
+                    sellerId: '$productDetails.sellerId',
                     offPercentage: 1,
                     until: 1
                 }
