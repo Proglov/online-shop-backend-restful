@@ -19,7 +19,14 @@ const getProductsWithTrueImageUrl = async (input) => {
 
             newProds.push(updatedProduct);
         } else {
-            newProds.push(product);
+            delete product.imagesUrl
+
+            const updatedProduct = {
+                ...product,
+                imageUrl: ''
+            };
+
+            newProds.push(updatedProduct);
         }
 
     }
