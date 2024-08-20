@@ -81,8 +81,8 @@ const GetAllFestivalProducts = async (args, _context) => {
             }
         }
 
-        page = parseInt(page);
-        perPage = parseInt(perPage);
+        page = parseInt(page) || 1;
+        perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
         const products = await Festival.aggregate(aggregateQuery).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImageUrl(products);

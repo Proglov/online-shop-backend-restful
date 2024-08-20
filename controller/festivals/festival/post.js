@@ -64,6 +64,7 @@ const FestivalCreate = async (args, context) => {
         return {
             festival: {
                 _id: newFestival._id,
+                name: product.name,
                 productId,
                 offPercentage,
                 until

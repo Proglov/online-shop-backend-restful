@@ -30,12 +30,6 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
                     foreignField: '_id',
                     as: 'productDetails'
                 }
-            },
-            {
-                $unwind: {
-                    path: '$productDetails',
-                    preserveNullAndEmptyArrays: true
-                }
             }
         ]
         const countQuery = [...aggregateQuery, { $count: 'count' }]
@@ -77,7 +71,6 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
 
 
     } catch (error) {
-        console.log(error);
         return {
             products: null,
             allProductsCount: 0,

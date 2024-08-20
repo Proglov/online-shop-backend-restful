@@ -105,7 +105,7 @@ const getCommentsOfAProduct = async (args, _context) => {
     const { id } = args
     try {
         if (!id) return {
-            comments: null,
+            comments: [],
             status: 400,
             message: 'id is required'
         }
@@ -117,7 +117,7 @@ const getCommentsOfAProduct = async (args, _context) => {
         }
     } catch (error) {
         return {
-            comments: null,
+            comments: [],
             status: 500,
             message: error
         }
