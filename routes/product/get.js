@@ -8,6 +8,7 @@ const {
     getOneProduct,
     getOneProductParams,
     getAllProductsOfACategory,
+    getAllProductsOfASubcategory,
     getSomeProducts
 } = require('../../controller/products/get');
 
@@ -60,6 +61,14 @@ router.get('/getAllProductsOfACategory', async (req, res) => {
     const args = req.query
 
     const { products, status, message } = await getAllProductsOfACategory({ ...args }, null)
+
+    res.status(status).send({ products, message });
+})
+
+router.get('/getAllProductsOfASubcategory', async (req, res) => {
+    const args = req.query
+
+    const { products, status, message } = await getAllProductsOfASubcategory({ ...args }, null)
 
     res.status(status).send({ products, message });
 })

@@ -385,11 +385,108 @@ const getAllProductsOfACategory = async (args, _context) => {
 
 }
 
+const getAllProductsOfASubcategory = async (args, _context) => {
+
+    let { subcategoryId } = args;
+
+    if (!subcategoryId) return {
+        products: null,
+        message: "subcategoryId is required",
+        status: 400
+    }
+
+    try {
+        const products = await Product.aggregate([
+            {
+                "$lookup": {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: '_id',
+                    as: 'subcategory'
+                }
+            },
+            {
+                "$unwind": "$subcategory"
+            },
+            {
+                "$match": {
+                    "subcategory._id": new mongoose.Types.ObjectId(subcategoryId)
+                }
+            },
+            {
+                "$lookup": {
+                    from: "festivals",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "festivalData"
+                }
+            },
+            {
+                "$lookup": {
+                    from: "majorshoppings",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "majorShoppingData"
+                }
+            },
+            {
+                "$addFields": {
+                    "subcategoryName": "$subcategory.name",
+                    "which": {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $gt: [{ $size: "$festivalData" }, 0] },
+                                    then: "festival"
+                                },
+                                {
+                                    case: { $gt: [{ $size: "$majorShoppingData" }, 0] },
+                                    then: "major"
+                                }
+                            ],
+                            default: ""
+                        }
+                    }
+                }
+            },
+            {
+                "$project": {
+                    "subcategoryName": 1,
+                    "subcategoryId": 1,
+                    "name": 1,
+                    "desc": 1,
+                    "sellerId": 1,
+                    "price": 1,
+                    "imagesUrl": 1,
+                    "which": 1
+                }
+            }
+        ]).exec();
+
+        const newProds = await getProductsWithTrueImagesUrl2(products);
+
+        return {
+            products: newProds,
+            status: 200,
+            message: null
+        }
+
+    } catch (error) {
+        return {
+            products: null,
+            status: 500,
+            message: error
+        }
+    }
+
+}
+
 module.exports = {
     getAllProducts,
     getAllMyProducts,
     getOneProduct,
     getOneProductParams,
     getSomeProducts,
-    getAllProductsOfACategory
+    getAllProductsOfACategory,
+    getAllProductsOfASubcategory
 }
