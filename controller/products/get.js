@@ -363,12 +363,68 @@ const getSomeProducts = async (args, _context) => {
         const newIds = []
         const keys = Object.keys(args)
         for (const key of keys) {
-            newIds.push(args[key])
+            newIds.push(new mongoose.Types.ObjectId(args[key]))
         }
-        const products = await Product.find({
-            '_id': { $in: newIds }
-        })
-        const newProds = await getProductsWithTrueImagesUrl(products);
+        const products = await Product.aggregate([
+            {
+                "$match": {
+                    "_id": { $in: newIds }
+                }
+            },
+            {
+                "$lookup": {
+                    from: "festivals",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "festivalData"
+                }
+            },
+            {
+                "$lookup": {
+                    from: "majorshoppings",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "majorShoppingData"
+                }
+            },
+            {
+                "$addFields": {
+                    "which": {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $gt: [{ $size: "$festivalData" }, 0] },
+                                    then: "festival"
+                                },
+                                {
+                                    case: { $gt: [{ $size: "$majorShoppingData" }, 0] },
+                                    then: "major"
+                                }
+                            ],
+                            default: ""
+                        }
+                    },
+                    "festivalOffPercentage": { $arrayElemAt: ["$festivalData.offPercentage", 0] },
+                    "until": { $arrayElemAt: ["$festivalData.until", 0] },
+                    "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] }
+                }
+            },
+            {
+                "$project": {
+                    "name": 1,
+                    "sellerId": 1,
+                    "price": 1,
+                    "imagesUrl": 1,
+                    "which": 1,
+                    "festivalOffPercentage": 1,
+                    "until": 1,
+                    "quantity": 1,
+                    "majorOffPercentage": 1
+                }
+            }
+        ]).exec();
+        const newProds = await getProductsWithTrueImagesUrl2(products);
         return {
             products: newProds,
             status: 200,
