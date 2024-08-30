@@ -318,8 +318,39 @@ const getAllProductsOfACategory = async (args, _context) => {
                 }
             },
             {
+                "$lookup": {
+                    from: "festivals",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "festivalData"
+                }
+            },
+            {
+                "$lookup": {
+                    from: "majorshoppings",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "majorShoppingData"
+                }
+            },
+            {
                 "$addFields": {
                     "subcategoryName": "$subcategory.name",
+                    "which": {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $gt: [{ $size: "$festivalData" }, 0] },
+                                    then: "festival"
+                                },
+                                {
+                                    case: { $gt: [{ $size: "$majorShoppingData" }, 0] },
+                                    then: "major"
+                                }
+                            ],
+                            default: ""
+                        }
+                    }
                 }
             },
             {
@@ -331,6 +362,7 @@ const getAllProductsOfACategory = async (args, _context) => {
                     "sellerId": 1,
                     "price": 1,
                     "imagesUrl": 1,
+                    "which": 1
                 }
             }
         ]).exec();
