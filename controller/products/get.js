@@ -236,10 +236,10 @@ const getOneProduct = async (args, _context) => {
             },
             {
                 "$lookup": {
-                    from: "categories", // Add lookup for categories
+                    from: "categories",
                     localField: "subcategory.categoryId",
                     foreignField: '_id',
-                    as: 'category' // Use as 'category'
+                    as: 'category'
                 }
             },
             {
@@ -284,7 +284,7 @@ const getOneProduct = async (args, _context) => {
                     "until": { $arrayElemAt: ["$festivalData.until", 0] },
                     // Add fields from majorShoppingData (if exists)
                     "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
-                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] }
                 }
             },
             {
@@ -452,7 +452,11 @@ const getAllProductsOfACategory = async (args, _context) => {
                             ],
                             default: ""
                         }
-                    }
+                    },
+                    "festivalOffPercentage": { $arrayElemAt: ["$festivalData.offPercentage", 0] },
+                    "until": { $arrayElemAt: ["$festivalData.until", 0] },
+                    "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] }
                 }
             },
             {
@@ -464,7 +468,11 @@ const getAllProductsOfACategory = async (args, _context) => {
                     "sellerId": 1,
                     "price": 1,
                     "imagesUrl": 1,
-                    "which": 1
+                    "which": 1,
+                    "festivalOffPercentage": 1,
+                    "until": 1,
+                    "quantity": 1,
+                    "majorOffPercentage": 1
                 }
             }
         ]).exec();
@@ -548,7 +556,12 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                             ],
                             default: ""
                         }
-                    }
+                    },
+                    "festivalOffPercentage": { $arrayElemAt: ["$festivalData.offPercentage", 0] },
+                    "until": { $arrayElemAt: ["$festivalData.until", 0] },
+                    // Add fields from majorShoppingData (if exists)
+                    "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] }
                 }
             },
             {
@@ -560,7 +573,11 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                     "sellerId": 1,
                     "price": 1,
                     "imagesUrl": 1,
-                    "which": 1
+                    "which": 1,
+                    "festivalOffPercentage": 1,
+                    "until": 1,
+                    "quantity": 1,
+                    "majorOffPercentage": 1
                 }
             }
         ]).exec();
