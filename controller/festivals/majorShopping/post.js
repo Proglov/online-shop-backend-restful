@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { MajorShopping, Product } = require('../../../models/dbModels');
+const { MajorShopping, Product, Festival } = require('../../../models/dbModels');
 
 const { isAdmin } = require('../../../lib/Functions');
 
@@ -31,6 +31,12 @@ const MajorShoppingCreate = async (args, context) => {
             status: 404
         }
 
+        if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+            majorShopping: null,
+            message: "You are not authorized!",
+            status: 403
+        }
+
         const existingProduct = await MajorShopping.findOne({ productId })
 
 
@@ -40,10 +46,13 @@ const MajorShoppingCreate = async (args, context) => {
             status: 400
         }
 
-        if (!(await isAdmin(userInfo?.userId)) && !product.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+        const existingProductInFestival = await Festival.findOne({ productId })
+
+
+        if (existingProductInFestival) return {
             majorShopping: null,
-            message: "You are not authorized!",
-            status: 403
+            message: "this product already exists in the festival!",
+            status: 400
         }
 
         if (typeof offPercentage !== 'number' || typeof quantity !== 'number') return {
