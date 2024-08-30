@@ -207,29 +207,121 @@ const getAllMyProducts = async (args, context) => {
 }
 
 const getOneProduct = async (args, _context) => {
-    const { id } = args
-    try {
-        const product = await Product.findById(id).populate({
-            path: "subcategoryId", select: 'categoryId name', populate: {
-                path: 'categoryId',
-                select: 'name'
-            },
-        });
-        const newProd = await getProductsWithTrueImagesUrl(product);
+    const { id } = args;
+    if (!id) {
         return {
-            product: newProd,
+            product: null,
+            message: "Product ID is required",
+            status: 400,
+        };
+    }
+
+    try {
+        const productData = await Product.aggregate([
+            {
+                "$match": {
+                    "_id": new mongoose.Types.ObjectId(id)
+                }
+            },
+            {
+                "$lookup": {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: '_id',
+                    as: 'subcategory'
+                }
+            },
+            {
+                "$unwind": "$subcategory"
+            },
+            {
+                "$lookup": {
+                    from: "categories", // Add lookup for categories
+                    localField: "subcategory.categoryId",
+                    foreignField: '_id',
+                    as: 'category' // Use as 'category'
+                }
+            },
+            {
+                "$lookup": {
+                    from: "festivals",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "festivalData"
+                }
+            },
+            {
+                "$lookup": {
+                    from: "majorshoppings",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "majorShoppingData"
+                }
+            },
+            {
+                "$addFields": {
+                    "subcategoryName": "$subcategory.name",
+                    "subcategoryId": "$subcategory._id",
+                    "categoryId": { $arrayElemAt: ["$category._id", 0] },
+                    "categoryName": { $arrayElemAt: ["$category.name", 0] },
+                    "which": {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $gt: [{ $size: "$festivalData" }, 0] },
+                                    then: "festival"
+                                },
+                                {
+                                    case: { $gt: [{ $size: "$majorShoppingData" }, 0] },
+                                    then: "major"
+                                }
+                            ],
+                            default: ""
+                        }
+                    }
+                }
+            },
+            {
+                "$project": {
+                    "subcategoryName": 1,
+                    "subcategoryId": 1,
+                    "name": 1,
+                    "desc": 1,
+                    "sellerId": 1,
+                    "price": 1,
+                    "imagesUrl": 1,
+                    "which": 1,
+                    "categoryId": 1,
+                    "categoryName": 1
+                }
+            }
+        ]).exec();
+
+        if (productData.length === 0) {
+            return {
+                product: null,
+                message: "Product not found",
+                status: 404,
+            };
+        }
+
+        const product = await getProductsWithTrueImagesUrl2(productData[0]);
+
+        return {
+            product,
             status: 200,
             message: null
-        }
+        };
+
     } catch (error) {
+        console.log(error);
         return {
             product: null,
             status: 500,
-            message: error
-        }
+            message: error.message
+        };
     }
-
-}
+};
 
 const getOneProductParams = async (args, _context) => {
     const { id } = args
