@@ -278,7 +278,13 @@ const getOneProduct = async (args, _context) => {
                             ],
                             default: ""
                         }
-                    }
+                    },
+                    // Add fields from festivalData (if exists)
+                    "festivalOffPercentage": { $arrayElemAt: ["$festivalData.offPercentage", 0] },
+                    "until": { $arrayElemAt: ["$festivalData.until", 0] },
+                    // Add fields from majorShoppingData (if exists)
+                    "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] },
                 }
             },
             {
@@ -292,7 +298,11 @@ const getOneProduct = async (args, _context) => {
                     "imagesUrl": 1,
                     "which": 1,
                     "categoryId": 1,
-                    "categoryName": 1
+                    "categoryName": 1,
+                    "festivalOffPercentage": 1,
+                    "until": 1,
+                    "quantity": 1,
+                    "majorOffPercentage": 1
                 }
             }
         ]).exec();
