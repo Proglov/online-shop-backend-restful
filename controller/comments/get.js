@@ -109,7 +109,7 @@ const getCommentsOfAProduct = async (args, _context) => {
             status: 400,
             message: 'id is required'
         }
-        const allComments = await Comment.find({ productId: id }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
+        const allComments = await Comment.find({ productId: id, validated: true }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
         return {
             comments: allComments,
             status: 200,
