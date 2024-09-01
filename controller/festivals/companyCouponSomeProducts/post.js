@@ -104,22 +104,33 @@ const getTokenFromBodyCompanyCouponForSomeProducts = async (args, context) => {
     const { userInfo } = context;
 
     try {
-        if (!userInfo || !userInfo?.userId) {
-            return {
-                body: null,
-                message: "You are not authorized!",
-                status: 400
-            }
+        if (!userInfo || !userInfo?.userId) return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
+            body: null,
+            message: "You are not authorized!",
+            status: 400
         }
         if (typeof body !== 'string') return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             token: null,
             message: 'Body is required',
             status: 400
         }
 
 
-        const { status, message } = await verifyCompanyCouponForSomeProductsBody({ body }, { userInfo })
+        const { status, message, productsIds, maxOffPrice, minBuy, offPercentage } = await verifyCompanyCouponForSomeProductsBody({ body }, { userInfo })
+
         if (!status) return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             token: null,
             message,
             status: 403
@@ -133,13 +144,20 @@ const getTokenFromBodyCompanyCouponForSomeProducts = async (args, context) => {
         })
 
         return {
+            minBuy,
+            maxOffPrice,
+            offPercentage,
+            productsIds,
             token,
             message: null,
             status: 200
         }
     } catch (error) {
-
         return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             token: null,
             message: error,
             status: 500

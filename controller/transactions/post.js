@@ -1,6 +1,7 @@
 const { TransAction, Product } = require('../../models/dbModels');
 const { extractCoupon } = require('../../lib/Functions');
 const { verifyCompanyCouponForSomeProductsToken, getOneCompanyCouponForSomeProducts } = require('../festivals/companyCouponSomeProducts/serverActions');
+const mongoose = require('mongoose');
 
 
 const TransActionCreate = async (args, context) => {
@@ -26,48 +27,154 @@ const TransActionCreate = async (args, context) => {
             }
         }
 
-        const products = await Product.find({
-            _id: {
-                $in: boughtProducts?.map(obj => obj.productId)
-            }
-        })
+        const products = await Product.aggregate([
+            {
+                $match: {
+                    _id: { $in: boughtProducts.map(obj => new mongoose.Types.ObjectId(obj.productId)) },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'festivals',
+                    let: { id: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $in: ["festival", {
+                                                $map: {
+                                                    input: boughtProducts,
+                                                    as: "bp",
+                                                    in: {
+                                                        $cond: [
+                                                            { $eq: ["$$bp.productId", { $toString: "$$id" }] },
+                                                            "$$bp.which",
+                                                            null
+                                                        ]
+                                                    }
+                                                }
+                                            }]
+                                        },
+                                        {
+                                            $eq: ["$$id", "$productId"]
+                                        }
+                                    ]
+                                }
+                            },
+                        }
+                    ],
+                    as: 'festivalDetails',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'majorshoppings',
+                    let: { id: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $in: ["major", {
+                                                $map: {
+                                                    input: boughtProducts,
+                                                    as: "bp",
+                                                    in: {
+                                                        $cond: [
+                                                            { $eq: ["$$bp.productId", { $toString: "$$id" }] },
+                                                            "$$bp.which",
+                                                            null
+                                                        ]
+                                                    }
+                                                }
+                                            }]
+                                        },
+                                        {
+                                            $eq: ["$$id", "$productId"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'majorShoppingDetails',
+                },
+            },
+            {
+                $addFields: {
+                    festivalOffPercentage: { $arrayElemAt: ["$festivalDetails.offPercentage", 0] },
+                    until: { $arrayElemAt: ["$festivalDetails.until", 0] },
+                    majorShoppingOffPercentage: { $arrayElemAt: ["$majorShoppingDetails.offPercentage", 0] },
+                    majorQuantity: { $arrayElemAt: ["$majorShoppingDetails.quantity", 0] },
+                    totalBoughtData: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: boughtProducts,
+                                    as: 'bp',
+                                    cond: { $eq: ['$$bp.productId', { $toString: '$_id' }] },
+                                },
+                            },
+                            0
+                        ],
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    sellerId: 1,
+                    price: 1,
+                    festivalOffPercentage: 1,
+                    until: 1,
+                    majorShoppingOffPercentage: 1,
+                    majorQuantity: 1,
+                    quantity: "$totalBoughtData.quantity"
+                },
+            },
+        ]);
+
         let totalDiscount = 0
-        let totalPrice = boughtProducts.reduce((acc, currentProduct) => {
-            const productIndex = products.findIndex(prod => prod._id == currentProduct.productId)
-            return acc + (products[productIndex].price * currentProduct.quantity)
+        let totalPrice = products.reduce((acc, currentProduct) => {
+            const thisPrice = currentProduct.price * currentProduct.quantity
+            if (currentProduct?.majorShoppingOffPercentage > 0 && currentProduct?.quantity >= currentProduct?.majorQuantity)
+                totalDiscount += thisPrice * currentProduct.majorShoppingOffPercentage / 100
+            else if (currentProduct?.festivalOffPercentage > 0 && currentProduct?.until >= Date.now())
+                totalDiscount += thisPrice * currentProduct.festivalOffPercentage / 100
+            return acc + thisPrice
         }, 0)
 
 
-        //  handled the discount
+        //  handled the code discount
         const tokenRes = await verifyCompanyCouponForSomeProductsToken({ token: discountToken })
-
         const couponType = extractCoupon(tokenRes?.body)
 
         if (couponType === "CompanyCouponForSomeProducts") {
             const discount = await getOneCompanyCouponForSomeProducts({ body: tokenRes?.body })
 
             if (!!discount && totalPrice >= discount?.minBuy) {
-                const totalDiscountedProducts = boughtProducts.reduce((acc, currentProduct) => {
-                    const currentIndex = discount.productsIds.findIndex(id => id === currentProduct.productId)
+                const totalPriceOfDiscountedWithCodeProducts = products.reduce((acc, currentProduct) => {
+                    const currentIndex = discount.productsIds.findIndex(id => id.equals(new mongoose.Types.ObjectId(currentProduct._id)))
                     if (currentIndex >= 0)
                         return acc + (currentProduct.price * currentProduct.quantity)
                     return acc
                 }, 0)
 
-                totalDiscount = Math.min((totalDiscountedProducts * discount.offPercentage / 100), discount?.maxOffPrice)
-
-                totalPrice -= totalDiscount
+                totalDiscount += Math.min((totalPriceOfDiscountedWithCodeProducts * discount.offPercentage / 100), discount?.maxOffPrice)
             }
         }
 
+        totalPrice -= totalDiscount
 
         //shippingCost should be handled properly
-        const shippingCost = 0
+        const shippingCost = 50000
         totalPrice += shippingCost;
 
 
-
-        const newTransActionObj = {
+        const newTransAction = new TransAction({
             userId: userInfo.userId,
             shippingCost,
             totalPrice,
@@ -75,9 +182,7 @@ const TransActionCreate = async (args, context) => {
             address,
             shouldBeSentAt,
             totalDiscount: totalDiscount > 0 ? totalDiscount : undefined
-        }
-
-        const newTransAction = new TransAction(newTransActionObj);
+        });
 
         await newTransAction.save();
 

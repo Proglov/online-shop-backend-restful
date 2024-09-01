@@ -209,6 +209,9 @@ const transActionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    discount: {
+        type: Number
+    },
     shippingCost: {
         type: Number,
         required: true

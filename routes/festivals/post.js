@@ -38,9 +38,9 @@ router.post('/getTokenFromBodyCompanyCouponForSomeProducts', async (req, res) =>
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message, token } = await getTokenFromBodyCompanyCouponForSomeProducts({ ...input }, { userInfo });
+    const { status, message, token, productsIds, maxOffPrice, minBuy, offPercentage } = await getTokenFromBodyCompanyCouponForSomeProducts({ ...input }, { userInfo });
 
-    res.status(status).send({ message, token });
+    res.status(status).send({ message, token, productsIds, maxOffPrice, minBuy, offPercentage });
 })
 
 

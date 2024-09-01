@@ -11,10 +11,18 @@ const verifyCompanyCouponForSomeProductsBody = async (args, context) => {
         const existingCompanyCouponForSomeProducts = await CompanyCouponForSomeProducts.findOne({ body })
 
         if (!existingCompanyCouponForSomeProducts) return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             message: 'Body is Not Valid!',
             status: false
         }
         if (existingCompanyCouponForSomeProducts?.remainingCount == 0) return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             message: 'No room any more!',
             status: false
         }
@@ -22,6 +30,10 @@ const verifyCompanyCouponForSomeProductsBody = async (args, context) => {
         const userIndex = existingCompanyCouponForSomeProducts.usersIds.findIndex(id => id == userInfo?.userId)
 
         if (userIndex >= 0) return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             message: 'Already entered this code!',
             status: false
         }
@@ -36,14 +48,20 @@ const verifyCompanyCouponForSomeProductsBody = async (args, context) => {
 
 
         return {
+            minBuy: existingCompanyCouponForSomeProducts?.minBuy,
+            maxOffPrice: existingCompanyCouponForSomeProducts?.maxOffPrice,
+            offPercentage: existingCompanyCouponForSomeProducts?.offPercentage,
+            productsIds: existingCompanyCouponForSomeProducts.productsIds,
             message: 'You are Welcome!',
             status: true
         }
 
     } catch (error) {
-        console.log(error);
-
         return {
+            minBuy: null,
+            maxOffPrice: null,
+            offPercentage: null,
+            productsIds: null,
             message: error,
             status: false
         }
