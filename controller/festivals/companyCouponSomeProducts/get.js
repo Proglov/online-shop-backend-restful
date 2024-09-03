@@ -22,33 +22,11 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
                 status: 403
             }
         }
-        const aggregateQuery = [
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: 'productsIds',
-                    foreignField: '_id',
-                    as: 'productDetails'
-                }
-            }
-        ]
-        const countQuery = [...aggregateQuery, { $count: 'count' }]
-        const resultQuery = [...aggregateQuery, {
-            $group: {
-                _id: '$_id',
-                body: { $first: '$body' },
-                productsIds: { $first: '$productsIds' },
-                minBuy: { $first: '$minBuy' },
-                maxOffPrice: { $first: '$maxOffPrice' },
-                offPercentage: { $first: '$offPercentage' },
-                remainingCount: { $first: '$remainingCount' }
-            }
-        }]
 
-        const allProductsCount = (await CompanyCouponForSomeProducts.aggregate(countQuery))[0]?.count;
+        const allProductsCount = await CompanyCouponForSomeProducts.where().countDocuments().exec();
 
         if (!page || !perPage) {
-            const products = await CompanyCouponForSomeProducts.aggregate(resultQuery)
+            const products = await CompanyCouponForSomeProducts.find({})
             return {
                 products,
                 allProductsCount,
@@ -60,7 +38,7 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
         page = parseInt(page) || 1;
         perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
-        const products = await CompanyCouponForSomeProducts.aggregate([...resultQuery, { $skip: skip }, { $limit: perPage }]);
+        const products = await CompanyCouponForSomeProducts.find({}).skip(skip).limit(perPage);
 
         return {
             products,
@@ -92,7 +70,8 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
                 status: 400
             }
         }
-        const aggregateQuery = [
+
+        const conditionQuery = [
             {
                 $lookup: {
                     from: 'products',
@@ -103,27 +82,39 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
             },
             {
                 $match: {
-                    'productDetails.sellerId': new mongoose.Types.ObjectId(userInfo?.userId)
+                    'productDetails': {
+                        $elemMatch: {
+                            sellerId: new mongoose.Types.ObjectId(userInfo?.userId)
+                        }
+                    }
                 }
-            },
-        ]
-        const countQuery = [...aggregateQuery, { $count: 'count' }]
-        const resultQuery = [...aggregateQuery, {
-            $group: {
-                _id: '$_id',
-                body: { $first: '$body' },
-                productsIds: { $first: '$productsIds' },
-                minBuy: { $first: '$minBuy' },
-                maxOffPrice: { $first: '$maxOffPrice' },
-                offPercentage: { $first: '$offPercentage' },
-                remainingCount: { $first: '$remainingCount' }
+
             }
-        }]
+        ]
+        const productsQuery = [
+            ...conditionQuery,
+            {
+                $project: {
+                    body: 1,
+                    minBuy: 1,
+                    productsIds: '$productDetails',
+                    maxOffPrice: 1,
+                    offPercentage: 1,
+                    remainingCount: 1,
+                }
+            }
+        ]
+        const countQuery = [
+            ...conditionQuery,
+            {
+                $count: 'count'
+            }
+        ]
 
         const allProductsCount = (await CompanyCouponForSomeProducts.aggregate(countQuery))[0]?.count || 0;
 
         if (!page || !perPage) {
-            const products = await CompanyCouponForSomeProducts.aggregate(resultQuery)
+            const products = await CompanyCouponForSomeProducts.aggregate(productsQuery)
             return {
                 products,
                 allProductsCount,
@@ -135,7 +126,8 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
         page = parseInt(page) || 1;
         perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
-        const products = await CompanyCouponForSomeProducts.aggregate([...resultQuery, { $skip: skip }, { $limit: perPage }]);
+        const products = await CompanyCouponForSomeProducts.aggregate(productsQuery).skip(skip).limit(perPage);
+
 
         return {
             products,
@@ -146,7 +138,6 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
 
 
     } catch (error) {
-        console.log(error);
         return {
             products: null,
             allProductsCount: 0,
