@@ -87,6 +87,44 @@ const getProductsWithTrueImagesUrl2 = async (input) => {
     return null; // Invalid input
 };
 
+//this belong to getAllProductsOfACategory only
+const getProductsWithTrueImagesUrl3 = async (input) => {
+    if (Array.isArray(input)) {
+        const output = []
+
+        for (const subcategoryProducts of input) {
+            const newProducts = [];
+            for (const product of subcategoryProducts?.products) {
+                if (product.imagesUrl.length !== 0) {
+                    const filenames = product.imagesUrl
+                    const args = { filenames };
+                    const { urls } = await getImages(args, null);
+
+                    const updatedProduct = {
+                        ...product,
+                        imagesUrl: urls,
+                        imagesName: filenames
+                    };
+
+                    newProducts.push(updatedProduct);
+                } else {
+                    newProducts.push(product);
+                }
+
+            }
+            output.push({
+                _id: subcategoryProducts._id,
+                products: newProducts
+            })
+
+        }
+
+        return output;
+    }
+
+    return null; // Invalid input
+};
+
 
 const getAllProducts = async (args, _context) => {
 
@@ -442,6 +480,8 @@ const getSomeProducts = async (args, _context) => {
 const getAllProductsOfACategory = async (args, _context) => {
 
     let { categoryId } = args;
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
 
     if (!categoryId) return {
         products: null,
@@ -450,7 +490,7 @@ const getAllProductsOfACategory = async (args, _context) => {
     }
 
     try {
-        const products = await Product.aggregate([
+        const aggregateQuery = [
             {
                 "$lookup": {
                     from: "subcategories",
@@ -530,10 +570,41 @@ const getAllProductsOfACategory = async (args, _context) => {
                     "quantity": 1,
                     "majorOffPercentage": 1
                 }
+            },
+            {
+                $group: {
+                    _id: '$subcategoryId',
+                    products: { $push: "$$ROOT" }
+                }
             }
-        ]).exec();
+        ]
 
-        const newProds = await getProductsWithTrueImagesUrl2(products);
+
+        if (!page || !perPage) {
+            const products = await Product.aggregate(aggregateQuery).exec();
+            const newProds = await getProductsWithTrueImagesUrl3(products);
+
+            return {
+                products: newProds,
+                status: 200,
+                message: null
+            }
+
+        }
+
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const paginationQuery =
+        {
+            $project: {
+                _id: 1,
+                products: { $slice: ["$products", skip, perPage] }
+            }
+        }
+        const products = await Product.aggregate([...aggregateQuery, paginationQuery]).exec();
+        const newProds = await getProductsWithTrueImagesUrl3(products);
 
         return {
             products: newProds,
@@ -542,6 +613,7 @@ const getAllProductsOfACategory = async (args, _context) => {
         }
 
     } catch (error) {
+        console.log(error);
         return {
             products: null,
             status: 500,
