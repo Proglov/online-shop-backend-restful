@@ -103,13 +103,28 @@ const getOneComment = async (args, _context) => {
 
 const getCommentsOfAProduct = async (args, _context) => {
     const { id } = args
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
     try {
         if (!id) return {
             comments: [],
             status: 400,
             message: 'id is required'
         }
-        const allComments = await Comment.find({ productId: id, validated: true }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
+
+        if (!page || !perPage) {
+            const allComments = await Comment.find({ productId: id, validated: true }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
+            return {
+                comments: allComments,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const allComments = await Comment.find({ productId: id, validated: true }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v").skip(skip).limit(perPage);
         return {
             comments: allComments,
             status: 200,
