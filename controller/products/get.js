@@ -553,7 +553,10 @@ const getAllProductsOfACategory = async (args, _context) => {
 
 const getAllProductsOfASubcategory = async (args, _context) => {
 
-    let { subcategoryId } = args;
+    let { subcategoryId, page, perPage } = args;
+
+    page = parseInt(page)
+    perPage = parseInt(perPage)
 
     if (!subcategoryId) return {
         products: null,
@@ -562,7 +565,7 @@ const getAllProductsOfASubcategory = async (args, _context) => {
     }
 
     try {
-        const products = await Product.aggregate([
+        const aggregateQuery = [
             {
                 "$lookup": {
                     from: "subcategories",
@@ -594,7 +597,10 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                     foreignField: "productId",
                     as: "majorShoppingData"
                 }
-            },
+            }
+        ]
+        const resultQuery = [
+            ...aggregateQuery,
             {
                 "$addFields": {
                     "subcategoryName": "$subcategory.name",
@@ -636,10 +642,25 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                     "majorOffPercentage": 1
                 }
             }
-        ]).exec();
+        ]
 
+
+        if (!page || !perPage) {
+            const products = await Product.aggregate(resultQuery).exec();
+            const newProds = await getProductsWithTrueImagesUrl2(products);
+            return {
+                products: newProds,
+                status: 200,
+                message: null
+            }
+        }
+
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const products = await Product.aggregate(resultQuery).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImagesUrl2(products);
-
         return {
             products: newProds,
             status: 200,
