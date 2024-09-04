@@ -209,45 +209,43 @@ const getAllMyTransActions = async (args, context) => {
 
 // this api belongs to the Users
 const getAllMyTransActionsUser = async (args, context) => {
-    //i've omitted the pagination by now
-    // const { page, perPage } = args;
     const { userInfo } = context;
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
 
     try {
         //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
-                // transactionsCount: 0,
                 status: 400,
                 message: "You Are Not Authorized"
             }
         }
 
-        // const count = await TransAction.where({ userId: userInfo?.userId }).countDocuments().exec();
-        // if (!page || !perPage) {
-        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: 'desc' });
+        if (!page || !perPage) {
+            const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: 'desc' });
+            return {
+                transactions: tx,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
         return {
             transactions: tx,
-            // transactionsCount: count,
             status: 200,
             message: null
         }
-        // }
-        // const skip = (page - 1) * perPage;
-        // const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
-        // return {
-        //     transactions: tx,
-        //     transactionsCount: count,
-        //     status: 200,
-        //     message: null
-        // }
 
 
     } catch (error) {
         return {
             transactions: null,
-            // transactionsCount: 0,
             status: 500,
             message: error
         }
