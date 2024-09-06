@@ -32,7 +32,7 @@ const getAllTransActions = async (args, context) => {
         if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
             const count = await TransAction.where().countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+                const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -42,7 +42,7 @@ const getAllTransActions = async (args, context) => {
             }
 
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+            const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -57,7 +57,7 @@ const getAllTransActions = async (args, context) => {
         if (!!isFutureOrder && isFutureOrder == 'true') {
             const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate } }).countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -66,7 +66,7 @@ const getAllTransActions = async (args, context) => {
                 }
             }
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -78,7 +78,7 @@ const getAllTransActions = async (args, context) => {
         //past Orders
         const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate } }).countDocuments().exec();
         if (!page || !perPage) {
-            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -87,7 +87,7 @@ const getAllTransActions = async (args, context) => {
             }
         }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
         return {
             transactions: tx,
             transactionsCount: count,
@@ -133,7 +133,7 @@ const getAllMyTransActions = async (args, context) => {
         if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
             const count = await TransAction.where({ 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+                const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -143,7 +143,7 @@ const getAllMyTransActions = async (args, context) => {
             }
 
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+            const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -158,7 +158,7 @@ const getAllMyTransActions = async (args, context) => {
         if (!!isFutureOrder && isFutureOrder == 'true') {
             const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
             if (!page || !perPage) {
-                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
                 return {
                     transactions: tx,
                     transactionsCount: count,
@@ -167,7 +167,7 @@ const getAllMyTransActions = async (args, context) => {
                 }
             }
             const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -179,7 +179,7 @@ const getAllMyTransActions = async (args, context) => {
         //past Orders
         const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
         if (!page || !perPage) {
-            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' });
+            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
             return {
                 transactions: tx,
                 transactionsCount: count,
@@ -188,7 +188,7 @@ const getAllMyTransActions = async (args, context) => {
             }
         }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
         return {
             transactions: tx,
             transactionsCount: count,
@@ -224,7 +224,7 @@ const getAllMyTransActionsUser = async (args, context) => {
         }
 
         if (!page || !perPage) {
-            const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: 'desc' });
+            const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 })
             return {
                 transactions: tx,
                 status: 200,
@@ -235,7 +235,7 @@ const getAllMyTransActionsUser = async (args, context) => {
         page = page || 1;
         perPage = perPage || 10;
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).skip(skip).limit(perPage);
+        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
         return {
             transactions: tx,
             status: 200,
@@ -246,6 +246,76 @@ const getAllMyTransActionsUser = async (args, context) => {
     } catch (error) {
         return {
             transactions: null,
+            status: 500,
+            message: error
+        }
+    }
+}
+
+const getAllTransActionsOfAUser = async (args, context) => {
+    const { userInfo } = context;
+    const { id } = args;
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
+    try {
+        //check if req contains token
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+
+        if (!(await isAdmin(userInfo.userId))) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 403,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        if (!id) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 403,
+                message: "ID is required"
+            }
+        }
+
+        const count = await TransAction.where({ userId: id }).countDocuments().exec();
+
+        if (!page || !perPage) {
+            const tx = await TransAction.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
+            return {
+                transactions: tx,
+                transactionsCount: count,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const tx = await TransAction.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+        return {
+            transactions: tx,
+            transactionsCount: count,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        return {
+            transactions: null,
+            transactionsCount: 0
+            ,
             status: 500,
             message: error
         }
@@ -302,5 +372,6 @@ module.exports = {
     getAllTransActions,
     getAllMyTransActions,
     getAllMyTransActionsUser,
+    getAllTransActionsOfAUser,
     getOneTransAction
 }
