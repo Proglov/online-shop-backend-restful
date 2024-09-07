@@ -112,6 +112,7 @@ const getCommentsOfAProduct = async (args, _context) => {
             message: 'id is required'
         }
 
+
         if (!page || !perPage) {
             const allComments = await Comment.find({ productId: id, validated: true }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
             return {
@@ -133,6 +134,51 @@ const getCommentsOfAProduct = async (args, _context) => {
     } catch (error) {
         return {
             comments: [],
+            status: 500,
+            message: error
+        }
+    }
+}
+
+const getCommentsOfAProductForSeller = async (args, _context) => {
+    const { id } = args
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
+    try {
+        if (!id) return {
+            comments: [],
+            allCommentsCount: 0,
+            status: 400,
+            message: 'id is required'
+        }
+
+        let allCommentsCount = await Comment.where({ productId: id }).countDocuments().exec();
+
+
+        if (!page || !perPage) {
+            const allComments = await Comment.find({ productId: id }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v");
+            return {
+                comments: allComments,
+                allCommentsCount,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const allComments = await Comment.find({ productId: id }).populate({ path: "ownerId", select: 'name' }).select("-likes._id -disLikes._id -__v").skip(skip).limit(perPage);
+        return {
+            comments: allComments,
+            allCommentsCount,
+            status: 200,
+            message: null
+        }
+    } catch (error) {
+        return {
+            comments: [],
+            allCommentsCount: 0,
             status: 500,
             message: error
         }
@@ -178,5 +224,6 @@ module.exports = {
     getAllComments,
     getOneComment,
     getCommentsOfAProduct,
+    getCommentsOfAProductForSeller,
     getAllCommentsOfAUser
 }

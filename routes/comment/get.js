@@ -6,6 +6,7 @@ const {
     getAllComments,
     getOneComment,
     getCommentsOfAProduct,
+    getCommentsOfAProductForSeller,
     getAllCommentsOfAUser
 } = require('../../controller/comments/get');
 
@@ -35,6 +36,14 @@ router.get('/getCommentsOfAProduct', async (req, res) => {
     const { comments, status, message } = await getCommentsOfAProduct({ ...args }, null)
 
     res.status(status).send({ comments, message });
+})
+
+router.get('/getCommentsOfAProductForSeller', async (req, res) => {
+    const args = req.query
+
+    const { comments, allCommentsCount, status, message } = await getCommentsOfAProductForSeller({ ...args }, null)
+
+    res.status(status).send({ comments, allCommentsCount, message });
 })
 
 
