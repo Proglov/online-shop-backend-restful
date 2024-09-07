@@ -7,6 +7,7 @@ const {
     getAllMyTransActions,
     getAllMyTransActionsUser,
     getAllTransActionsOfAUser,
+    getAllTransActionsOfAProduct,
     getOneTransAction
 } = require('../../controller/transactions/get');
 
@@ -47,6 +48,16 @@ router.get('/getAllTransActionsOfAUser', async (req, res) => {
     const args = req.query
 
     const { status, transactions, message, transactionsCount } = await getAllTransActionsOfAUser(args, { userInfo })
+
+    res.status(status).send({ transactions, message, transactionsCount });
+})
+
+router.get('/getAllTransActionsOfAProduct', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { status, transactions, message, transactionsCount } = await getAllTransActionsOfAProduct(args, { userInfo })
 
     res.status(status).send({ transactions, message, transactionsCount });
 })

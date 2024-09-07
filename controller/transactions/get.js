@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { TransAction, Product } = require('../../models/dbModels');
 
 const { isAdmin } = require('../../lib/Functions');
@@ -322,6 +323,83 @@ const getAllTransActionsOfAUser = async (args, context) => {
     }
 }
 
+const getAllTransActionsOfAProduct = async (args, context) => {
+    const { userInfo } = context;
+    const { id } = args;
+    let page = parseInt(args?.page)
+    let perPage = parseInt(args?.perPage)
+    try {
+        //check if req contains token
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        if (!id) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 403,
+                message: "ID is required"
+            }
+        }
+
+        if (!(await isAdmin(userInfo.userId))) {
+            const theProduct = await Product.findById(id);
+            if (!theProduct?.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId)))
+                return {
+                    transactions: null,
+                    transactionsCount: 0,
+                    status: 403,
+                    message: "You Are Not Authorized"
+                }
+        }
+
+        const queryObj = {
+            boughtProducts: {
+                $elemMatch: { productId: new mongoose.Types.ObjectId(id) }
+            }
+        }
+
+        const count = await TransAction.where(queryObj).countDocuments().exec();
+
+        if (!page || !perPage) {
+            const tx = await TransAction.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
+            return {
+                transactions: tx,
+                transactionsCount: count,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = page || 1;
+        perPage = perPage || 10;
+        const skip = (page - 1) * perPage;
+        const tx = await TransAction.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+        return {
+            transactions: tx,
+            transactionsCount: count,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        return {
+            transactions: null,
+            transactionsCount: 0
+            ,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 const getOneTransAction = async (args, context) => {
     const { id } = args
     const { userInfo } = context;
@@ -373,5 +451,6 @@ module.exports = {
     getAllMyTransActions,
     getAllMyTransActionsUser,
     getAllTransActionsOfAUser,
+    getAllTransActionsOfAProduct,
     getOneTransAction
 }
