@@ -59,7 +59,7 @@ const getSeller = async (args, context) => {
             }
         }
 
-        const seller = await Seller.findById(id)
+        const seller = await Seller.findById(id).select('-password');
 
         return {
             seller,
