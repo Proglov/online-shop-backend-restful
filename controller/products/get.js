@@ -244,6 +244,70 @@ const getAllMyProducts = async (args, context) => {
 
 }
 
+const getAllProductsOfASeller = async (args, context) => {
+
+    let { page, perPage, id } = args;
+    let { userInfo } = context;
+
+    try {
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                message: "You are not authorized!",
+                status: 400
+            }
+        }
+        const allProductsCount = await Product.where({
+            sellerId: id
+        }).countDocuments().exec();
+
+        if (!page || !perPage) {
+            const products = await Product.find({
+                sellerId: id
+            }).populate({
+                path: "subcategoryId", select: 'categoryId name', populate: {
+                    path: 'categoryId',
+                    select: 'name'
+                },
+            });
+            const newProds = await getProductsWithTrueImagesUrl(products);
+            return {
+                products: newProds,
+                allProductsCount,
+                status: 200,
+                message: null
+            }
+        }
+
+        page = parseInt(page);
+        perPage = parseInt(perPage);
+        const skip = (page - 1) * perPage;
+        const products = await Product.find({
+            sellerId: id
+        }).populate({
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name'
+            },
+        }).skip(skip).limit(perPage);
+        const newProds = await getProductsWithTrueImagesUrl(products);
+        return {
+            products: newProds,
+            allProductsCount,
+            status: 200,
+            message: null
+        }
+
+    } catch (error) {
+        return {
+            products: null,
+            allProductsCount: 0,
+            status: 500,
+            message: error
+        }
+    }
+
+}
+
 const getOneProduct = async (args, _context) => {
     const { id } = args;
     if (!id) {
@@ -752,6 +816,7 @@ const getAllProductsOfASubcategory = async (args, _context) => {
 module.exports = {
     getAllProducts,
     getAllMyProducts,
+    getAllProductsOfASeller,
     getOneProduct,
     getOneProductParams,
     getSomeProducts,

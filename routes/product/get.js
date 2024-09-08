@@ -5,6 +5,7 @@ const router = express.Router();
 const {
     getAllProducts,
     getAllMyProducts,
+    getAllProductsOfASeller,
     getOneProduct,
     getOneProductParams,
     getAllProductsOfACategory,
@@ -29,6 +30,16 @@ router.get('/getAllMyProducts', setUserInfo, async (req, res) => {
     const args = req.query
 
     const { products, allProductsCount, status, message } = await getAllMyProducts({ ...args }, { userInfo })
+
+    res.status(status).send({ products, allProductsCount, message });
+})
+
+router.get('/getAllProductsOfASeller', setUserInfo, async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { products, allProductsCount, status, message } = await getAllProductsOfASeller({ ...args }, { userInfo })
 
     res.status(status).send({ products, allProductsCount, message });
 })
