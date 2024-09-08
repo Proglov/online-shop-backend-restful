@@ -1,4 +1,4 @@
-const { Product, Seller, Subcategory } = require('../../models/dbModels');
+const { Product, Seller, Subcategory, ProductHistory } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 
@@ -104,6 +104,13 @@ const ProductCreate = async (args, context) => {
 
         const newProd = await getProductsWithTrueImagesUrl(newProduct);
 
+        const newProdHistory = new ProductHistory({
+            productId: newProd._id,
+            count
+        })
+
+        await newProdHistory.save();
+
         return {
             product: {
                 _id: newProd._id,
@@ -130,9 +137,6 @@ const ProductCreate = async (args, context) => {
             status: 500
         }
     }
-
-
-
 }
 
 
