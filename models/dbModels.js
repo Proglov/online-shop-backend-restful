@@ -106,9 +106,9 @@ const productSchema = new mongoose.Schema({
     imagesUrl: [{
         type: String
     }],
-    available: {
-        type: Boolean,
-        default: true
+    count: {
+        type: Number,
+        required: true
     }
 });
 

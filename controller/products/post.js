@@ -51,6 +51,7 @@ const ProductCreate = async (args, context) => {
         price,
         subcategoryId,
         imagesUrl,
+        count
     } = args;
 
     const { userInfo } = context;
@@ -63,6 +64,12 @@ const ProductCreate = async (args, context) => {
                 message: "You are not authorized!",
                 status: 400
             }
+        }
+
+        if (!count || typeof count !== 'number') return {
+            product: null,
+            message: "count is required",
+            status: 403
         }
 
         const seller = await Seller.findById(userInfo?.userId)
@@ -89,7 +96,8 @@ const ProductCreate = async (args, context) => {
             price,
             subcategoryId,
             sellerId: userInfo?.userId,
-            imagesUrl
+            imagesUrl,
+            count
         })
 
         await newProduct.save();
@@ -102,6 +110,7 @@ const ProductCreate = async (args, context) => {
                 name,
                 desc,
                 price,
+                count,
                 imagesUrl: newProd.imagesUrl,
                 subcategoryId: {
                     name: subcategory.name,
