@@ -22,7 +22,7 @@ const TransActionStatus = async (args, context) => {
             status: 400
         }
 
-        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId name' }).populate({ path: "userId", select: 'name phone' })
+        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId' })
 
         if (!tx) return {
             transaction: null,

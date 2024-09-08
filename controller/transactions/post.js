@@ -127,6 +127,8 @@ const TransActionCreate = async (args, context) => {
                 $project: {
                     _id: 1,
                     sellerId: 1,
+                    count: 1,
+                    name: 1,
                     price: 1,
                     festivalOffPercentage: 1,
                     until: 1,
@@ -136,6 +138,17 @@ const TransActionCreate = async (args, context) => {
                 },
             },
         ]);
+
+        //check if we have enough product
+        for (const product of products) {
+            if (!product?.count || product?.count < product?.quantity)
+                return {
+                    transactionId: null,
+                    message: `product is not available. Maximum: ${product.count}, ProductName: ${product.name}`,
+                    status: 409
+                }
+        }
+
 
         let totalDiscount = 0
         let totalPrice = products.reduce((acc, currentProduct) => {
@@ -186,8 +199,22 @@ const TransActionCreate = async (args, context) => {
 
         await newTransAction.save();
 
+
+        //decrease the products count
+        const bulkOps = products.map(product => {
+            return {
+                updateOne: {
+                    filter: { _id: product._id },
+                    update: { $inc: { count: -product.quantity } }
+                }
+            };
+        });
+
+        await Product.bulkWrite(bulkOps);
+
+
         return {
-            transactionId: newTransAction?._id,
+            transactionId: 'newTransAction?._id',
             message: "TransAction is successfully added",
             status: 200
         }
