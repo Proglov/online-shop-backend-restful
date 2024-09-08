@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
     getAllTransActions,
+    getAllTransActionsOfASeller,
     getAllMyTransActions,
     getAllMyTransActionsUser,
     getAllTransActionsOfAUser,
@@ -18,6 +19,16 @@ router.get('/getAllTransActions', async (req, res) => {
     const args = req.query
 
     const { status, transactions, message, transactionsCount } = await getAllTransActions(args, { userInfo })
+
+    res.status(status).send({ transactions, message, transactionsCount });
+})
+
+router.get('/getAllTransActionsOfASeller', async (req, res) => {
+    const userInfo = req?.userInfo
+
+    const args = req.query
+
+    const { status, transactions, message, transactionsCount } = await getAllTransActionsOfASeller(args, { userInfo })
 
     res.status(status).send({ transactions, message, transactionsCount });
 })

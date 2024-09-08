@@ -107,6 +107,126 @@ const getAllTransActions = async (args, context) => {
     }
 }
 
+
+const getAllTransActionsOfASeller = async (args, context) => {
+    const { id } = args;
+    const { userInfo } = context;
+    let page = parseInt(args.page), perPage = parseInt(args.perPage)
+
+    try {
+        //check if req contains token
+        if (!userInfo || !userInfo?.userId) {
+            return {
+                transactions: null,
+                transactionsCount: 0,
+                status: 400,
+                message: "You Are Not Authorized"
+            }
+        }
+
+        const conditionQuery = [
+            { $unwind: '$boughtProducts' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'boughtProducts.productId',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' },
+            {
+                $match: {
+                    'productDetails.sellerId': new mongoose.Types.ObjectId(id)
+                }
+            },
+            { $sort: { createdAt: -1 } }
+        ]
+        const countQuery = [
+            ...conditionQuery,
+            {
+                $group: {
+                    _id: '$_id',
+                }
+            },
+            {
+                $count: 'count'
+            },
+        ]
+        const aggregateQuery = [
+            ...conditionQuery,
+            {
+                $group: {
+                    _id: '$_id',
+                    userId: { $first: '$userId' },
+                    totalDiscount: { $first: '$totalDiscount' },
+                    totalPrice: { $first: '$totalPrice' },
+                    discount: { $first: '$discount' },
+                    shippingCost: { $first: '$shippingCost' },
+                    address: { $first: '$address' },
+                    shouldBeSentAt: { $first: '$shouldBeSentAt' },
+                    createdAt: { $first: '$createdAt' },
+                    status: { $first: '$status' },
+                    boughtProducts: {
+                        $push: {
+                            quantity: '$boughtProducts.quantity',
+                            productId: {
+                                _id: '$boughtProducts.productId',
+                                name: '$productDetails.name'
+                            }
+                        }
+                    },
+                }
+            },
+            {
+                $project: {
+                    userId: 1,
+                    totalDiscount: 1,
+                    totalPrice: 1,
+                    discount: 1,
+                    shippingCost: 1,
+                    address: 1,
+                    shouldBeSentAt: 1,
+                    createdAt: 1,
+                    status: 1,
+                    boughtProducts: 1,
+                }
+            },
+        ]
+
+        const transactionsCount = (await TransAction.aggregate(countQuery))[0].count || 0
+
+
+        if (!page || !perPage) {
+            const tx = await TransAction.aggregate(aggregateQuery)
+            return {
+                transactions: tx,
+                transactionsCount,
+                status: 200,
+                message: null
+            }
+        }
+
+        const skip = (page - 1) * perPage;
+        const tx = await TransAction.aggregate(aggregateQuery).skip(skip).limit(perPage)
+        return {
+            transactions: tx,
+            transactionsCount,
+            status: 200,
+            message: null
+        }
+
+
+    } catch (error) {
+        return {
+            transactions: null,
+            transactionsCount: 0,
+            status: 500,
+            message: error
+        }
+    }
+}
+
 // this api belongs to the sellers
 const getAllMyTransActions = async (args, context) => {
     const { page, perPage, isFutureOrder } = args;
@@ -448,6 +568,7 @@ const getOneTransAction = async (args, context) => {
 
 module.exports = {
     getAllTransActions,
+    getAllTransActionsOfASeller,
     getAllMyTransActions,
     getAllMyTransActionsUser,
     getAllTransActionsOfAUser,
