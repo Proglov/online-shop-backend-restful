@@ -124,10 +124,11 @@ const ProductUpdate = async (args, context) => {
 
         return {
             product: {
-                _id: newProd._id,
+                _id: id,
                 name,
                 desc,
                 price,
+                count: existingProduct.count,
                 imagesUrl: newProd.imagesUrl,
                 subcategoryId: {
                     name: subcategory.name,
