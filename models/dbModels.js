@@ -34,7 +34,12 @@ const userInPersonSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-    }
+    },
+    sellerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        required: true
+    },
 });
 
 const adminSchema = new mongoose.Schema({

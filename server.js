@@ -12,12 +12,15 @@ const { setUserInfo } = require('./lib/middlewares');
 const usersRouterGet = require('./routes/user/get');
 const usersRouterPost = require('./routes/user/post');
 const usersRouterUpdate = require('./routes/user/update');
-const usersRouterDelete = require('./routes/user/delete');
+// const usersRouterDelete = require('./routes/user/delete');
+
+const userInPersonsRouterGet = require('./routes/userInPerson/get');
+const userInPersonsRouterPost = require('./routes/userInPerson/post');
 
 const sellersRouterGet = require('./routes/seller/get');
 const sellersRouterPost = require('./routes/seller/post');
 const sellersRouterUpdate = require('./routes/seller/update');
-const sellersRouterDelete = require('./routes/seller/delete');
+// const sellersRouterDelete = require('./routes/seller/delete');
 
 const productsRouterGet = require('./routes/product/get');
 const productsRouterPost = require('./routes/product/post');
@@ -65,12 +68,15 @@ app.use(express.json());
 app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
 app.use('/userUpdate', setUserInfo, usersRouterUpdate);
-app.use('/userDelete', setUserInfo, usersRouterDelete);
+// app.use('/userDelete', setUserInfo, usersRouterDelete);
+
+app.use('/userInPersonGet', setUserInfo, userInPersonsRouterGet);
+app.use('/userInPersonPost', setUserInfo, userInPersonsRouterPost);
 
 app.use('/sellerGet', setUserInfo, sellersRouterGet);
 app.use('/sellerPost', setUserInfo, sellersRouterPost);
 app.use('/sellerUpdate', setUserInfo, sellersRouterUpdate);
-app.use('/sellerDelete', setUserInfo, sellersRouterDelete);
+// app.use('/sellerDelete', setUserInfo, sellersRouterDelete);
 
 app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
