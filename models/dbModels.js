@@ -27,6 +27,16 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+const userInPersonSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+    }
+});
+
 const adminSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -253,6 +263,24 @@ const transActionSchema = new mongoose.Schema({
     }
 }, { timestamps: { createdAt: true } })
 
+const transActionInPersonSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'UserInPerson',
+        required: true
+    },
+    boughtProducts: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        },
+        quantity: {
+            type: Number,
+            default: 1
+        }
+    }]
+}, { timestamps: { createdAt: true } })
+
 // the sellers can add a festival to their products, to determine the off percentage until a specific time
 const festivalSchema = new mongoose.Schema({
     productId: {
@@ -425,6 +453,7 @@ sellerSchema.plugin(uniqueValidator, {
 })
 
 const User = mongoose.model('User', userSchema);
+const UserInPerson = mongoose.model('UserInPerson', userInPersonSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
 const Product = mongoose.model('Product', productSchema);
@@ -434,6 +463,7 @@ const Subcategory = mongoose.model('Subcategory', subcategorySchema);
 const Comment = mongoose.model('Comment', commentSchema);
 const TemporaryImage = mongoose.model('TemporaryImage', temporaryImageSchema);
 const TransAction = mongoose.model('TransAction', transActionSchema);
+const TransActionInPerson = mongoose.model('TransActionInPerson', transActionInPersonSchema);
 const Festival = mongoose.model('Festival', festivalSchema);
 const MajorShopping = mongoose.model('MajorShopping', majorShoppingSchema);
 const CompanyCouponForSomeProducts = mongoose.model('CompanyCouponForSomeProducts', companyCouponForSomeProductsSchema);
@@ -442,4 +472,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, Admin, Seller, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, UserInPerson, Admin, Seller, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, TransActionInPerson, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
