@@ -144,7 +144,7 @@ const TransActionCreate = async (args, context) => {
             if (!product?.count || product?.count < product?.quantity)
                 return {
                     transactionId: null,
-                    message: `product is not available. Maximum: ${product.count}, ProductName: ${product.name}`,
+                    message: `product is not available. Maximum: ${product.count || 0}, ProductName: ${product.name}`,
                     status: 409
                 }
         }
@@ -214,7 +214,7 @@ const TransActionCreate = async (args, context) => {
 
 
         return {
-            transactionId: 'newTransAction?._id',
+            transactionId: newTransAction?._id,
             message: "TransAction is successfully added",
             status: 200
         }

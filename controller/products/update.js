@@ -1,4 +1,4 @@
-const { Product, Subcategory } = require('../../models/dbModels');
+const { Product, Subcategory, ProductHistory } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 
@@ -51,7 +51,8 @@ const ProductUpdate = async (args, context) => {
         desc,
         price,
         subcategoryId,
-        imagesUrl
+        imagesUrl,
+        addedCount
     } = args;
 
     const { userInfo } = context;
@@ -108,6 +109,15 @@ const ProductUpdate = async (args, context) => {
             existingProduct.imagesUrl = imagesUrl
         }
 
+        if (typeof addedCount === 'number' && addedCount > 0) {
+            existingProduct.count = existingProduct.count + addedCount;
+            const newProdHistory = new ProductHistory({
+                productId: id,
+                count: addedCount
+            })
+            await newProdHistory.save();
+        }
+
         await existingProduct.save();
 
         const newProd = await getProductsWithTrueImagesUrl(existingProduct);
@@ -131,6 +141,7 @@ const ProductUpdate = async (args, context) => {
         }
 
     } catch (error) {
+        console.log(error);
         return {
             product: null,
             message: error,
