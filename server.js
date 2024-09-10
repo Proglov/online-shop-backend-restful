@@ -42,6 +42,9 @@ const transactionsRouterGet = require('./routes/transaction/get');
 const transactionsRouterPost = require('./routes/transaction/post');
 const transactionsRouterUpdate = require('./routes/transaction/update');
 
+const transactionInPersonsRouterGet = require('./routes/transactionInPerson/get');
+const transactionInPersonsRouterPost = require('./routes/transactionInPerson/post');
+
 
 const imagesRouterPost = require('./routes/image/post');
 const imagesRouterGet = require('./routes/image/get');
@@ -97,6 +100,9 @@ app.use('/commentDelete', setUserInfo, commentsRouterDelete);
 app.use('/transactionGet', setUserInfo, transactionsRouterGet);
 app.use('/transactionPost', setUserInfo, transactionsRouterPost);
 app.use('/transactionUpdate', setUserInfo, transactionsRouterUpdate);
+
+app.use('/transactionInPersonGet', setUserInfo, transactionInPersonsRouterGet);
+app.use('/transactionInPersonPost', setUserInfo, transactionInPersonsRouterPost);
 
 app.use('/imageGet', imagesRouterGet);
 app.use('/imagePost', setUserInfo, imagesRouterPost);

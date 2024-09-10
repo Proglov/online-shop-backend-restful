@@ -274,6 +274,10 @@ const transActionInPersonSchema = new mongoose.Schema({
         ref: 'UserInPerson',
         required: true
     },
+    totalPrice: {
+        type: Number,
+        required: true
+    },
     boughtProducts: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -282,6 +286,10 @@ const transActionInPersonSchema = new mongoose.Schema({
         quantity: {
             type: Number,
             default: 1
+        },
+        off: {
+            type: Number,
+            default: 0
         }
     }]
 }, { timestamps: { createdAt: true } })

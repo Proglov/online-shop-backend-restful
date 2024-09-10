@@ -89,7 +89,7 @@ const getAllMyUserInPersons = async (args, context) => {
         const usersCount = await UserInPerson.where({ sellerId: userInfo?.userId }).countDocuments().exec();
 
         if (!page || !perPage) {
-            const users = await UserInPerson.find({ sellerId: userInfo?.userId });
+            const users = await UserInPerson.find({ sellerId: userInfo?.userId }).select('-sellerId')
 
             return {
                 users,
@@ -102,7 +102,7 @@ const getAllMyUserInPersons = async (args, context) => {
         page = parseInt(page);
         perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const users = await UserInPerson.find({ sellerId: userInfo?.userId }).skip(skip).limit(perPage);
+        const users = await UserInPerson.find({ sellerId: userInfo?.userId }).skip(skip).limit(perPage).select('-sellerId')
 
         return {
             users,
