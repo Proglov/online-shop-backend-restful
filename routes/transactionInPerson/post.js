@@ -11,9 +11,9 @@ router.post('/TransActionInPersonCreate', async (req, res) => {
     const userInfo = req?.userInfo
     const { input } = req.body
 
-    const { status, message, transactionId } = await TransActionInPersonCreate({ ...input }, { userInfo });
+    const { status, message, transaction } = await TransActionInPersonCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, transactionId });
+    res.status(status).send({ message, transaction });
 })
 
 

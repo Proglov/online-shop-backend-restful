@@ -1,5 +1,5 @@
-const { TransActionInPerson, Product } = require('../../models/dbModels');
 const mongoose = require('mongoose');
+const { TransActionInPerson, Product, UserInPerson } = require('../../models/dbModels');
 
 
 const TransActionInPersonCreate = async (args, context) => {
@@ -10,18 +10,34 @@ const TransActionInPersonCreate = async (args, context) => {
         //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
-                transactionId: null,
+                transaction: null,
                 message: "You are not authorized!",
                 status: 403
             }
         }
 
+        if (!userId) {
+            return {
+                transaction: null,
+                message: "userId is required",
+                status: 400
+            }
+        }
+
         if (!boughtProducts?.length) {
             return {
-                transactionId: null,
+                transaction: null,
                 message: "boughtProduct is required",
                 status: 400
             }
+        }
+
+        const user = await UserInPerson.findById(userId)
+
+        if (!user || !user?.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
+            transaction: null,
+            message: "user is required",
+            status: 400
         }
 
         const products = await Product.aggregate([
@@ -63,7 +79,7 @@ const TransActionInPersonCreate = async (args, context) => {
         for (const product of products) {
             if (!product?.count || product?.count < product?.quantity)
                 return {
-                    transactionId: null,
+                    transaction: null,
                     message: `product is not available. Maximum: ${product.count || 0}, ProductName: ${product.name}`,
                     status: 409
                 }
@@ -92,17 +108,34 @@ const TransActionInPersonCreate = async (args, context) => {
 
         await Product.bulkWrite(bulkOps);
 
-
         return {
-            transActionId: newTransActionInPerson?._id,
+            transaction: {
+                _id: newTransActionInPerson?._id,
+                userId: {
+                    name: user.name,
+                    phone: user.phone
+                },
+                totalPrice,
+                boughtProducts: boughtProducts.map(bp => ({
+                    _id: bp._id,
+                    off: bp.off,
+                    quantity: bp.quantity,
+                    productId: {
+                        _id: bp.productId,
+                        name: (products.find(product => product._id.equals(bp.productId))).name
+                    }
+                })),
+                createdAt: Date.now()
+            },
             message: "TransAction is successfully added",
             status: 200
         }
 
 
     } catch (error) {
+        console.log(error);
         return {
-            transactionId: null,
+            transaction: null,
             message: error,
             status: 500
         }
