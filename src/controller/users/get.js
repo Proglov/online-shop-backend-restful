@@ -3,12 +3,12 @@ const { User } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 
 const getMe = async (_args, context) => {
-
     const { userInfo } = context;
 
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                user: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -36,11 +36,18 @@ const getMe = async (_args, context) => {
 const getUser = async (args, context) => {
     const { userInfo } = context;
     const { id } = args;
-
+    if (!id) {
+        return {
+            product: null,
+            message: "user ID is required",
+            status: 400,
+        };
+    }
 
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                user: null,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -82,6 +89,8 @@ const getUsers = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                users: null,
+                usersCount: 0,
                 message: "You are not authorized!",
                 status: 400
             }
@@ -132,6 +141,7 @@ const isUserAdmin = async (_args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
+                isAdmin: null,
                 message: "You are not authorized!",
                 status: 400
             }

@@ -14,7 +14,7 @@ router.post('/SellerSignUp', async (req, res) => {
 
     const { status, message, token } = await SellerSignUp({ ...input }, null);
 
-    res.status(status).send({ message, token });
+    res.status(status).json({ message, token });
 })
 
 
@@ -23,7 +23,7 @@ router.post('/SellerSignInWithPhone', async (req, res) => {
 
     const { status, message, token } = await SellerSignInWithPhone({ phone, password }, null)
 
-    res.status(status).send({ message, token });
+    res.status(status).json({ message, token });
 })
 
 
@@ -32,7 +32,7 @@ router.post('/SellerSignInWithEmailOrUsername', async (req, res) => {
 
     const { status, message, token } = await SellerSignInWithEmailOrUsername({ emailOrUsername, password }, null)
 
-    res.status(status).send({ message, token });
+    res.status(status).json({ message, token });
 })
 
 

@@ -15,29 +15,31 @@ router.get('/getMeSeller', async (req, res) => {
 
     const { status, seller, message } = await getMeSeller(null, { userInfo })
 
-    res.status(status).send({ seller, message });
+    res.status(status).json({ seller, message });
 })
 
 
 router.get('/getSeller', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
     const { status, seller, message } = await getSeller(args, { userInfo })
 
-    res.status(status).send({ seller, message });
+    res.status(status).json({ seller, message });
 })
 
 
 router.get('/getSellers', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt',
+        validated: 'string'
+    })
 
     const { status, sellers, message, allSellersCount } = await getSellers(args, { userInfo })
 
-    res.status(status).send({ sellers, message, allSellersCount });
+    res.status(status).json({ sellers, message, allSellersCount });
 })
 
 
@@ -46,7 +48,7 @@ router.get('/isUserSeller', async (req, res) => {
 
     const { status, isSeller, message } = await isUserSeller(null, { userInfo })
 
-    res.status(status).send({ isSeller, message });
+    res.status(status).json({ isSeller, message });
 })
 
 

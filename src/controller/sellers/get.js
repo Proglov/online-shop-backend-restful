@@ -3,20 +3,17 @@ const { Seller } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 
 const getMeSeller = async (_args, context) => {
-
     const { userInfo } = context;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                seller: null,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
-        const seller = await Seller.findById(userInfo?.userId).select('-password');
+        const seller = await Seller.findById(userInfo?.userId).select('-password').lean().exec();
         return {
             seller,
             status: 200,
@@ -35,18 +32,22 @@ const getMeSeller = async (_args, context) => {
 }
 
 const getSeller = async (args, context) => {
-
     const { userInfo } = context;
-    let { id } = args;
-
+    const { id } = args;
+    if (!id) {
+        return {
+            product: null,
+            message: "seller ID is required",
+            status: 400,
+        };
+    }
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
                 seller: null,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
@@ -59,7 +60,7 @@ const getSeller = async (args, context) => {
             }
         }
 
-        const seller = await Seller.findById(id).select('-password');
+        const seller = await Seller.findById(id).select('-password').lean().exec();
 
         return {
             seller,
@@ -79,20 +80,19 @@ const getSeller = async (args, context) => {
 }
 
 const getSellers = async (args, context) => {
-
     const { userInfo } = context;
-    let { page, perPage, validated } = args;
+    const { page, perPage, validated } = args;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
                 sellers: null,
                 allSellersCount: 0,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
+
         //only admin can get the users
         if (!(await isAdmin(userInfo.userId))) {
             return {
@@ -103,66 +103,20 @@ const getSellers = async (args, context) => {
             }
         }
 
-        //get all of them if validated is not specified
-        if ((validated == undefined || validated == null) && validated !== false) {
-            const allSellersCount = await Seller.where().countDocuments().exec();
-            if (!page || !perPage) {
-                const sellers = await Seller.find({}).select('-password');
-                return {
-                    sellers,
-                    allSellersCount,
-                    status: 200,
-                    message: null
-                }
-            }
-
-            const skip = (page - 1) * perPage;
-            const sellers = await Seller.find({}).select('-password').skip(skip).limit(perPage);
-            return {
-                sellers,
-                allSellersCount,
-                status: 200,
-                message: null
-            }
-
-        }
-
-        //if validated is true
-        if (validated === "true") {
-            const allSellersCount = await Seller.where({ validated: true }).countDocuments().exec();
-            if (!page || !perPage) {
-                const sellers = await Seller.find({ validated: true }).select('-password');
-                return {
-                    sellers,
-                    allSellersCount,
-                    status: 200,
-                    message: null
-                }
-            }
-
-            const skip = (page - 1) * perPage;
-            const sellers = await Seller.find({ validated: true }).select('-password').skip(skip).limit(perPage);
-            return {
-                sellers,
-                allSellersCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        //if validated is false
-        const allSellersCount = await Seller.where({ validated: false }).countDocuments().exec();
-        if (!page || !perPage) {
-            const sellers = await Seller.find({ validated: false }).select('-password');
-            return {
-                sellers,
-                allSellersCount,
-                status: 200,
-                message: null
-            }
-        }
+        const condition = {}
         const skip = (page - 1) * perPage;
-        const sellers = await Seller.find({ validated: false }).select('-password').skip(skip).limit(perPage);
+
+        if (!!validated && validated === "true") condition.validated = true
+        else if (!!validated && validated === "false") condition.validated = false
+
+        const query = Seller.find(condition).select('-password').skip(skip).limit(perPage)
+
+        let allSellersCount = 0
+        const sellers = await query.lean().exec();
+
+        if (!skip) allSellersCount = sellers.length
+        else allSellersCount = await Seller.where(condition).countDocuments().exec();
+
         return {
             sellers,
             allSellersCount,
@@ -183,20 +137,18 @@ const getSellers = async (args, context) => {
 }
 
 const isUserSeller = async (_args, context) => {
-
     const { userInfo } = context;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                status: 400,
                 isSeller: null,
-                message: 'you are not authorized'
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
-        const seller = await Seller.findById(userInfo?.userId)
+        const seller = await Seller.findById(userInfo?.userId).lean().exec()
 
         return {
             status: 200,

@@ -15,7 +15,7 @@ router.patch('/SellerUpdate', async (req, res) => {
 
     const { status, message, token } = await SellerUpdate({ ...input }, { userInfo })
 
-    res.status(status).send({ message, token });
+    res.status(status).json({ message, token });
 })
 
 router.patch('/SellerValidate', async (req, res) => {
@@ -25,7 +25,7 @@ router.patch('/SellerValidate', async (req, res) => {
 
     const { status, message, seller } = await SellerValidate({ ...input }, { userInfo })
 
-    res.status(status).send({ message, seller });
+    res.status(status).json({ message, seller });
 })
 
 
