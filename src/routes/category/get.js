@@ -6,20 +6,24 @@ const {
     getAllCategories,
     getOneCategory
 } = require('../../controller/category/get');
+const { getQueryArgs } = require('../../lib/Functions');
 
 
 router.get('/getAllCategories', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
-    const { categories, allCategoriesCount, status, message } = await getAllCategories({ ...args }, null)
+    const { categories, allCategoriesCount, status, message } = await getAllCategories(args, null)
 
     res.status(status).send({ categories, allCategoriesCount, message });
 })
 
 router.get('/getOneCategory', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
-    const { category, status, message } = await getOneCategory({ ...args }, null)
+    const { category, status, message } = await getOneCategory(args, null)
 
     res.status(status).send({ category, message });
 })
