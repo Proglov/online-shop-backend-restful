@@ -7,16 +7,15 @@ const getMe = async (_args, context) => {
     const { userInfo } = context;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                user: null,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
-        const user = await User.findById(userInfo?.userId).select('-password');
+        const user = await User.findById(userInfo?.userId).select('-password').lean().exec();
+
         return {
             user,
             status: 200,
@@ -35,18 +34,15 @@ const getMe = async (_args, context) => {
 }
 
 const getUser = async (args, context) => {
-
     const { userInfo } = context;
-    let { id } = args;
+    const { id } = args;
 
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                user: null,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
@@ -59,7 +55,7 @@ const getUser = async (args, context) => {
             }
         }
 
-        const user = await User.findById(id).select('-password')
+        const user = await User.findById(id).select('-password').lean().exec()
 
         return {
             user,
@@ -79,19 +75,15 @@ const getUser = async (args, context) => {
 }
 
 const getUsers = async (args, context) => {
-
     const { userInfo } = context;
-    let { page, perPage } = args;
+    const { page, perPage } = args;
 
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                users: null,
-                usersCount: 0,
-                status: 400,
-                message: "You Are Not Authorized"
+                message: "You are not authorized!",
+                status: 400
             }
         }
 
@@ -105,24 +97,15 @@ const getUsers = async (args, context) => {
             }
         }
 
-
-        const usersCount = await User.where().countDocuments().exec();
-
-        if (!page || !perPage) {
-            const users = await User.find().select('-password');
-
-            return {
-                users,
-                usersCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = parseInt(page);
-        perPage = parseInt(perPage);
         const skip = (page - 1) * perPage;
-        const users = await User.find().select('-password').skip(skip).limit(perPage);
+
+        const query = User.find().select('-password').skip(skip).limit(perPage)
+
+        let usersCount = 0
+        const users = await query.lean().exec();
+
+        if (!skip) usersCount = users.length
+        else usersCount = await User.where().countDocuments().exec();
 
         return {
             users,
@@ -144,16 +127,13 @@ const getUsers = async (args, context) => {
 }
 
 const isUserAdmin = async (_args, context) => {
-
     const { userInfo } = context;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                status: 400,
-                isAdmin: null,
-                message: 'you are not authorized'
+                message: "You are not authorized!",
+                status: 400
             }
         }
 

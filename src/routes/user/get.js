@@ -8,6 +8,7 @@ const {
     getUsers,
     isUserAdmin
 } = require('../../controller/users/get');
+const { getQueryArgs } = require('../../lib/Functions');
 
 
 router.get('/getMe', async (req, res) => {
@@ -21,8 +22,7 @@ router.get('/getMe', async (req, res) => {
 
 router.get('/getUser', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
     const { status, user, message } = await getUser(args, { userInfo })
 
@@ -32,8 +32,10 @@ router.get('/getUser', async (req, res) => {
 
 router.get('/getUsers', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
     const { status, users, message, usersCount } = await getUsers(args, { userInfo })
 

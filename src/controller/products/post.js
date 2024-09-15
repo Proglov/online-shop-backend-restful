@@ -58,9 +58,8 @@ const ProductCreate = async (args, context) => {
 
 
     try {
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
-                product: null,
                 message: "You are not authorized!",
                 status: 400
             }
