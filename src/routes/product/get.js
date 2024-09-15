@@ -1,7 +1,4 @@
 const express = require('express');
-
-const router = express.Router();
-
 const {
     getAllProducts,
     getAllMyProducts,
@@ -14,74 +11,95 @@ const {
 } = require('../../controller/products/get');
 
 const { setUserInfo } = require('../../lib/middlewares');
+const { getQueryArgs } = require('../../lib/Functions');
+
+const router = express.Router();
+
 
 router.get('/getAllProducts', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
-    const { products, allProductsCount, status, message } = await getAllProducts({ ...args }, null)
+    const { products, allProductsCount, status, message } = await getAllProducts(args, null)
 
-    res.status(status).send({ products, allProductsCount, message });
+    res.status(status).json({ products, allProductsCount, message });
 })
 
 
 router.get('/getAllMyProducts', setUserInfo, async (req, res) => {
     const userInfo = req?.userInfo
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
-    const args = req.query
+    const { products, allProductsCount, status, message } = await getAllMyProducts(args, { userInfo })
 
-    const { products, allProductsCount, status, message } = await getAllMyProducts({ ...args }, { userInfo })
-
-    res.status(status).send({ products, allProductsCount, message });
+    res.status(status).json({ products, allProductsCount, message });
 })
 
 router.get('/getAllProductsOfASeller', setUserInfo, async (req, res) => {
     const userInfo = req?.userInfo
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt',
+        id: 'string'
+    })
 
-    const args = req.query
+    const { products, allProductsCount, status, message } = await getAllProductsOfASeller(args, { userInfo })
 
-    const { products, allProductsCount, status, message } = await getAllProductsOfASeller({ ...args }, { userInfo })
-
-    res.status(status).send({ products, allProductsCount, message });
+    res.status(status).json({ products, allProductsCount, message });
 })
 
 router.get('/getOneProduct', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
-    const { product, status, message } = await getOneProduct({ ...args }, null)
+    const { product, status, message } = await getOneProduct(args, null)
 
-    res.status(status).send({ product, message });
+    res.status(status).json({ product, message });
 })
 
 router.get('/getOneProductParams', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
-    const { params, status, message } = await getOneProductParams({ ...args }, null)
+    const { params, status, message } = await getOneProductParams(args, null)
 
-    res.status(status).send({ params, message });
+    res.status(status).json({ params, message });
 })
 
 router.get('/getSomeProducts', async (req, res) => {
+    // i didn't use getQueryArgs for this one, but i used encodeURIComponent inside its controller
     const args = req.query
 
     const { products, status, message } = await getSomeProducts(args, null)
 
-    res.status(status).send({ products, message });
+    res.status(status).json({ products, message });
 })
 
 router.get('/getAllProductsOfACategory', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt',
+        categoryId: 'string'
+    })
 
-    const { products, status, message } = await getAllProductsOfACategory({ ...args }, null)
+    const { products, status, message } = await getAllProductsOfACategory(args, null)
 
-    res.status(status).send({ products, message });
+    res.status(status).json({ products, message });
 })
 
 router.get('/getAllProductsOfASubcategory', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt',
+        subcategoryId: 'string'
+    })
 
-    const { products, status, message } = await getAllProductsOfASubcategory({ ...args }, null)
+    const { products, status, message } = await getAllProductsOfASubcategory(args, null)
 
-    res.status(status).send({ products, message });
+    res.status(status).json({ products, message });
 })
 
 

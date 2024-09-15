@@ -105,6 +105,32 @@ const extractCoupon = str => {
     return null
 }
 
+const getField = (field, type) => {
+    let res
+    switch (type) {
+        case 'int':
+            res = parseInt(field)
+            break;
+        case 'posInt':
+            res = Math.abs(parseInt(field))
+            break;
+        case 'float':
+            res = parseFloat(field)
+            break;
+        default:
+            res = field
+    }
+    return res
+}
+
+const getQueryArgs = (args, options) => {
+    const obj = {}
+    Object.keys(options).map(key => {
+        obj[key] = getField(args[key], options[key])
+    })
+    return obj
+}
+
 module.exports = {
     generateRandomString,
     getUserFromToken,
@@ -115,5 +141,6 @@ module.exports = {
     encString,
     extractSellerIdFromFilename,
     getCoupon,
-    extractCoupon
+    extractCoupon,
+    getQueryArgs
 }

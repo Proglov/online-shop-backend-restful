@@ -2,6 +2,7 @@ require('dotenv').config();
 require('colors');
 const express = require('express');
 const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
 const corsOptions = require('./src/config/corsOptions');
 const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
 
@@ -67,6 +68,7 @@ connectDB()
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(mongoSanitize());
 
 app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
