@@ -17,7 +17,7 @@ router.patch('/CommentUpdate', async (req, res) => {
 
     const { status, message } = await CommentUpdate({ ...input }, { userInfo })
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 router.patch('/CommentToggleLike', async (req, res) => {
@@ -27,7 +27,7 @@ router.patch('/CommentToggleLike', async (req, res) => {
 
     const { status, message, comment } = await CommentToggleLike({ ...input }, { userInfo })
 
-    res.status(status).send({ message, comment });
+    res.status(status).json({ message, comment });
 })
 
 router.patch('/CommentToggleDisLike', async (req, res) => {
@@ -37,7 +37,7 @@ router.patch('/CommentToggleDisLike', async (req, res) => {
 
     const { status, message, comment } = await CommentToggleDisLike({ ...input }, { userInfo })
 
-    res.status(status).send({ message, comment });
+    res.status(status).json({ message, comment });
 })
 
 router.patch('/CommentToggleValidate', async (req, res) => {
@@ -47,7 +47,7 @@ router.patch('/CommentToggleValidate', async (req, res) => {
 
     const { status, message, comment } = await CommentToggleValidate({ ...input }, { userInfo })
 
-    res.status(status).send({ message, comment });
+    res.status(status).json({ message, comment });
 })
 
 

@@ -13,7 +13,7 @@ router.delete('/CommentDelete', async (req, res) => {
 
     const { status, message, id: theId } = await CommentDelete({ id }, { userInfo });
 
-    res.status(status).send({ message, id: theId });
+    res.status(status).json({ message, id: theId });
 })
 
 

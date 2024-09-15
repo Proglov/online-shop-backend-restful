@@ -13,7 +13,7 @@ router.post('/CommentAdd', async (req, res) => {
 
     const { status, message } = await CommentAdd({ ...input }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 

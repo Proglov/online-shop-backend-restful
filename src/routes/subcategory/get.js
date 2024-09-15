@@ -6,6 +6,7 @@ const {
     getAllSubcategories,
     getOneSubcategory
 } = require('../../controller/subcategory/get');
+const { getQueryArgs } = require('../../lib/Functions');
 
 
 router.get('/getAllSubcategories', async (req, res) => {

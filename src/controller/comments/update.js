@@ -9,7 +9,6 @@ const CommentUpdate = async (args, context) => {
         id,
         body,
     } = args;
-
     const { userInfo } = context
 
     try {
@@ -66,7 +65,6 @@ const CommentToggleLike = async (args, context) => {
         id,
         ownerType
     } = args;
-
     const { userInfo } = context
 
     try {
@@ -177,7 +175,6 @@ const CommentToggleDisLike = async (args, context) => {
         id,
         ownerType
     } = args;
-
     const { userInfo } = context
 
     try {
@@ -286,8 +283,15 @@ const CommentToggleValidate = async (args, context) => {
     const {
         id,
     } = args;
-
     const { userInfo } = context
+
+    if (!id) {
+        return {
+            comment: null,
+            message: "id is required",
+            status: 400
+        }
+    }
 
     try {
         //check for Authorization

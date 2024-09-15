@@ -4,7 +4,6 @@ const router = express.Router();
 
 const {
     ProductUpdate,
-    // ProductAvailability
 } = require('../../controller/products/update');
 
 
