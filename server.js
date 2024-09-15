@@ -2,63 +2,63 @@ require('dotenv').config();
 require('colors');
 const express = require('express');
 const cors = require('cors');
-const corsOptions = require('./config/corsOptions');
-const { temporaryImageCronJob, festivalsCronJob } = require('./lib/cronJob');
+const corsOptions = require('./src/config/corsOptions');
+const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
 
 const app = express()
 
-const { setUserInfo } = require('./lib/middlewares');
+const { setUserInfo } = require('./src/lib/middlewares');
 
-const usersRouterGet = require('./routes/user/get');
-const usersRouterPost = require('./routes/user/post');
-const usersRouterUpdate = require('./routes/user/update');
-// const usersRouterDelete = require('./routes/user/delete');
+const usersRouterGet = require('./src/routes/user/get');
+const usersRouterPost = require('./src/routes/user/post');
+const usersRouterUpdate = require('./src/routes/user/update');
+// const usersRouterDelete = require('./src/routes/user/delete');
 
-const userInPersonsRouterGet = require('./routes/userInPerson/get');
-const userInPersonsRouterPost = require('./routes/userInPerson/post');
+const userInPersonsRouterGet = require('./src/routes/userInPerson/get');
+const userInPersonsRouterPost = require('./src/routes/userInPerson/post');
 
-const sellersRouterGet = require('./routes/seller/get');
-const sellersRouterPost = require('./routes/seller/post');
-const sellersRouterUpdate = require('./routes/seller/update');
-// const sellersRouterDelete = require('./routes/seller/delete');
+const sellersRouterGet = require('./src/routes/seller/get');
+const sellersRouterPost = require('./src/routes/seller/post');
+const sellersRouterUpdate = require('./src/routes/seller/update');
+// const sellersRouterDelete = require('./src/routes/seller/delete');
 
-const productsRouterGet = require('./routes/product/get');
-const productsRouterPost = require('./routes/product/post');
-const productsRouterUpdate = require('./routes/product/update');
-// const productsRouterDelete = require('./routes/product/delete');
+const productsRouterGet = require('./src/routes/product/get');
+const productsRouterPost = require('./src/routes/product/post');
+const productsRouterUpdate = require('./src/routes/product/update');
+// const productsRouterDelete = require('./src/routes/product/delete');
 
-const categoriesRouterGet = require('./routes/category/get');
-const categoriesRouterPost = require('./routes/category/post');
+const categoriesRouterGet = require('./src/routes/category/get');
+const categoriesRouterPost = require('./src/routes/category/post');
 
-const subcategoriesRouterGet = require('./routes/subcategory/get');
-const subcategoriesRouterPost = require('./routes/subcategory/post');
+const subcategoriesRouterGet = require('./src/routes/subcategory/get');
+const subcategoriesRouterPost = require('./src/routes/subcategory/post');
 
-const commentsRouterGet = require('./routes/comment/get');
-const commentsRouterPost = require('./routes/comment/post');
-const commentsRouterUpdate = require('./routes/comment/update');
-const commentsRouterDelete = require('./routes/comment/delete');
+const commentsRouterGet = require('./src/routes/comment/get');
+const commentsRouterPost = require('./src/routes/comment/post');
+const commentsRouterUpdate = require('./src/routes/comment/update');
+const commentsRouterDelete = require('./src/routes/comment/delete');
 
-const transactionsRouterGet = require('./routes/transaction/get');
-const transactionsRouterPost = require('./routes/transaction/post');
-const transactionsRouterUpdate = require('./routes/transaction/update');
+const transactionsRouterGet = require('./src/routes/transaction/get');
+const transactionsRouterPost = require('./src/routes/transaction/post');
+const transactionsRouterUpdate = require('./src/routes/transaction/update');
 
-const transactionInPersonsRouterGet = require('./routes/transactionInPerson/get');
-const transactionInPersonsRouterPost = require('./routes/transactionInPerson/post');
-
-
-const imagesRouterPost = require('./routes/image/post');
-const imagesRouterGet = require('./routes/image/get');
-const imagesRouterDelete = require('./routes/image/delete');
-const imagesRouterUpdate = require('./routes/image/update');
+const transactionInPersonsRouterGet = require('./src/routes/transactionInPerson/get');
+const transactionInPersonsRouterPost = require('./src/routes/transactionInPerson/post');
 
 
-const festivalsRouterGet = require('./routes/festivals/get');
-const festivalsRouterPost = require('./routes/festivals/post');
-const festivalsRouterDelete = require('./routes/festivals/delete');
+const imagesRouterPost = require('./src/routes/image/post');
+const imagesRouterGet = require('./src/routes/image/get');
+const imagesRouterDelete = require('./src/routes/image/delete');
+const imagesRouterUpdate = require('./src/routes/image/update');
+
+
+const festivalsRouterGet = require('./src/routes/festivals/get');
+const festivalsRouterPost = require('./src/routes/festivals/post');
+const festivalsRouterDelete = require('./src/routes/festivals/delete');
 
 
 const PORT = process.env.PORT || 3500;
-const connectDB = require('./config/db');
+const connectDB = require('./src/config/db');
 
 
 //connect to the database
