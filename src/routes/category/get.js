@@ -17,7 +17,7 @@ router.get('/getAllCategories', async (req, res) => {
 
     const { categories, allCategoriesCount, status, message } = await getAllCategories(args, null)
 
-    res.status(status).send({ categories, allCategoriesCount, message });
+    res.status(status).json({ categories, allCategoriesCount, message });
 })
 
 router.get('/getOneCategory', async (req, res) => {
@@ -25,7 +25,7 @@ router.get('/getOneCategory', async (req, res) => {
 
     const { category, status, message } = await getOneCategory(args, null)
 
-    res.status(status).send({ category, message });
+    res.status(status).json({ category, message });
 })
 
 

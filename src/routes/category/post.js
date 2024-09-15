@@ -14,7 +14,7 @@ router.post('/CategoryCreate', async (req, res) => {
 
     const { status, message, category } = await CategoryCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, category });
+    res.status(status).json({ message, category });
 })
 
 

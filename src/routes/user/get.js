@@ -16,7 +16,7 @@ router.get('/getMe', async (req, res) => {
 
     const { status, user, message } = await getMe(null, { userInfo })
 
-    res.status(status).send({ user, message });
+    res.status(status).json({ user, message });
 })
 
 
@@ -26,7 +26,7 @@ router.get('/getUser', async (req, res) => {
 
     const { status, user, message } = await getUser(args, { userInfo })
 
-    res.status(status).send({ user, message });
+    res.status(status).json({ user, message });
 })
 
 
@@ -39,7 +39,7 @@ router.get('/getUsers', async (req, res) => {
 
     const { status, users, message, usersCount } = await getUsers(args, { userInfo })
 
-    res.status(status).send({ users, message, usersCount });
+    res.status(status).json({ users, message, usersCount });
 })
 
 
@@ -48,7 +48,7 @@ router.get('/isUserAdmin', async (req, res) => {
 
     const { status, isAdmin, message } = await isUserAdmin(null, { userInfo })
 
-    res.status(status).send({ isAdmin, message });
+    res.status(status).json({ isAdmin, message });
 })
 
 

@@ -18,7 +18,7 @@ router.get('/getAllUserInPersons', async (req, res) => {
 
     const { status, users, message, usersCount } = await getAllUserInPersons(args, { userInfo })
 
-    res.status(status).send({ users, message, usersCount });
+    res.status(status).json({ users, message, usersCount });
 })
 
 router.get('/getAllMyUserInPersons', async (req, res) => {
@@ -30,7 +30,7 @@ router.get('/getAllMyUserInPersons', async (req, res) => {
 
     const { status, users, message, usersCount } = await getAllMyUserInPersons(args, { userInfo })
 
-    res.status(status).send({ users, message, usersCount });
+    res.status(status).json({ users, message, usersCount });
 })
 
 

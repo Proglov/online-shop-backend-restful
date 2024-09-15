@@ -14,7 +14,7 @@ router.patch('/UserUpdate', async (req, res) => {
 
     const { status, message, token } = await UserUpdate({ ...input }, { userInfo })
 
-    res.status(status).send({ message, token });
+    res.status(status).json({ message, token });
 })
 
 

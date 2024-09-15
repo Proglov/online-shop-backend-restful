@@ -14,7 +14,7 @@ router.post('/ProductCreate', async (req, res) => {
 
     const { status, message, product } = await ProductCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, product });
+    res.status(status).json({ message, product });
 })
 
 

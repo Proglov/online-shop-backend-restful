@@ -13,7 +13,7 @@ router.delete('/UserDelete', async (req, res) => {
 
     const { status, message } = await UserDelete({ id }, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 

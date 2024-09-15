@@ -13,7 +13,7 @@ router.post('/UserInPersonCreate', async (req, res) => {
 
     const { status, message, user } = await UserInPersonCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, user });
+    res.status(status).json({ message, user });
 })
 
 
