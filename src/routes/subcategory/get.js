@@ -9,19 +9,22 @@ const {
 
 
 router.get('/getAllSubcategories', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
-    const { subcategories, allSubcategoriesCount, status, message } = await getAllSubcategories({ ...args }, null)
+    const { subcategories, allSubcategoriesCount, status, message } = await getAllSubcategories(args, null)
 
-    res.status(status).send({ subcategories, allSubcategoriesCount, message });
+    res.status(status).json({ subcategories, allSubcategoriesCount, message });
 })
 
 router.get('/getOneSubcategory', async (req, res) => {
-    const args = req.query
+    const args = getQueryArgs(req.query, { id: 'string' })
 
-    const { subcategory, status, message } = await getOneSubcategory({ ...args }, null)
+    const { subcategory, status, message } = await getOneSubcategory(args, null)
 
-    res.status(status).send({ subcategory, message });
+    res.status(status).json({ subcategory, message });
 })
 
 

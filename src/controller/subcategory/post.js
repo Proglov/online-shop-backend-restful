@@ -35,8 +35,15 @@ const SubcategoryCreate = async (args, context) => {
             message: "name is required",
             status: 400
         }
+
+        if (!categoryId) return {
+            subcategory: null,
+            message: "categoryId is required",
+            status: 400
+        }
+
         const category = await Category.findById(categoryId)
-        if (!categoryId || !category) return {
+        if (!category) return {
             subcategory: null,
             message: "categoryId is required",
             status: 400
