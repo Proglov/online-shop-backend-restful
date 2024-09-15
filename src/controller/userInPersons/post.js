@@ -57,7 +57,6 @@ const UserInPersonCreate = async (args, context) => {
         }
 
     } catch (error) {
-        console.log(error);
         return {
             user: null,
             message: error,

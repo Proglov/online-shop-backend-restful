@@ -11,8 +11,10 @@ const {
 
 router.get('/getAllUserInPersons', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
     const { status, users, message, usersCount } = await getAllUserInPersons(args, { userInfo })
 
@@ -21,8 +23,10 @@ router.get('/getAllUserInPersons', async (req, res) => {
 
 router.get('/getAllMyUserInPersons', async (req, res) => {
     const userInfo = req?.userInfo
-
-    const args = req.query
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
 
     const { status, users, message, usersCount } = await getAllMyUserInPersons(args, { userInfo })
 
