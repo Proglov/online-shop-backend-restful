@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const corsOptions = require('./src/config/corsOptions');
 const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
+const rateLimit = require('express-rate-limit');
 
 const app = express()
 
@@ -46,25 +47,27 @@ const transactionsRouterUpdate = require('./src/routes/transaction/update');
 const transactionInPersonsRouterGet = require('./src/routes/transactionInPerson/get');
 const transactionInPersonsRouterPost = require('./src/routes/transactionInPerson/post');
 
-
 const imagesRouterPost = require('./src/routes/image/post');
 const imagesRouterGet = require('./src/routes/image/get');
 const imagesRouterDelete = require('./src/routes/image/delete');
 const imagesRouterUpdate = require('./src/routes/image/update');
-
 
 const festivalsRouterGet = require('./src/routes/discounts/get');
 const festivalsRouterPost = require('./src/routes/discounts/post');
 const festivalsRouterDelete = require('./src/routes/discounts/delete');
 
 
-const PORT = process.env.PORT || 3500;
-const connectDB = require('./src/config/db');
-
-
 //connect to the database
+const connectDB = require('./src/config/db');
 connectDB()
 
+const limiter = rateLimit({
+    windowMs: 3_600_000,
+    limit: 10000,
+    legacyHeaders: false
+})
+
+app.use(limiter)
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -117,6 +120,7 @@ app.use('/festivalsDelete', setUserInfo, festivalsRouterDelete);
 
 
 
+const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
     temporaryImageCronJob.start()
     festivalsCronJob.start()
