@@ -21,9 +21,9 @@ const getUserFromToken = token => {
     }
 }
 
-async function isAdmin(userId) {
+const isAdmin = async (userId) => {
     try {
-        const admin = await Admin.findOne({ userId: userId }).lean().exec();
+        const admin = await Admin.findOne({ $where: `this.userId == '${userId}'` });
         const truthy = !!admin;
         return truthy;
     } catch (error) {
