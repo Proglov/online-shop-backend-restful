@@ -2,9 +2,9 @@ const express = require('express');
 
 const router = express.Router();
 
-const { DeleteOneFestival } = require('../../controller/festivals/festival/delete');
-const { DeleteOneMajorShopping } = require('../../controller/festivals/majorShopping/delete');
-const { DeleteOneCompanyCouponForSomeProducts } = require('../../controller/festivals/companyCouponSomeProducts/delete');
+const { DeleteOneFestival } = require('../../controller/discounts/festival/delete');
+const { DeleteOneMajorShopping } = require('../../controller/discounts/majorShopping/delete');
+const { DeleteOneCompanyCouponForSomeProducts } = require('../../controller/discounts/companyCouponSomeProducts/delete');
 
 
 router.delete('/DeleteOneFestival', async (req, res) => {
@@ -13,7 +13,7 @@ router.delete('/DeleteOneFestival', async (req, res) => {
 
     const { status, message } = await DeleteOneFestival(args, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 
@@ -23,7 +23,7 @@ router.delete('/DeleteOneMajorShopping', async (req, res) => {
 
     const { status, message } = await DeleteOneMajorShopping(args, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 router.delete('/DeleteOneCompanyCouponForSomeProducts', async (req, res) => {
@@ -32,7 +32,7 @@ router.delete('/DeleteOneCompanyCouponForSomeProducts', async (req, res) => {
 
     const { status, message } = await DeleteOneCompanyCouponForSomeProducts(args, { userInfo });
 
-    res.status(status).send({ message });
+    res.status(status).json({ message });
 })
 
 

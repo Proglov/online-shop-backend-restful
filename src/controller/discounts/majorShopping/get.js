@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Festival } = require('../../../models/dbModels');
+const { MajorShopping } = require('../../../models/dbModels');
 const { getImage } = require('../../image/get');
 
 const getProductsWithTrueImageUrl = async (input) => {
@@ -34,16 +34,12 @@ const getProductsWithTrueImageUrl = async (input) => {
     return newProds;
 };
 
-const GetAllFestivalProducts = async (args, _context) => {
+
+const GetAllMajorShoppingProducts = async (args, _context) => {
     let { page, perPage } = args;
 
     try {
-        const now = Date.now()
-        const conditionQuery = { until: { $gt: now } }
         const aggregateQuery = [
-            {
-                $match: conditionQuery
-            },
             {
                 $lookup: {
                     from: 'products',
@@ -64,28 +60,14 @@ const GetAllFestivalProducts = async (args, _context) => {
                     imagesUrl: '$productDetails.imagesUrl',
                     sellerId: '$productDetails.sellerId',
                     offPercentage: 1,
-                    until: 1
+                    quantity: 1
                 }
             }
         ]
-        const allProductsCount = await Festival.where(conditionQuery).countDocuments().exec();
+        const allProductsCount = await MajorShopping.where().countDocuments().exec();
 
-        if (!page || !perPage) {
-            const products = await Festival.aggregate(aggregateQuery);
-            const newProds = await getProductsWithTrueImageUrl(products);
-
-            return {
-                products: newProds,
-                allProductsCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = parseInt(page) || 1;
-        perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
-        const products = await Festival.aggregate(aggregateQuery).skip(skip).limit(perPage);
+        const products = await MajorShopping.aggregate(aggregateQuery).skip(skip).limit(perPage);
         const newProds = await getProductsWithTrueImageUrl(products);
 
         return {
@@ -107,7 +89,7 @@ const GetAllFestivalProducts = async (args, _context) => {
 
 }
 
-const GetAllMyFestivalProducts = async (args, context) => {
+const GetMyAllMajorShoppingProducts = async (args, context) => {
     let { page, perPage } = args;
     const { userInfo } = context;
 
@@ -137,24 +119,12 @@ const GetAllMyFestivalProducts = async (args, context) => {
             }
         ]
         const countQuery = [...aggregateQuery, { $count: 'count' }]
-        const resultQuery = [...aggregateQuery, { $project: { productId: 1, offPercentage: 1, until: 1, name: '$productDetails.name' } }]
+        const resultQuery = [...aggregateQuery, { $project: { productId: '$productDetails._id', offPercentage: 1, quantity: 1, name: '$productDetails.name' } }]
 
-        const allProductsCount = (await Festival.aggregate(countQuery))[0]?.count;
+        const allProductsCount = (await MajorShopping.aggregate(countQuery))[0]?.count;
 
-        if (!page || !perPage) {
-            const products = await Festival.aggregate(resultQuery);
-            return {
-                products,
-                allProductsCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = parseInt(page) || 1;
-        perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
-        const products = await Festival.aggregate([...resultQuery, { $skip: skip }, { $limit: perPage }]);
+        const products = await MajorShopping.aggregate([...resultQuery, { $skip: skip }, { $limit: perPage }]);
 
         return {
             products,
@@ -162,6 +132,7 @@ const GetAllMyFestivalProducts = async (args, context) => {
             status: 200,
             message: null
         }
+
 
     } catch (error) {
         return {
@@ -175,6 +146,6 @@ const GetAllMyFestivalProducts = async (args, context) => {
 }
 
 module.exports = {
-    GetAllFestivalProducts,
-    GetAllMyFestivalProducts
+    GetAllMajorShoppingProducts,
+    GetMyAllMajorShoppingProducts
 }

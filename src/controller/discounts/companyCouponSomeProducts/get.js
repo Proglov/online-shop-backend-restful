@@ -25,18 +25,6 @@ const GetAllCompanyCouponForSomeProducts = async (args, context) => {
 
         const allProductsCount = await CompanyCouponForSomeProducts.where().countDocuments().exec();
 
-        if (!page || !perPage) {
-            const products = await CompanyCouponForSomeProducts.find({})
-            return {
-                products,
-                allProductsCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = parseInt(page) || 1;
-        perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
         const products = await CompanyCouponForSomeProducts.find({}).skip(skip).limit(perPage);
 
@@ -113,18 +101,6 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
 
         const allProductsCount = (await CompanyCouponForSomeProducts.aggregate(countQuery))[0]?.count || 0;
 
-        if (!page || !perPage) {
-            const products = await CompanyCouponForSomeProducts.aggregate(productsQuery)
-            return {
-                products,
-                allProductsCount,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = parseInt(page) || 1;
-        perPage = parseInt(perPage) || 10;
         const skip = (page - 1) * perPage;
         const products = await CompanyCouponForSomeProducts.aggregate(productsQuery).skip(skip).limit(perPage);
 
@@ -149,8 +125,13 @@ const GetAllMyCompanyCouponForSomeProducts = async (args, context) => {
 }
 
 const GetOneCompanyCouponForSomeProducts = async (args, context) => {
-    let { id } = args;
+    const { id } = args;
     const { userInfo } = context;
+    if (!id) return {
+        products: null,
+        status: 400,
+        message: 'id is required!'
+    }
 
     try {
         if (!userInfo || !userInfo?.userId) {
@@ -160,14 +141,8 @@ const GetOneCompanyCouponForSomeProducts = async (args, context) => {
             }
         }
 
-        if (!id) return {
-            products: null,
-            status: 400,
-            message: 'id is required!'
-        }
-
         const coupon = await CompanyCouponForSomeProducts.findById(id)
-            .populate({ path: 'productsIds', select: 'name sellerId' }).select('productIds');
+            .populate({ path: 'productsIds', select: 'name sellerId' }).select('productIds').lean().exec();
 
         if (!(await isAdmin(userInfo?.userId)) && !coupon?.productsIds[0].sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId))) return {
             message: "You are not authorized!",
@@ -189,14 +164,12 @@ const GetOneCompanyCouponForSomeProducts = async (args, context) => {
 
 
     } catch (error) {
-        console.log(error);
         return {
             products: null,
             status: 500,
             message: error
         }
     }
-
 }
 
 module.exports = {

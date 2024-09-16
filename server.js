@@ -53,9 +53,9 @@ const imagesRouterDelete = require('./src/routes/image/delete');
 const imagesRouterUpdate = require('./src/routes/image/update');
 
 
-const festivalsRouterGet = require('./src/routes/festivals/get');
-const festivalsRouterPost = require('./src/routes/festivals/post');
-const festivalsRouterDelete = require('./src/routes/festivals/delete');
+const festivalsRouterGet = require('./src/routes/discounts/get');
+const festivalsRouterPost = require('./src/routes/discounts/post');
+const festivalsRouterDelete = require('./src/routes/discounts/delete');
 
 
 const PORT = process.env.PORT || 3500;

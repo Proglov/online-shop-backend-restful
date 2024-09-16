@@ -1,4 +1,4 @@
-const { FestivalsDelete } = require('../controller/festivals/festival/delete');
+const { FestivalsDelete } = require('../controller/discounts/festival/delete');
 const { deleteOldTemporaryImages } = require('../controller/temporaryImage/delete');
 const { CronJob } = require("cron");
 

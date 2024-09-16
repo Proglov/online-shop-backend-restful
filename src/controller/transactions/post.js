@@ -1,6 +1,6 @@
 const { TransAction, Product } = require('../../models/dbModels');
 const { extractCoupon } = require('../../lib/Functions');
-const { verifyCompanyCouponForSomeProductsToken, getOneCompanyCouponForSomeProducts } = require('../festivals/companyCouponSomeProducts/serverActions');
+const { verifyCompanyCouponForSomeProductsToken, getOneCompanyCouponForSomeProducts } = require('../discounts/companyCouponSomeProducts/serverActions');
 const mongoose = require('mongoose');
 
 
