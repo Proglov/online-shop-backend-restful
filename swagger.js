@@ -28,7 +28,7 @@ const options = {
             },
         ]
     },
-    apis: ['./src/router/*.js'],
+    apis: ['./src/routes/*/*.js'],
 }
 
 const swaggerSpec = swaggerJsdoc(options)
