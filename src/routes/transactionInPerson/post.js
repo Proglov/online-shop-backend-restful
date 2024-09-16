@@ -13,7 +13,7 @@ router.post('/TransActionInPersonCreate', async (req, res) => {
 
     const { status, message, transaction } = await TransActionInPersonCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, transaction });
+    res.status(status).json({ message, transaction });
 })
 
 

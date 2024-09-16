@@ -13,7 +13,7 @@ router.post('/TransActionStatus', async (req, res) => {
 
     const { status, message, transaction } = await TransActionStatus({ id, newStatus }, { userInfo });
 
-    res.status(status).send({ message, transaction });
+    res.status(status).json({ message, transaction });
 })
 
 

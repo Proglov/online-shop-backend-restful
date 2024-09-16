@@ -9,7 +9,7 @@ const getAllTransActions = async (args, context) => {
     const { page, perPage, isFutureOrder } = args;
 
     try {
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
                 transactionsCount: 0,
@@ -59,7 +59,6 @@ const getAllTransActions = async (args, context) => {
 }
 
 const getAllTransActionsOfASeller = async (args, context) => {
-
     const { id, page, perPage } = args;
     const { userInfo } = context;
     if (!id) {

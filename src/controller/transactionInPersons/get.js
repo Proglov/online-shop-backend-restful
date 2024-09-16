@@ -9,8 +9,7 @@ const getAllTransActionInPersons = async (args, context) => {
     const { page, perPage } = args;
 
     try {
-        //check if req contains token
-        if (!userInfo) {
+        if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
                 transactionsCount: 0,
@@ -29,27 +28,22 @@ const getAllTransActionInPersons = async (args, context) => {
             }
         }
 
-
-        const count = await TransActionInPerson.where().countDocuments().exec();
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
         const skip = (page - 1) * perPage;
-        const tx = await TransActionInPerson.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        const query = TransActionInPerson.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransActionInPerson.where().countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
             status: 200,
             message: null
         }
-
 
     } catch (error) {
         return {
@@ -63,12 +57,17 @@ const getAllTransActionInPersons = async (args, context) => {
 
 
 const getAllTransActionInPersonsOfASeller = async (args, context) => {
-    const { id } = args;
+    const { id, page, perPage } = args;
     const { userInfo } = context;
-    let page = parseInt(args.page), perPage = parseInt(args.perPage)
+    if (!id) {
+        return {
+            product: null,
+            message: "seller ID is required",
+            status: 400,
+        };
+    }
 
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
@@ -138,17 +137,6 @@ const getAllTransActionInPersonsOfASeller = async (args, context) => {
 
         const transactionsCount = (await TransActionInPerson.aggregate(countQuery))[0].count || 0
 
-
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.aggregate(aggregateQuery)
-            return {
-                transactions: tx,
-                transactionsCount,
-                status: 200,
-                message: null
-            }
-        }
-
         const skip = (page - 1) * perPage;
         const tx = await TransActionInPerson.aggregate(aggregateQuery).skip(skip).limit(perPage)
         return {
@@ -157,7 +145,6 @@ const getAllTransActionInPersonsOfASeller = async (args, context) => {
             status: 200,
             message: null
         }
-
 
     } catch (error) {
         return {
@@ -192,27 +179,23 @@ const getAllMyTransActionInPersons = async (args, context) => {
         // Extract the productIds from the products array
         const productIds = products.map(product => product._id);
 
-        const count = await TransActionInPerson.where({ 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
+        const condition = { 'boughtProducts.productId': { $in: productIds } }
         const skip = (page - 1) * perPage;
-        const tx = await TransActionInPerson.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        const query = TransActionInPerson.find(condition).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransActionInPerson.where(condition).countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
             status: 200,
             message: null
         }
-
-
     } catch (error) {
         return {
             transactions: null,
@@ -223,253 +206,9 @@ const getAllMyTransActionInPersons = async (args, context) => {
     }
 }
 
-//not edited
-// this api belongs to the Users
-const getAllMyTransActionInPersonsUser = async (args, context) => {
-    const { userInfo } = context;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
-
-    try {
-        //check if req contains token
-        if (!userInfo || !userInfo?.userId) {
-            return {
-                transactions: null,
-                status: 400,
-                message: "You Are Not Authorized"
-            }
-        }
-
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 })
-            return {
-                transactions: tx,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = page || 1;
-        perPage = perPage || 10;
-        const skip = (page - 1) * perPage;
-        const tx = await TransActionInPerson.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-        return {
-            transactions: tx,
-            status: 200,
-            message: null
-        }
-
-
-    } catch (error) {
-        return {
-            transactions: null,
-            status: 500,
-            message: error
-        }
-    }
-}
-
-//not edited
-const getAllTransActionInPersonsOfAUser = async (args, context) => {
-    const { userInfo } = context;
-    const { id } = args;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
-    try {
-        //check if req contains token
-        if (!userInfo || !userInfo?.userId) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 400,
-                message: "You Are Not Authorized"
-            }
-        }
-
-
-        if (!(await isAdmin(userInfo.userId))) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 403,
-                message: "You Are Not Authorized"
-            }
-        }
-
-        if (!id) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 403,
-                message: "ID is required"
-            }
-        }
-
-        const count = await TransActionInPerson.where({ userId: id }).countDocuments().exec();
-
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = page || 1;
-        perPage = perPage || 10;
-        const skip = (page - 1) * perPage;
-        const tx = await TransActionInPerson.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-        return {
-            transactions: tx,
-            transactionsCount: count,
-            status: 200,
-            message: null
-        }
-
-
-    } catch (error) {
-        return {
-            transactions: null,
-            transactionsCount: 0,
-            status: 500,
-            message: error
-        }
-    }
-}
-
-//not edited
-const getAllTransActionInPersonsOfAProduct = async (args, context) => {
-    const { userInfo } = context;
-    const { id } = args;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
-    try {
-        //check if req contains token
-        if (!userInfo || !userInfo?.userId) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 400,
-                message: "You Are Not Authorized"
-            }
-        }
-
-        if (!id) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 403,
-                message: "ID is required"
-            }
-        }
-
-        if (!(await isAdmin(userInfo.userId))) {
-            const theProduct = await Product.findById(id);
-            if (!theProduct?.sellerId.equals(new mongoose.Types.ObjectId(userInfo?.userId)))
-                return {
-                    transactions: null,
-                    transactionsCount: 0,
-                    status: 403,
-                    message: "You Are Not Authorized"
-                }
-        }
-
-        const queryObj = {
-            boughtProducts: {
-                $elemMatch: { productId: new mongoose.Types.ObjectId(id) }
-            }
-        }
-
-        const count = await TransActionInPerson.where(queryObj).countDocuments().exec();
-
-        if (!page || !perPage) {
-            const tx = await TransActionInPerson.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = page || 1;
-        perPage = perPage || 10;
-        const skip = (page - 1) * perPage;
-        const tx = await TransActionInPerson.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-        return {
-            transactions: tx,
-            transactionsCount: count,
-            status: 200,
-            message: null
-        }
-
-
-    } catch (error) {
-        return {
-            transactions: null,
-            transactionsCount: 0
-            ,
-            status: 500,
-            message: error
-        }
-    }
-}
-
-//not edited
-const getOneTransActionInPerson = async (args, context) => {
-    const { id } = args
-    const { userInfo } = context;
-
-    try {
-        //check if req contains token
-        if (!userInfo) {
-            return {
-                transactions: null,
-                status: 400,
-                message: "You Are Not Authorized"
-            }
-        }
-
-        const tx = await TransActionInPerson.findById(id).populate({
-            path: "boughtProducts", populate: {
-                path: 'productId',
-                select: 'name'
-            }
-        })
-
-        //only admin and himself can get the tx
-
-        if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== tx.userId) {
-            return {
-                transactions: null,
-                status: 403,
-                message: "You Are Not Authorized"
-            }
-        }
-
-        return {
-            transactions: tx,
-            status: 200,
-            message: null
-        }
-
-    } catch (error) {
-        return {
-            transactions: null,
-            status: 500,
-            message: error
-        }
-    }
-}
 
 module.exports = {
     getAllTransActionInPersons,
     getAllTransActionInPersonsOfASeller,
-    getAllMyTransActionInPersons,
-    getAllMyTransActionInPersonsUser,
-    getAllTransActionInPersonsOfAUser,
-    getAllTransActionInPersonsOfAProduct,
-    getOneTransActionInPerson
+    getAllMyTransActionInPersons
 }

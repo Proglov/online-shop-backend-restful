@@ -13,7 +13,7 @@ router.post('/TransActionCreate', async (req, res) => {
 
     const { status, message, transactionId } = await TransActionCreate({ ...input }, { userInfo });
 
-    res.status(status).send({ message, transactionId });
+    res.status(status).json({ message, transactionId });
 })
 
 
