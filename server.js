@@ -3,13 +3,13 @@ require('colors');
 const express = require('express');
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
-const corsOptions = require('./src/config/corsOptions');
-const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
 const rateLimit = require('express-rate-limit');
 
-const app = express()
 
+const corsOptions = require('./src/config/corsOptions');
+const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
 const { setUserInfo } = require('./src/lib/middlewares');
+const swaggerDocs = require('./swagger');
 
 const usersRouterGet = require('./src/routes/user/get');
 const usersRouterPost = require('./src/routes/user/post');
@@ -57,21 +57,28 @@ const festivalsRouterPost = require('./src/routes/discounts/post');
 const festivalsRouterDelete = require('./src/routes/discounts/delete');
 
 
+const app = express()
+
 //connect to the database
 const connectDB = require('./src/config/db');
 connectDB()
 
+
+//configuration
 const limiter = rateLimit({
     windowMs: 3_600_000,
-    limit: 10000,
+    limit: 5000,
     legacyHeaders: false
 })
-
+const PORT = process.env.PORT || 3500;
+app.disable('x-powered-by');
 app.use(limiter)
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(mongoSanitize());
+swaggerDocs(app)
+
 
 app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
@@ -120,7 +127,6 @@ app.use('/festivalsDelete', setUserInfo, festivalsRouterDelete);
 
 
 
-const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
     temporaryImageCronJob.start()
     festivalsCronJob.start()
