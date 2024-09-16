@@ -15,10 +15,10 @@ router.get('/getImage', async (req, res) => {
 
         const { status, url, message } = await getImage({ ...filename }, null)
 
-        res.status(status).send({ url, message });
+        res.status(status).json({ url, message });
 
     } catch (error) {
-        res.status(500).send({ url: null, message: error });
+        res.status(500).json({ url: null, message: error });
     }
 })
 

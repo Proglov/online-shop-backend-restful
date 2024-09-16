@@ -26,9 +26,9 @@ router.post('/uploadImage', upload.single('images'), async (req, res) => {
 
         const { status, message, name } = await uploadImage({ ...args }, { userInfo });
 
-        res.status(status).send({ message, name });
+        res.status(status).json({ message, name });
     } catch (error) {
-        res.status(500).send({ message: error, name: null });
+        res.status(500).json({ message: error, name: null });
     }
 
 })

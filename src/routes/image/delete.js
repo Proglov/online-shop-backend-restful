@@ -20,9 +20,9 @@ router.delete('/deleteImage', async (req, res) => {
 
         const { status, message } = await deleteImage({ ...args }, { userInfo });
 
-        res.status(status).send({ message });
+        res.status(status).json({ message });
     } catch (error) {
-        res.status(500).send({ message: error });
+        res.status(500).json({ message: error });
     }
 
 })
@@ -40,9 +40,9 @@ router.delete('/deleteImages', async (req, res) => {
 
         const { status, message } = await deleteImages({ ...args }, { userInfo });
 
-        res.status(status).send({ message });
+        res.status(status).json({ message });
     } catch (error) {
-        res.status(500).send({ message: error });
+        res.status(500).json({ message: error });
     }
 
 })

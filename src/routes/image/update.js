@@ -13,7 +13,7 @@ const upload = multer({ storage })
 
 
 
-router.post('/updateImage', upload.single('images'), async (req, res) => {
+router.patch('/updateImage', upload.single('images'), async (req, res) => {
 
     try {
 
@@ -27,9 +27,9 @@ router.post('/updateImage', upload.single('images'), async (req, res) => {
 
         const { status, message, name } = await updateImage({ ...args }, { userInfo });
 
-        res.status(status).send({ message, name });
+        res.status(status).json({ message, name });
     } catch (error) {
-        res.status(500).send({ message: error, name: null });
+        res.status(500).json({ message: error, name: null });
     }
 
 })
