@@ -9,7 +9,6 @@ const getAllTransActions = async (args, context) => {
     const { page, perPage, isFutureOrder } = args;
 
     try {
-        //check if req contains token
         if (!userInfo) {
             return {
                 transactions: null,
@@ -29,74 +28,26 @@ const getAllTransActions = async (args, context) => {
             }
         }
 
-        //if isFutureOrder is not specified
-        if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
-            const count = await TransAction.where().countDocuments().exec();
-            if (!page || !perPage) {
-                const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-                return {
-                    transactions: tx,
-                    transactionsCount: count,
-                    status: 200,
-                    message: null
-                }
-            }
-
-            const skip = (page - 1) * perPage;
-            const tx = await TransAction.find().populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        const currentDate = (new Date()).getTime();
-
-        //future Orders
-        if (!!isFutureOrder && isFutureOrder == 'true') {
-            const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate } }).countDocuments().exec();
-            if (!page || !perPage) {
-                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-                return {
-                    transactions: tx,
-                    transactionsCount: count,
-                    status: 200,
-                    message: null
-                }
-            }
-            const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        //past Orders
-        const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate } }).countDocuments().exec();
-        if (!page || !perPage) {
-            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
+        const condition = {}
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        if (!!isFutureOrder && isFutureOrder === "true") condition.shouldBeSentAt = { $gte: (new Date()).getTime() }
+        else if (!!isFutureOrder && isFutureOrder === "false") condition.shouldBeSentAt = { $lt: (new Date()).getTime() }
+
+        const query = TransAction.find(condition).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransAction.where(condition).countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
             status: 200,
             message: null
         }
-
-
     } catch (error) {
         return {
             transactions: null,
@@ -107,14 +58,19 @@ const getAllTransActions = async (args, context) => {
     }
 }
 
-
 const getAllTransActionsOfASeller = async (args, context) => {
-    const { id } = args;
+
+    const { id, page, perPage } = args;
     const { userInfo } = context;
-    let page = parseInt(args.page), perPage = parseInt(args.perPage)
+    if (!id) {
+        return {
+            product: null,
+            message: "seller ID is required",
+            status: 400,
+        };
+    }
 
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
@@ -196,17 +152,6 @@ const getAllTransActionsOfASeller = async (args, context) => {
 
         const transactionsCount = (await TransAction.aggregate(countQuery))[0].count || 0
 
-
-        if (!page || !perPage) {
-            const tx = await TransAction.aggregate(aggregateQuery)
-            return {
-                transactions: tx,
-                transactionsCount,
-                status: 200,
-                message: null
-            }
-        }
-
         const skip = (page - 1) * perPage;
         const tx = await TransAction.aggregate(aggregateQuery).skip(skip).limit(perPage)
         return {
@@ -233,7 +178,6 @@ const getAllMyTransActions = async (args, context) => {
     const { userInfo } = context;
 
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
@@ -249,67 +193,20 @@ const getAllMyTransActions = async (args, context) => {
         // Extract the productIds from the products array
         const productIds = products.map(product => product._id);
 
-
-        //if isFutureOrder is not specified
-        if ((isFutureOrder == undefined || isFutureOrder == null) && isFutureOrder != 'false') {
-            const count = await TransAction.where({ 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
-            if (!page || !perPage) {
-                const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-                return {
-                    transactions: tx,
-                    transactionsCount: count,
-                    status: 200,
-                    message: null
-                }
-            }
-
-            const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        const currentDate = (new Date()).getTime();
-
-        //future Orders
-        if (!!isFutureOrder && isFutureOrder == 'true') {
-            const count = await TransAction.where({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
-            if (!page || !perPage) {
-                const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-                return {
-                    transactions: tx,
-                    transactionsCount: count,
-                    status: 200,
-                    message: null
-                }
-            }
-            const skip = (page - 1) * perPage;
-            const tx = await TransAction.find({ shouldBeSentAt: { $gte: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        //past Orders
-        const count = await TransAction.where({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).countDocuments().exec();
-        if (!page || !perPage) {
-            const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
+        const condition = { 'boughtProducts.productId': { $in: productIds } }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ shouldBeSentAt: { $lt: currentDate }, 'boughtProducts.productId': { $in: productIds } }).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        if (!!isFutureOrder && isFutureOrder === "true") condition.shouldBeSentAt = { $gte: (new Date()).getTime() }
+        else if (!!isFutureOrder && isFutureOrder === "false") condition.shouldBeSentAt = { $lt: (new Date()).getTime() }
+
+        const query = TransAction.find(condition).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransAction.where(condition).countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
@@ -331,11 +228,9 @@ const getAllMyTransActions = async (args, context) => {
 // this api belongs to the Users
 const getAllMyTransActionsUser = async (args, context) => {
     const { userInfo } = context;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
+    const { page, perPage } = args;
 
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
@@ -353,10 +248,13 @@ const getAllMyTransActionsUser = async (args, context) => {
             }
         }
 
-        page = page || 1;
-        perPage = perPage || 10;
+        const condition = { userId: userInfo?.userId }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ userId: userInfo?.userId }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        const query = TransAction.find(condition).populate({ path: "userId", select: 'name phone' }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        const tx = await query.lean().exec();
+
         return {
             transactions: tx,
             status: 200,
@@ -375,11 +273,16 @@ const getAllMyTransActionsUser = async (args, context) => {
 
 const getAllTransActionsOfAUser = async (args, context) => {
     const { userInfo } = context;
-    const { id } = args;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
+    const { page, perPage, id } = args;
+    if (!id) {
+        return {
+            product: null,
+            message: "user ID is required",
+            status: 400,
+        };
+    }
+
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
@@ -399,31 +302,17 @@ const getAllTransActionsOfAUser = async (args, context) => {
             }
         }
 
-        if (!id) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 403,
-                message: "ID is required"
-            }
-        }
-
-        const count = await TransAction.where({ userId: id }).countDocuments().exec();
-
-        if (!page || !perPage) {
-            const tx = await TransAction.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = page || 1;
-        perPage = perPage || 10;
+        const condition = { userId: id }
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find({ userId: id }).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        const query = TransAction.find(condition).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransAction.where(condition).countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
@@ -435,8 +324,7 @@ const getAllTransActionsOfAUser = async (args, context) => {
     } catch (error) {
         return {
             transactions: null,
-            transactionsCount: 0
-            ,
+            transactionsCount: 0,
             status: 500,
             message: error
         }
@@ -445,26 +333,23 @@ const getAllTransActionsOfAUser = async (args, context) => {
 
 const getAllTransActionsOfAProduct = async (args, context) => {
     const { userInfo } = context;
-    const { id } = args;
-    let page = parseInt(args?.page)
-    let perPage = parseInt(args?.perPage)
+    const { page, perPage, id } = args;
+    if (!id) {
+        return {
+            transactions: null,
+            transactionsCount: 0,
+            status: 403,
+            message: "ID is required"
+        }
+    }
+
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transactions: null,
                 transactionsCount: 0,
                 status: 400,
                 message: "You Are Not Authorized"
-            }
-        }
-
-        if (!id) {
-            return {
-                transactions: null,
-                transactionsCount: 0,
-                status: 403,
-                message: "ID is required"
             }
         }
 
@@ -479,28 +364,22 @@ const getAllTransActionsOfAProduct = async (args, context) => {
                 }
         }
 
-        const queryObj = {
+        const condition = {
             boughtProducts: {
                 $elemMatch: { productId: new mongoose.Types.ObjectId(id) }
             }
         }
 
-        const count = await TransAction.where(queryObj).countDocuments().exec();
-
-        if (!page || !perPage) {
-            const tx = await TransAction.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 });
-            return {
-                transactions: tx,
-                transactionsCount: count,
-                status: 200,
-                message: null
-            }
-        }
-
-        page = page || 1;
-        perPage = perPage || 10;
         const skip = (page - 1) * perPage;
-        const tx = await TransAction.find(queryObj).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+        const query = TransAction.find(condition).populate({ path: "boughtProducts.productId", select: 'name' }).sort({ createdAt: -1 }).skip(skip).limit(perPage)
+
+        let count = 0
+        const tx = await query.lean().exec();
+
+        if (!skip) count = tx.length
+        else count = await TransAction.where(condition).countDocuments().exec();
+
         return {
             transactions: tx,
             transactionsCount: count,
@@ -512,8 +391,7 @@ const getAllTransActionsOfAProduct = async (args, context) => {
     } catch (error) {
         return {
             transactions: null,
-            transactionsCount: 0
-            ,
+            transactionsCount: 0,
             status: 500,
             message: error
         }
@@ -523,9 +401,15 @@ const getAllTransActionsOfAProduct = async (args, context) => {
 const getOneTransAction = async (args, context) => {
     const { id } = args
     const { userInfo } = context;
+    if (!id) {
+        return {
+            product: null,
+            message: "transaction ID is required",
+            status: 400,
+        };
+    }
 
     try {
-        //check if req contains token
         if (!userInfo) {
             return {
                 transaction: null,
@@ -539,10 +423,9 @@ const getOneTransAction = async (args, context) => {
                 path: 'productId',
                 select: 'name'
             }
-        })
+        }).lean().exec()
 
         //only admin and himself can get the tx
-
         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== tx.userId) {
             return {
                 transaction: null,
