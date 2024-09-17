@@ -1,0 +1,95 @@
+
+
+const postProductSchema = {
+    name: {
+        label: 'نام محصول',
+        type: 'string',
+        trim: true,
+        max: 20,
+        min: 3,
+    },
+    desc: {
+        label: 'توضیحات محصول',
+        type: 'string',
+        trim: true,
+        max: 50,
+        min: 5,
+    },
+    price: {
+        label: 'قیمت محصول',
+        type: "number",
+        positive: true,
+        integer: true,
+    },
+    subcategoryId: {
+        label: 'زیر دسته بندی محصول',
+        type: 'string'
+    },
+    imagesUrl: {
+        label: 'تصاویر محصول',
+        type: 'array',
+        items: 'string',
+        optional: true
+    },
+    count: {
+        label: 'تعداد محصول',
+        type: "number",
+        positive: true,
+        integer: true,
+    }
+}
+
+const updateProductSchema = {
+    id: {
+        label: 'آیدی محصول',
+        type: 'string',
+    },
+    name: {
+        label: 'نام محصول',
+        type: 'string',
+        trim: true,
+        max: 20,
+        min: 3,
+        optional: true
+    },
+    desc: {
+        label: 'توضیحات محصول',
+        type: 'string',
+        trim: true,
+        max: 50,
+        min: 5,
+        optional: true
+    },
+    price: {
+        label: 'قیمت محصول',
+        type: "number",
+        positive: true,
+        integer: true,
+        optional: true
+    },
+    subcategoryId: {
+        label: 'زیر دسته بندی محصول',
+        type: 'string',
+        optional: true
+    },
+    imagesUrl: {
+        label: 'تصاویر محصول',
+        type: 'array',
+        items: 'string',
+        optional: true
+    },
+    addedCount: {
+        label: 'تعداد محصول',
+        type: "number",
+        positive: true,
+        integer: true,
+        optional: true
+    }
+}
+
+
+
+module.exports = {
+    postProductSchema,
+    updateProductSchema
+}

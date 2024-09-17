@@ -1,6 +1,8 @@
 const { Product, Seller, Subcategory, ProductHistory } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
+const { validator } = require('../../schemas/main');
+const { postProductSchema } = require('../../schemas/product');
 
 const getProductsWithTrueImagesUrl = async (input) => {
     if (Array.isArray(input)) {
@@ -58,6 +60,7 @@ const ProductCreate = async (args, context) => {
 
 
     try {
+
         if (!userInfo || !userInfo?.userId) {
             return {
                 message: "You are not authorized!",
@@ -65,10 +68,12 @@ const ProductCreate = async (args, context) => {
             }
         }
 
-        if (!count || typeof count !== 'number') return {
+        const check = validator(args, postProductSchema)
+
+        if (check !== true) return {
             product: null,
-            message: "count is required",
-            status: 403
+            message: check[0].message,
+            status: 400
         }
 
         const seller = await Seller.findById(userInfo?.userId)
