@@ -4,6 +4,8 @@ const JWT = require('jsonwebtoken');
 
 
 const { isPhoneValid } = require('../../lib/Functions');
+const { postUserSchema } = require('../../schemas/user');
+const { validator } = require('../../schemas/main');
 
 const UserSignUp = async (args, _context) => {
     const {
@@ -13,27 +15,18 @@ const UserSignUp = async (args, _context) => {
     } = args;
 
     try {
+
+        const check = validator(args, postUserSchema)
+
+        if (check !== true) return {
+            token: null,
+            message: check[0].message,
+            status: 400
+        }
+
         if (!isPhoneValid(phone)) {
             return {
-                message: "phone number is invalid!",
-                token: null,
-                status: 400
-            }
-        }
-
-        //check if there is a new password and it's valid
-        if (!password || password.length < 8) {
-            return {
-                message: "Password Should have more than 8 characters",
-                token: null,
-                status: 400
-            }
-        }
-
-        //check if username is valid
-        if (!username || username?.length < 8) {
-            return {
-                message: "username is not valid",
+                message: "شماره همراه وارد شده معتبر نمیباشد",
                 token: null,
                 status: 400
             }
@@ -43,7 +36,7 @@ const UserSignUp = async (args, _context) => {
         const existingUserByPhone = await User.findOne({ phone });
         if (existingUserByPhone) {
             return {
-                message: "Phone Already Exists",
+                message: "شماره همراه قبلا ثبت نام شده",
                 token: null,
                 status: 409
             }
@@ -52,7 +45,7 @@ const UserSignUp = async (args, _context) => {
         const existingSellerByPhone = await Seller.findOne({ phone });
         if (existingSellerByPhone) {
             return {
-                message: "Phone Already Exists in Sellers",
+                message: "شماره همراه قبلا بعنوان فروشنده ثبت نام شده",
                 token: null,
                 status: 409
             }
@@ -62,7 +55,7 @@ const UserSignUp = async (args, _context) => {
         const existingUserByUsername = await User.findOne({ username });
         if (existingUserByUsername) {
             return {
-                message: "Username Already Exists",
+                message: "نام کاربری معتبر نمیباشد",
                 token: null,
                 status: 409
             }
@@ -71,7 +64,7 @@ const UserSignUp = async (args, _context) => {
         const existingSellerByUsername = await Seller.findOne({ username });
         if (existingSellerByUsername) {
             return {
-                message: "Username Already Exists",
+                message: "نام کاربری معتبر نمیباشد",
                 token: null,
                 status: 409
             }
@@ -100,37 +93,24 @@ const UserSignUp = async (args, _context) => {
             status: 201
         }
 
-
-
     } catch (error) {
-        if (error?.errors?.phone?.name == "ValidatorError")
-            return {
-                message: 'this phone number already exists!',
-                token: null,
-                status: 401
-            }
         return {
             message: error,
             token: null,
             status: 500
         }
     }
-
-
-
 }
 
 const UserSignInWithPhone = async (args, _context) => {
     const { phone, password } = args;
 
     try {
-        const user = await User.findOne({
-            phone
-        })
+        const user = await User.findOne({ phone })
 
         if (!user) {
             return {
-                message: "no user found",
+                message: 'شماره همراه و یا رمز عبور نادرست است',
                 token: null,
                 status: 401
             }
@@ -140,7 +120,7 @@ const UserSignInWithPhone = async (args, _context) => {
         const isMatch = await compare(password, user.password)
 
         if (!isMatch) return {
-            message: "Invalid Credentials",
+            message: 'شماره همراه و یا رمز عبور نادرست است',
             token: null,
             status: 403
         }
@@ -164,9 +144,6 @@ const UserSignInWithPhone = async (args, _context) => {
             status: 500
         }
     }
-
-
-
 }
 
 const UserSignInWithEmailOrUsername = async (args, _context) => {
@@ -175,7 +152,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
     try {
         if (!emailOrUsername || !password) {
             return {
-                message: "Invalid Credentials",
+                message: 'ایمیل، نام کاربری و یا رمز عبور نادرست است',
                 token: null,
                 status: 401
             }
@@ -189,7 +166,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
             const isMatch = await compare(password, userWithEmail.password)
 
             if (!isMatch) return {
-                message: "Invalid Credentials",
+                message: 'ایمیل، نام کاربری و یا رمز عبور نادرست است',
                 token: null,
                 status: 401
             }
@@ -216,7 +193,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
             const isMatch = await compare(password, userWithUsername.password)
 
             if (!isMatch) return {
-                message: "Invalid Credentials",
+                message: 'ایمیل، نام کاربری و یا رمز عبور نادرست است',
                 token: null,
                 status: 401
             }
@@ -234,7 +211,7 @@ const UserSignInWithEmailOrUsername = async (args, _context) => {
             }
         }
         return {
-            message: "no user found",
+            message: 'ایمیل، نام کاربری و یا رمز عبور نادرست است',
             token: null,
             status: 401
         }

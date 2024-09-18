@@ -1,8 +1,10 @@
 const { User, Seller } = require('../../models/dbModels');
 
-const { isAdmin, isEmailValid, isPhoneValid } = require('../../lib/Functions');
+const { isAdmin, isPhoneValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
+const { validator } = require('../../schemas/main');
+const { updateUserSchema } = require('../../schemas/user');
 
 
 const UserUpdate = async (args, context) => {
@@ -28,6 +30,14 @@ const UserUpdate = async (args, context) => {
             }
         }
 
+        const check = validator(args, updateUserSchema)
+
+        if (check !== true) return {
+            token: null,
+            message: check[0].message,
+            status: 400
+        }
+
         //don't let the user if they're neither admin nor they don't own the account
         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== id) {
             return {
@@ -39,20 +49,11 @@ const UserUpdate = async (args, context) => {
 
         const user = await User.findById(id);
 
-        //check if there is a new password and it's valid
-        if (password && password.length < 8) {
-            return {
-                message: "Password Should have more than 8 characters",
-                token: null,
-                status: 400
-            }
-        }
-
         //check the phone
         if (phone && phone !== user.phone) {
             if (!isPhoneValid(phone)) {
                 return {
-                    message: "Phone is not valid",
+                    message: "شماره همراه معتبر نیست",
                     token: null,
                     status: 400
                 }
@@ -61,7 +62,7 @@ const UserUpdate = async (args, context) => {
 
             if (existingUser) {
                 return {
-                    message: "Phone Already Exists",
+                    message: "این شماره قبلا ثبت نام شده است",
                     token: null,
                     status: 409
                 }
@@ -72,7 +73,7 @@ const UserUpdate = async (args, context) => {
 
             if (existingSeller) {
                 return {
-                    message: "Phone Already Exists in the Sellers",
+                    message: "این شماره قبلا ثبت نام شده است",
                     token: null,
                     status: 409
                 }
@@ -81,18 +82,10 @@ const UserUpdate = async (args, context) => {
 
         //check if email is valid
         if (email && email !== user.email) {
-            if (!isEmailValid(email)) {
-                return {
-                    message: "Email is not valid",
-                    token: null,
-                    status: 400
-                }
-            }
-
             const existingUser = await User.findOne({ email });
             if (existingUser) {
                 return {
-                    message: "Email Already Exists",
+                    message: "این ایمیل قبلا ثبت نام شده است",
                     token: null,
                     status: 409
                 }
@@ -101,7 +94,7 @@ const UserUpdate = async (args, context) => {
             const existingSeller = await Seller.findOne({ email });
             if (existingSeller) {
                 return {
-                    message: "Email Already Exists",
+                    message: "این ایمیل قبلا ثبت نام شده است",
                     token: null,
                     status: 409
                 }
@@ -110,16 +103,10 @@ const UserUpdate = async (args, context) => {
 
         //check if Username already exists
         if (username && username !== user.username) {
-            if (username?.length < 8) return {
-                message: "username is not valid",
-                token: null,
-                status: 400
-            }
-
             const existingUserByUsername = await User.findOne({ username });
             if (existingUserByUsername) {
                 return {
-                    message: "Username Already Exists",
+                    message: "نام کاربری معتبر نمیباشد",
                     token: null,
                     status: 409
                 }
@@ -128,7 +115,7 @@ const UserUpdate = async (args, context) => {
             const existingSellerByUsername = await Seller.findOne({ username });
             if (existingSellerByUsername) {
                 return {
-                    message: "Username Already Exists",
+                    message: "نام کاربری معتبر نمیباشد",
                     token: null,
                     status: 409
                 }
@@ -136,7 +123,7 @@ const UserUpdate = async (args, context) => {
         }
 
 
-        var hashedPassword;
+        let hashedPassword;
         if (password) {
             hashedPassword = await hash(password, 10);
         }
@@ -177,8 +164,6 @@ const UserUpdate = async (args, context) => {
             status: 500
         }
     }
-
-
 
 }
 
