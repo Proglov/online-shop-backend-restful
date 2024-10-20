@@ -3,6 +3,7 @@ const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 const { validator } = require('../../schemas/main');
 const { updateProductSchema } = require('../../schemas/product');
+const { error401, error500 } = require('../../lib/errors');
 
 const getProductsWithTrueImagesUrl = async (input) => {
     if (Array.isArray(input)) {
@@ -66,9 +67,8 @@ const ProductUpdate = async (args, context) => {
     try {
         if (!userInfo) {
             return {
-                product: null,
-                message: "You are not authorized!",
-                status: 400
+                ...error401,
+                product: null
             }
         }
 
@@ -98,9 +98,8 @@ const ProductUpdate = async (args, context) => {
 
         if (!(await isAdmin(userInfo?.userId)) && existingProduct?.sellerId != userInfo?.userId) {
             return {
-                product: null,
-                message: "You are not authorized!",
-                status: 403
+                ...error401,
+                product: null
             }
         }
 
@@ -160,12 +159,10 @@ const ProductUpdate = async (args, context) => {
 
     } catch (error) {
         return {
-            product: null,
-            message: error,
-            status: 500
+            error500,
+            product: null
         }
     }
-
 }
 
 module.exports = {

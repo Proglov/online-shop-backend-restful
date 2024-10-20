@@ -3,6 +3,7 @@ const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 const { validator } = require('../../schemas/main');
 const { postProductSchema } = require('../../schemas/product');
+const { error401, error500 } = require('../../lib/errors');
 
 const getProductsWithTrueImagesUrl = async (input) => {
     if (Array.isArray(input)) {
@@ -63,8 +64,8 @@ const ProductCreate = async (args, context) => {
 
         if (!userInfo || !userInfo?.userId) {
             return {
-                message: "You are not authorized!",
-                status: 400
+                ...error401,
+                product: null
             }
         }
 
@@ -80,19 +81,18 @@ const ProductCreate = async (args, context) => {
 
         if (!(await isAdmin(userInfo?.userId)) && !seller) {
             return {
-                product: null,
-                message: "You are not authorized!",
-                status: 403
+                ...error401,
+                product: null
             }
         }
 
         const subcategory = await Subcategory.findById(subcategoryId).populate({ path: "categoryId", select: 'name' });
 
-        if (!subcategory) return {
-            product: null,
-            message: "subcategory is required",
-            status: 400
-        }
+        if (!subcategory)
+            return {
+                ...error401,
+                product: null
+            }
 
         const newProduct = new Product({
             name,
@@ -136,9 +136,8 @@ const ProductCreate = async (args, context) => {
 
     } catch (error) {
         return {
-            product: null,
-            message: error,
-            status: 500
+            ...error500,
+            product: null
         }
     }
 }

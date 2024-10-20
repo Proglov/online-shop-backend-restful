@@ -9,7 +9,7 @@ const rateLimit = require('express-rate-limit');
 const corsOptions = require('./src/config/corsOptions');
 const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
 const { setUserInfo } = require('./src/lib/middlewares');
-const swaggerDocs = require('./swagger');
+const swaggerDocs = require('./src/config/swagger');
 
 const usersRouterGet = require('./src/routes/user/get');
 const usersRouterPost = require('./src/routes/user/post');

@@ -17,6 +17,20 @@ const options = {
             },
             version: '1.0.0',
         },
+        components: {
+            securitySchemes: {
+                ApiKeyAuth: {
+                    type: 'apiKey',
+                    in: 'header',
+                    name: 'Authorization'
+                }
+            }
+        },
+        security: [
+            {
+                ApiKeyAuth: []
+            }
+        ],
         servers: [
             {
                 url: "http://localhost:" + PORT + '/',

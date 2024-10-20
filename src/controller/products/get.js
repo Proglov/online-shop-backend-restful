@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { Product } = require('../../models/dbModels');
 const { getImages } = require('../image/get');
+const { error500, error401 } = require('../../lib/errors');
 
 
 const getProductsWithTrueImagesUrl = async (input) => {
@@ -112,13 +113,11 @@ const getAllProducts = async (args, _context) => {
 
     } catch (error) {
         return {
+            ...error500,
             products: null,
-            allProductsCount: 0,
-            status: 500,
-            message: error
+            allProductsCount: 0
         }
     }
-
 }
 
 const getAllMyProducts = async (args, context) => {
@@ -128,8 +127,9 @@ const getAllMyProducts = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
-                message: "You are not authorized!",
-                status: 400
+                ...error401,
+                products: null,
+                allProductsCount: 0,
             }
         }
 
@@ -160,13 +160,11 @@ const getAllMyProducts = async (args, context) => {
 
     } catch (error) {
         return {
+            ...error500,
             products: null,
-            allProductsCount: 0,
-            status: 500,
-            message: error
+            allProductsCount: 0
         }
     }
-
 }
 
 const getAllProductsOfASeller = async (args, context) => {
@@ -176,8 +174,9 @@ const getAllProductsOfASeller = async (args, context) => {
     try {
         if (!userInfo || !userInfo?.userId) {
             return {
-                message: "You are not authorized!",
-                status: 400
+                ...error401,
+                products: null,
+                allProductsCount: 0,
             }
         }
 
@@ -206,13 +205,11 @@ const getAllProductsOfASeller = async (args, context) => {
 
     } catch (error) {
         return {
+            ...error500,
             products: null,
-            allProductsCount: 0,
-            status: 500,
-            message: error
+            allProductsCount: 0
         }
     }
-
 }
 
 const getOneProduct = async (args, _context) => {
@@ -334,9 +331,8 @@ const getOneProduct = async (args, _context) => {
 
     } catch (error) {
         return {
-            product: null,
-            status: 500,
-            message: error.message
+            ...error500,
+            product: null
         };
     }
 };
@@ -368,9 +364,8 @@ const getOneProductParams = async (args, _context) => {
         }
     } catch (error) {
         return {
-            params: null,
-            status: 500,
-            message: error
+            ...error500,
+            params: null
         }
     }
 
@@ -450,9 +445,8 @@ const getSomeProducts = async (args, _context) => {
         }
     } catch (error) {
         return {
-            products: null,
-            status: 500,
-            message: error
+            ...error500,
+            products: null
         }
     }
 }
@@ -589,12 +583,10 @@ const getAllProductsOfACategory = async (args, _context) => {
 
     } catch (error) {
         return {
-            products: null,
-            status: 500,
-            message: error
+            ...error500,
+            products: null
         }
     }
-
 }
 
 const getAllProductsOfASubcategory = async (args, _context) => {
@@ -709,12 +701,10 @@ const getAllProductsOfASubcategory = async (args, _context) => {
 
     } catch (error) {
         return {
-            products: null,
-            status: 500,
-            message: error
+            ...error500,
+            products: null
         }
     }
-
 }
 
 module.exports = {

@@ -1,5 +1,33 @@
 
-
+/**
+    * @openapi
+    * components:
+    *   schemas:
+    *       createProductInput:
+    *       type: object
+    *       required:
+    *          - name
+    *          - desc
+    *          - price
+    *          - subcategoryId
+    *          - imagesUrl
+    *          - count
+    *       properties:
+    *           name:
+    *               type: string
+    *           desc:
+    *               type: string
+    *           price:
+    *               type: integer
+    *           subcategoryId:
+    *               type: string
+    *           imagesUrl:
+    *               type: array
+    *               items:
+    *                   types: string
+    *           count:
+    *               type: string
+*/
 const postProductSchema = {
     name: {
         label: 'نام محصول',
