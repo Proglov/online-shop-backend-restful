@@ -90,7 +90,8 @@ const ProductCreate = async (args, context) => {
 
         if (!subcategory)
             return {
-                ...error401,
+                error: "زیردسته بندی ضروریست",
+                status: 400,
                 product: null
             }
 

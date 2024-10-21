@@ -56,7 +56,7 @@ const getAllCategories = async (args, _context) => {
         const Categories = await query.lean().exec();
 
         if (!skip) allCategoriesCount = Categories.length
-        else allCategoriesCount = await UserInPerson.where().countDocuments().exec();
+        else allCategoriesCount = await Category.where().countDocuments().exec();
 
         const newCategories = await getCategoriesWithTrueImageUrl(Categories);
 
