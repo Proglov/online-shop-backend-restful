@@ -2,6 +2,7 @@ const { User, Seller } = require('../../models/dbModels');
 const JWT = require('jsonwebtoken');
 const { isAdmin, isWorkingPhoneValid, isPhoneValid, isEmailValid } = require('../../lib/Functions');
 const { hash } = require('bcryptjs');
+const { error500, error401 } = require('../../lib/errors');
 
 
 const SellerUpdate = async (args, context) => {
@@ -14,8 +15,9 @@ const SellerUpdate = async (args, context) => {
         password,
         phone,
         workingPhone,
-        address,
-        bio
+        bio,
+        officeAddress,
+        warehouseAddresses
     } = args;
     const { userInfo } = context;
 
@@ -24,18 +26,16 @@ const SellerUpdate = async (args, context) => {
         //check if req contains token
         if (!userInfo) {
             return {
-                message: "You are not authorized!",
-                token: null,
-                status: 401
+                error401,
+                token: null
             }
         }
 
         //don't let the seller if they're neither admin nor they don't own the account
         if (!(await isAdmin(userInfo?.userId)) && userInfo?.userId !== id) {
             return {
-                message: "You are not authorized!",
-                token: null,
-                status: 401
+                error401,
+                token: null
             }
         }
 
@@ -166,6 +166,20 @@ const SellerUpdate = async (args, context) => {
             }
         }
 
+        if (!!officeAddress && (!officeAddress?.cityId || !officeAddress?.completeAddress)) {
+            return {
+                message: "officeAddress is not valid",
+                token: null,
+                status: 400
+            }
+        }
+        if (!!warehouseAddresses && (warehouseAddresses?.length === 0)) {
+            return {
+                message: "warehouseAddresses is not valid",
+                token: null,
+                status: 400
+            }
+        }
 
         let hashedPassword;
         if (password) {
@@ -181,7 +195,8 @@ const SellerUpdate = async (args, context) => {
         if (password) userObject.password = hashedPassword;
         if (phone) userObject.phone = phone;
         if (workingPhone) userObject.workingPhone = workingPhone;
-        if (address) userObject.address = address;
+        if (officeAddress) userObject.officeAddress = officeAddress;
+        if (warehouseAddresses) userObject.warehouseAddresses = warehouseAddresses;
         if (bio) userObject.bio = bio;
 
         const updatedSeller = await Seller.findByIdAndUpdate(
@@ -203,17 +218,12 @@ const SellerUpdate = async (args, context) => {
             status: 202
         }
 
-
     } catch (error) {
         return {
-            message: error,
-            token: null,
-            status: 500
+            ...error500,
+            token: null
         }
     }
-
-
-
 }
 
 const SellerValidate = async (args, context) => {
@@ -225,18 +235,16 @@ const SellerValidate = async (args, context) => {
         //check if req contains token
         if (!userInfo) {
             return {
-                seller: null,
-                message: "You are not authorized!",
-                status: 401
+                ...error401,
+                seller: null
             }
         }
 
         //only admin can validate
         if (!(await isAdmin(userInfo?.userId))) {
             return {
-                seller: null,
-                message: "You are not authorized!",
-                status: 401
+                ...error401,
+                seller: null
             }
         }
 
@@ -275,12 +283,10 @@ const SellerValidate = async (args, context) => {
 
     } catch (error) {
         return {
-            seller: null,
-            message: error,
-            status: 500
+            ...error500,
+            seller: null
         }
     }
-
 }
 
 module.exports = {

@@ -2,6 +2,7 @@ const { Seller, User } = require('../../models/dbModels');
 const { hash, compare } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 const { isWorkingPhoneValid, isEmailValid, isPhoneValid } = require('../../lib/Functions');
+const { error500 } = require('../../lib/errors');
 
 
 
@@ -14,8 +15,8 @@ const SellerSignUp = async (args, _context) => {
         password,
         phone,
         workingPhone,
-        address,
-        bio
+        bio,
+        officeAddress
     } = args;
 
     try {
@@ -47,9 +48,9 @@ const SellerSignUp = async (args, _context) => {
                 status: 400
             }
         }
-        if (!address || address?.length === 0) {
+        if (!officeAddress || !officeAddress?.cityId || !officeAddress?.completeAddress) {
             return {
-                message: "address is required",
+                message: "officeAddress is required",
                 token: null,
                 status: 400
             }
@@ -146,7 +147,7 @@ const SellerSignUp = async (args, _context) => {
             username,
             password: hashedPassword,
             phone,
-            address: [address],
+            officeAddress,
             bio
         })
 
@@ -173,14 +174,10 @@ const SellerSignUp = async (args, _context) => {
                 status: 500
             }
         return {
-            message: error,
+            ...error500,
             token: null,
-            status: 500
         }
     }
-
-
-
 }
 
 const SellerSignInWithPhone = async (args, _context) => {
@@ -227,9 +224,6 @@ const SellerSignInWithPhone = async (args, _context) => {
             status: 500
         }
     }
-
-
-
 }
 
 const SellerSignInWithEmailOrUsername = async (args, _context) => {
@@ -301,7 +295,6 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
             status: 401
         }
 
-
     } catch (error) {
         return {
             message: error,
@@ -309,7 +302,6 @@ const SellerSignInWithEmailOrUsername = async (args, _context) => {
             status: 500
         }
     }
-
 }
 
 
