@@ -73,8 +73,21 @@ const sellerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    address: [{
-        type: String
+    officeAddress: {
+        cityId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'City',
+            required: true
+        },
+        completeAddress: {
+            type: String,
+            required: true
+        }
+    },
+    warehouses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Warehouse',
+        required: true
     }],
     workingPhone: {
         type: String,
@@ -94,6 +107,34 @@ const sellerSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+});
+
+const warehouseSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    sellerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        required: true
+    },
+    cityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City',
+        required: true
+    },
+    completeAddress: {
+        type: String,
+        required: true
+    },
+    citiesCovered: [{
+        cityId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'City',
+            required: true
+        }
+    }]
 });
 
 const productSchema = new mongoose.Schema({
@@ -294,6 +335,25 @@ const transActionInPersonSchema = new mongoose.Schema({
     }]
 }, { timestamps: { createdAt: true } })
 
+const provinceSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+})
+
+const citySchema = new mongoose.Schema({
+    provinceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Province',
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    }
+})
+
 // the sellers can add a festival to their products, to determine the off percentage until a specific time
 const festivalSchema = new mongoose.Schema({
     productId: {
@@ -469,6 +529,7 @@ const User = mongoose.model('User', userSchema);
 const UserInPerson = mongoose.model('UserInPerson', userInPersonSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
+const Warehouse = mongoose.model('Warehouse', warehouseSchema);
 const Product = mongoose.model('Product', productSchema);
 const ProductHistory = mongoose.model('ProductHistory', productHistorySchema);
 const Category = mongoose.model('Category', categorySchema);
@@ -477,6 +538,8 @@ const Comment = mongoose.model('Comment', commentSchema);
 const TemporaryImage = mongoose.model('TemporaryImage', temporaryImageSchema);
 const TransAction = mongoose.model('TransAction', transActionSchema);
 const TransActionInPerson = mongoose.model('TransActionInPerson', transActionInPersonSchema);
+const Province = mongoose.model('Province', provinceSchema);
+const City = mongoose.model('City', citySchema);
 const Festival = mongoose.model('Festival', festivalSchema);
 const MajorShopping = mongoose.model('MajorShopping', majorShoppingSchema);
 const CompanyCouponForSomeProducts = mongoose.model('CompanyCouponForSomeProducts', companyCouponForSomeProductsSchema);
@@ -485,4 +548,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, UserInPerson, Admin, Seller, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, TransActionInPerson, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, UserInPerson, Admin, Seller, Warehouse, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, TransActionInPerson, Province, City, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
