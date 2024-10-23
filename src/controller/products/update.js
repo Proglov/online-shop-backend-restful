@@ -1,4 +1,4 @@
-const { Product, Subcategory, ProductHistory } = require('../../models/dbModels');
+const { Product, Subcategory, ProductHistory, Warehouse } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 const { validator } = require('../../schemas/main');
@@ -54,6 +54,7 @@ const ProductUpdate = async (args, context) => {
         desc,
         price,
         subcategoryId,
+        warehouseId,
         imagesUrl,
         addedCount
     } = args;
@@ -121,6 +122,12 @@ const ProductUpdate = async (args, context) => {
                 existingProduct.subcategoryId = subcategoryId
         }
 
+        if (!!warehouseId) {
+            const warehouse = await Warehouse.findById(warehouseId);
+            if (!!warehouse)
+                existingProduct.warehouseId = warehouseId
+        }
+
         if (imagesUrl !== undefined && imagesUrl !== null && Array.isArray(imagesUrl)) {
             existingProduct.imagesUrl = imagesUrl
         }
@@ -151,6 +158,9 @@ const ProductUpdate = async (args, context) => {
                     categoryId: {
                         name: existingProduct.subcategoryId.categoryId.name,
                     }
+                },
+                warehouseId: {
+                    name: existingProduct.warehouseId.name,
                 }
             },
             message: "Product updated successfully",

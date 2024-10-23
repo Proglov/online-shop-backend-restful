@@ -10,6 +10,7 @@
     *          - desc
     *          - price
     *          - subcategoryId
+    *          - warehouseId
     *          - imagesUrl
     *          - count
     *       properties:
@@ -20,6 +21,8 @@
     *           price:
     *               type: integer
     *           subcategoryId:
+    *               type: string
+    *           warehouseId:
     *               type: string
     *           imagesUrl:
     *               type: array
@@ -51,6 +54,10 @@ const postProductSchema = {
     },
     subcategoryId: {
         label: 'زیر دسته بندی محصول',
+        type: 'string'
+    },
+    warehouseId: {
+        label: 'انبار محصول',
         type: 'string'
     },
     imagesUrl: {
@@ -97,6 +104,11 @@ const updateProductSchema = {
     },
     subcategoryId: {
         label: 'زیر دسته بندی محصول',
+        type: 'string',
+        optional: true
+    },
+    warehouseId: {
+        label: 'انبار محصول',
         type: 'string',
         optional: true
     },

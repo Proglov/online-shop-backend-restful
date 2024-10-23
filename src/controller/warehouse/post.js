@@ -1,4 +1,4 @@
-const { Warehouse, Seller, City, WarehouseHistory } = require('../../models/dbModels');
+const { Warehouse, Seller, City } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { error401, error500 } = require('../../lib/errors');
 

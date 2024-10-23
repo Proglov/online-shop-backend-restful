@@ -1,4 +1,4 @@
-const { Product, Seller, Subcategory, ProductHistory } = require('../../models/dbModels');
+const { Product, Seller, Subcategory, ProductHistory, Warehouse } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
 const { validator } = require('../../schemas/main');
@@ -54,7 +54,8 @@ const ProductCreate = async (args, context) => {
         price,
         subcategoryId,
         imagesUrl,
-        count
+        count,
+        warehouseId
     } = args;
 
     const { userInfo } = context;
@@ -95,10 +96,20 @@ const ProductCreate = async (args, context) => {
                 product: null
             }
 
+        const warehouse = await Warehouse.findById(warehouseId).populate({ path: "cityId", select: 'name' });
+
+        if (!warehouse)
+            return {
+                error: "انبار ضروریست",
+                status: 400,
+                product: null
+            }
+
         const newProduct = new Product({
             name,
             desc,
             price,
+            warehouseId,
             subcategoryId,
             sellerId: userInfo?.userId,
             imagesUrl,
@@ -129,6 +140,9 @@ const ProductCreate = async (args, context) => {
                     categoryId: {
                         name: subcategory.categoryId.name,
                     }
+                },
+                warehouseId: {
+                    name: warehouse.name
                 }
             },
             message: 'The product has been created successfully',
