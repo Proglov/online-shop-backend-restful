@@ -12,7 +12,7 @@ const getAllWarehouses = async (args, _context) => {
                 path: 'provinceId',
                 select: 'name'
             },
-        }).skip(skip).limit(perPage)
+        }).populate({ path: "citiesCovered", select: 'name' }).populate({ path: "sellerId", select: 'name' }).skip(skip).limit(perPage)
 
         let allWarehousesCount = 0
         const warehouses = await query.lean().exec();

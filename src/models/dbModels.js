@@ -129,11 +129,9 @@ const warehouseSchema = new mongoose.Schema({
         required: true
     },
     citiesCovered: [{
-        cityId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'City',
-            required: true
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City',
+        required: true
     }]
 });
 

@@ -29,6 +29,16 @@ const productsRouterPost = require('./src/routes/product/post');
 const productsRouterUpdate = require('./src/routes/product/update');
 // const productsRouterDelete = require('./src/routes/product/delete');
 
+const warehousesRouterGet = require('./src/routes/warehouse/get');
+const warehousesRouterPost = require('./src/routes/warehouse/post');
+const warehousesRouterUpdate = require('./src/routes/warehouse/update');
+
+const provincesRouterGet = require('./src/routes/province/get');
+const provincesRouterPost = require('./src/routes/province/post');
+
+const citiesRouterGet = require('./src/routes/city/get');
+const citiesRouterPost = require('./src/routes/city/post');
+
 const categoriesRouterGet = require('./src/routes/category/get');
 const categoriesRouterPost = require('./src/routes/category/post');
 
@@ -97,6 +107,16 @@ app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
 app.use('/productUpdate', setUserInfo, productsRouterUpdate);
 // app.use('/productDelete', setUserInfo, productsRouterDelete);
+
+app.use('/warehouseGet', setUserInfo, warehousesRouterGet);
+app.use('/warehousePost', setUserInfo, warehousesRouterPost);
+app.use('/warehouseUpdate', setUserInfo, warehousesRouterUpdate);
+
+app.use('/provinceGet', setUserInfo, provincesRouterGet);
+app.use('/provincePost', setUserInfo, provincesRouterPost);
+
+app.use('/cityGet', setUserInfo, citiesRouterGet);
+app.use('/cityPost', setUserInfo, citiesRouterPost);
 
 app.use('/categoryGet', categoriesRouterGet);
 app.use('/categoryPost', setUserInfo, categoriesRouterPost);

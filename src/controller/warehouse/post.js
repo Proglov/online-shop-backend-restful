@@ -36,20 +36,35 @@ const WarehouseCreate = async (args, context) => {
 
         if (!city)
             return {
-                error: "شهر ضروریست",
+                message: "شهر ضروریست",
                 status: 400,
                 warehouse: null
             }
 
         if (!completeAddress || completeAddress?.length < 5)
             return {
-                error: "ادرس کامل ضروریست",
+                message: "ادرس کامل ضروریست",
+                status: 400,
+                warehouse: null
+            }
+        if (!citiesCovered || !citiesCovered?.length)
+            return {
+                message: "شهر های پوشش داده شده ضروریست",
                 status: 400,
                 warehouse: null
             }
         if (!name)
             return {
-                error: "نام انبار ضروریست",
+                message: "نام انبار ضروریست",
+                status: 400,
+                warehouse: null
+            }
+
+        const existingWareHouse = await Warehouse.findOne({ sellerId: userInfo?.userId, name })
+
+        if (existingWareHouse)
+            return {
+                message: "نام انبار تکراریست",
                 status: 400,
                 warehouse: null
             }
@@ -69,7 +84,6 @@ const WarehouseCreate = async (args, context) => {
                 name,
                 completeAddress,
                 citiesCovered,
-                imagesUrl: newProd.imagesUrl,
                 cityId: {
                     name: city.name,
                     provinceId: {
