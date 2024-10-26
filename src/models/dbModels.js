@@ -148,6 +148,11 @@ const productSchema = new mongoose.Schema({
         ref: 'Seller',
         required: true
     },
+    warehouseId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Warehouse',
+        required: true
+    },
     price: {
         type: Number,
         required: true

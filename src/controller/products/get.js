@@ -95,7 +95,7 @@ const getAllProducts = async (args, _context) => {
                 path: 'categoryId',
                 select: 'name'
             },
-        }).skip(skip).limit(perPage)
+        }).populate({ path: "warehouseId", select: 'name' }).skip(skip).limit(perPage)
 
         let allProductsCount = 0
         const products = await query.lean().exec();
@@ -142,7 +142,7 @@ const getAllMyProducts = async (args, context) => {
                 path: 'categoryId',
                 select: 'name'
             },
-        }).skip(skip).limit(perPage)
+        }).populate({ path: "warehouseId", select: 'name' }).skip(skip).limit(perPage)
 
         let allProductsCount = 0
         const products = await query.lean().exec();

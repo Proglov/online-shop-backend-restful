@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { Product, Seller, Subcategory, ProductHistory, Warehouse } = require('../../models/dbModels');
 const { isAdmin } = require('../../lib/Functions');
 const { getImages } = require('../image/get');
@@ -91,7 +92,7 @@ const ProductCreate = async (args, context) => {
 
         if (!subcategory)
             return {
-                error: "زیردسته بندی ضروریست",
+                message: "زیردسته بندی ضروریست",
                 status: 400,
                 product: null
             }
@@ -100,7 +101,14 @@ const ProductCreate = async (args, context) => {
 
         if (!warehouse)
             return {
-                error: "انبار ضروریست",
+                message: "انبار ضروریست",
+                status: 400,
+                product: null
+            }
+
+        if (!warehouse.sellerId.equals(new mongoose.Types.ObjectId(userInfo.userId)))
+            return {
+                message: "انبار برای شما نیست",
                 status: 400,
                 product: null
             }

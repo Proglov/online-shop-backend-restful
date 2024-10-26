@@ -124,7 +124,7 @@ const ProductUpdate = async (args, context) => {
 
         if (!!warehouseId) {
             const warehouse = await Warehouse.findById(warehouseId);
-            if (!!warehouse)
+            if (!!warehouse && warehouse.sellerId === userInfo.userId)
                 existingProduct.warehouseId = warehouseId
         }
 
