@@ -12,7 +12,8 @@ const { getQueryArgs } = require('../../lib/Functions');
 router.get('/GetAllFestivalProducts', async (req, res) => {
     const args = getQueryArgs(req.query, {
         page: 'posInt',
-        perPage: 'posInt'
+        perPage: 'posInt',
+        cityIds: 'string'
     })
 
     const { status, message, products, allProductsCount } = await GetAllFestivalProducts(args, null);
@@ -36,7 +37,8 @@ router.get('/GetAllMyFestivalProducts', setUserInfo, async (req, res) => {
 router.get('/GetAllMajorShoppingProducts', async (req, res) => {
     const args = getQueryArgs(req.query, {
         page: 'posInt',
-        perPage: 'posInt'
+        perPage: 'posInt',
+        cityIds: 'string'
     })
 
     const { status, message, products, allProductsCount } = await GetAllMajorShoppingProducts(args, null);

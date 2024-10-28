@@ -35,14 +35,18 @@ const getProductsWithTrueImageUrl = async (input) => {
 };
 
 const GetAllFestivalProducts = async (args, _context) => {
-    let { page, perPage } = args;
+    let { page, perPage, cityIds } = args;
 
     try {
-        const now = Date.now()
-        const conditionQuery = { until: { $gt: now } }
-        const aggregateQuery = [
+        if (cityIds)
+            cityIds = cityIds.split(',') || []
+
+        const now = Date.now();
+
+        // Common query stages for aggregating products
+        const commonQuery = [
             {
-                $match: conditionQuery
+                $match: { until: { $gt: now } }
             },
             {
                 $lookup: {
@@ -54,7 +58,59 @@ const GetAllFestivalProducts = async (args, _context) => {
             },
             {
                 $unwind: '$productDetails'
-            },
+            }
+        ];
+
+        // Count query variables
+        let countQuery;
+
+        // If cityIds are provided, add warehouse lookup and filter
+        if (cityIds && cityIds.length > 0) {
+            commonQuery.push(
+                {
+                    $lookup: {
+                        from: 'warehouses',
+                        localField: 'productDetails.warehouseId',
+                        foreignField: '_id',
+                        as: 'warehouseDetails'
+                    }
+                },
+                {
+                    $unwind: '$warehouseDetails'
+                },
+                {
+                    $match: {
+                        'warehouseDetails.citiesCovered': { $in: cityIds.map(id => new mongoose.Types.ObjectId(id)) }
+                    }
+                }
+            );
+
+            // Count query for when cityIds are provided
+            countQuery = [
+                ...commonQuery,
+                {
+                    $count: 'count'
+                }
+            ];
+        } else {
+            // Directly count if no cityIds are provided
+            countQuery = [
+                {
+                    $match: { until: { $gt: now } },
+                },
+                {
+                    $count: 'count'
+                }
+            ];
+        }
+
+        // Fetching product count
+        const countResult = await Festival.aggregate(countQuery);
+        const allProductsCount = countResult.length > 0 ? countResult[0].count : 0;
+
+        // Aggregate products query
+        const aggregateQuery = [
+            ...commonQuery,
             {
                 $project: {
                     _id: 1,
@@ -67,8 +123,7 @@ const GetAllFestivalProducts = async (args, _context) => {
                     until: 1
                 }
             }
-        ]
-        const allProductsCount = await Festival.where(conditionQuery).countDocuments().exec();
+        ];
 
         const skip = (page - 1) * perPage;
         const products = await Festival.aggregate(aggregateQuery).skip(skip).limit(perPage);
@@ -79,8 +134,7 @@ const GetAllFestivalProducts = async (args, _context) => {
             allProductsCount,
             status: 200,
             message: null
-        }
-
+        };
 
     } catch (error) {
         return {
@@ -88,10 +142,10 @@ const GetAllFestivalProducts = async (args, _context) => {
             allProductsCount: 0,
             status: 500,
             message: error
-        }
+        };
     }
-
 }
+
 
 const GetAllMyFestivalProducts = async (args, context) => {
     let { page, perPage } = args;
