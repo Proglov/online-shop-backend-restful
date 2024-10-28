@@ -74,20 +74,24 @@ const connectDB = require('./src/config/db');
 connectDB()
 
 
-//configuration
+const PORT = process.env.PORT || 3500;
+
+//limit configuration
 const limiter = rateLimit({
     windowMs: 3_600_000,
     limit: 5000,
     legacyHeaders: false
 })
-const PORT = process.env.PORT || 3500;
-app.disable('x-powered-by');
-app.use(limiter)
-app.use(cors(corsOptions))
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(mongoSanitize());
-swaggerDocs(app)
+
+if (process.env.ENVIRONMENT !== 'dev') {
+    app.disable('x-powered-by');
+    app.use(limiter)
+    app.use(cors(corsOptions))
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
+    app.use(mongoSanitize());
+    swaggerDocs(app)
+}
 
 
 app.use('/userGet', setUserInfo, usersRouterGet);
