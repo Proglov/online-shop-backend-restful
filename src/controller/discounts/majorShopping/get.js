@@ -39,8 +39,7 @@ const GetAllMajorShoppingProducts = async (args, _context) => {
     let { page, perPage, cityIds } = args;
 
     try {
-        if (cityIds)
-            cityIds = cityIds.split(',') || []
+        cityIds = !!cityIds ? cityIds.split(',') : []
 
         const now = Date.now();
 

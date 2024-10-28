@@ -257,7 +257,8 @@ router.get('/getAllProductsOfACategory', async (req, res) => {
     const args = getQueryArgs(req.query, {
         page: 'posInt',
         perPage: 'posInt',
-        categoryId: 'string'
+        categoryId: 'string',
+        cityIds: 'string'
     })
 
     const { products, status, message } = await getAllProductsOfACategory(args, null)
@@ -301,7 +302,8 @@ router.get('/getAllProductsOfASubcategory', async (req, res) => {
     const args = getQueryArgs(req.query, {
         page: 'posInt',
         perPage: 'posInt',
-        subcategoryId: 'string'
+        subcategoryId: 'string',
+        cityIds: 'string'
     })
 
     const { products, status, message } = await getAllProductsOfASubcategory(args, null)

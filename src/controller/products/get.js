@@ -452,16 +452,19 @@ const getSomeProducts = async (args, _context) => {
 }
 
 const getAllProductsOfACategory = async (args, _context) => {
+    let { categoryId, page, perPage, cityIds } = args;
 
-    const { categoryId, page, perPage } = args;
     if (!categoryId) return {
         products: null,
         message: "categoryId is required",
         status: 400
-    }
+    };
 
     try {
-        const aggregateQuery = [
+        // Split cityIds into an array if they are provided
+        cityIds = cityIds ? cityIds.split(',') : [];
+
+        let aggregateQuery = [
             {
                 "$lookup": {
                     from: "subcategories",
@@ -548,50 +551,69 @@ const getAllProductsOfACategory = async (args, _context) => {
                     products: { $push: "$$ROOT" }
                 }
             }
-        ]
+        ];
 
+        // If cityIds are provided, add warehouse lookup and filter
+        if (cityIds.length > 0) {
+            const beforeFestivalIndex = 4;
 
-        if (!page || !perPage) {
-            const products = await Product.aggregate(aggregateQuery).exec();
-            const newProds = await getProductsWithTrueImagesUrl2(products);
-
-            return {
-                products: newProds,
-                status: 200,
-                message: null
-            }
-
+            aggregateQuery = [
+                ...aggregateQuery.slice(0, beforeFestivalIndex),
+                {
+                    $lookup: {
+                        from: 'warehouses',
+                        localField: 'warehouseId',
+                        foreignField: '_id',
+                        as: 'warehouseDetails'
+                    }
+                },
+                {
+                    $unwind: '$warehouseDetails'
+                },
+                {
+                    $match: {
+                        'warehouseDetails.citiesCovered': { $in: cityIds.map(id => new mongoose.Types.ObjectId(id)) }
+                    }
+                },
+                ...aggregateQuery.slice(beforeFestivalIndex),
+            ]
         }
 
-
-        const skip = (page - 1) * perPage;
-        const paginationQuery =
-        {
-            $project: {
-                _id: 1,
-                products: { $slice: ["$products", skip, perPage] }
-            }
+        // Handle Pagination
+        if (page && perPage) {
+            const skip = (page - 1) * perPage;
+            aggregateQuery.push(
+                {
+                    $project: {
+                        _id: 1,
+                        products: { $slice: ["$products", skip, perPage] }
+                    }
+                }
+            );
         }
-        const products = await Product.aggregate([...aggregateQuery, paginationQuery]).exec();
+
+        const products = await Product.aggregate(aggregateQuery).exec();
         const newProds = await getProductsWithTrueImagesUrl2(products);
 
         return {
             products: newProds,
             status: 200,
             message: null
-        }
+        };
 
     } catch (error) {
         return {
-            ...error500,
-            products: null
-        }
+            products: null,
+            message: error.message,
+            status: 500
+        };
     }
-}
+};
+
 
 const getAllProductsOfASubcategory = async (args, _context) => {
 
-    const { subcategoryId, page, perPage } = args;
+    let { subcategoryId, page, perPage, cityIds } = args;
     if (!subcategoryId) return {
         products: null,
         message: "subcategoryId is required",
@@ -599,6 +621,9 @@ const getAllProductsOfASubcategory = async (args, _context) => {
     }
 
     try {
+        // Split cityIds into an array if they are provided
+        cityIds = cityIds ? cityIds.split(',') : [];
+
         const aggregateQuery = [
             {
                 "$lookup": {
@@ -633,7 +658,7 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                 }
             }
         ]
-        const resultQuery = [
+        let resultQuery = [
             ...aggregateQuery,
             {
                 "$addFields": {
@@ -678,6 +703,32 @@ const getAllProductsOfASubcategory = async (args, _context) => {
             }
         ]
 
+
+        // If cityIds are provided, add warehouse lookup and filter
+        if (cityIds.length > 0) {
+            const beforeFestivalIndex = 4;
+
+            resultQuery = [
+                ...resultQuery.slice(0, beforeFestivalIndex),
+                {
+                    $lookup: {
+                        from: 'warehouses',
+                        localField: 'warehouseId',
+                        foreignField: '_id',
+                        as: 'warehouseDetails'
+                    }
+                },
+                {
+                    $unwind: '$warehouseDetails'
+                },
+                {
+                    $match: {
+                        'warehouseDetails.citiesCovered': { $in: cityIds.map(id => new mongoose.Types.ObjectId(id)) }
+                    }
+                },
+                ...resultQuery.slice(beforeFestivalIndex),
+            ]
+        }
 
         if (!page || !perPage) {
             const products = await Product.aggregate(resultQuery).exec();

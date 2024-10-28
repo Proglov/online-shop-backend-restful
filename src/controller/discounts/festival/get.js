@@ -38,8 +38,7 @@ const GetAllFestivalProducts = async (args, _context) => {
     let { page, perPage, cityIds } = args;
 
     try {
-        if (cityIds)
-            cityIds = cityIds.split(',') || []
+        cityIds = !!cityIds ? cityIds.split(',') : []
 
         const now = Date.now();
 
@@ -137,6 +136,7 @@ const GetAllFestivalProducts = async (args, _context) => {
         };
 
     } catch (error) {
+        console.log(error);
         return {
             products: null,
             allProductsCount: 0,
