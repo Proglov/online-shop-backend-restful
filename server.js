@@ -86,11 +86,11 @@ const limiter = rateLimit({
 if (process.env.ENVIRONMENT !== 'dev') {
     app.disable('x-powered-by');
     app.use(limiter)
-    app.use(cors(corsOptions))
 } else if (process.env.ENVIRONMENT === 'dev') {
     swaggerDocs(app)
 }
 
+app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(mongoSanitize());
