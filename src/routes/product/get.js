@@ -230,7 +230,7 @@ router.get('/getSomeProducts', async (req, res) => {
     *      summary: get All Products of a category
     *      parameters:
     *        - in: query
-    *          name: id
+    *          name: categoryId
     *          required: true
     *          description: id of the category
     *          schema:
@@ -247,6 +247,12 @@ router.get('/getSomeProducts', async (req, res) => {
     *          description: items per page for pagination
     *          schema:
     *              type: integer
+    *        - in: cookie
+    *          name: cityIds
+    *          required: false
+    *          description: ids of the cities . all cities are applied if not provided
+    *          schema:
+    *              type: string
     *      responses:
     *       200:
     *           description: Fetched Successfully
@@ -254,7 +260,7 @@ router.get('/getSomeProducts', async (req, res) => {
     *           description: Unexpected Error
 */
 router.get('/getAllProductsOfACategory', async (req, res) => {
-    const args = getQueryArgs(req.query, {
+    const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         categoryId: 'string',
@@ -275,7 +281,7 @@ router.get('/getAllProductsOfACategory', async (req, res) => {
     *      summary: get All Products of a subcategory
     *      parameters:
     *        - in: query
-    *          name: id
+    *          name: subcategoryId
     *          required: true
     *          description: id of the subcategory
     *          schema:
@@ -292,6 +298,12 @@ router.get('/getAllProductsOfACategory', async (req, res) => {
     *          description: items per page for pagination
     *          schema:
     *              type: integer
+    *        - in: cookie
+    *          name: cityIds
+    *          required: false
+    *          description: ids of the cities . all cities are applied if not provided
+    *          schema:
+    *              type: string
     *      responses:
     *       200:
     *           description: Fetched Successfully
@@ -299,7 +311,7 @@ router.get('/getAllProductsOfACategory', async (req, res) => {
     *           description: Unexpected Error
 */
 router.get('/getAllProductsOfASubcategory', async (req, res) => {
-    const args = getQueryArgs(req.query, {
+    const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         subcategoryId: 'string',
