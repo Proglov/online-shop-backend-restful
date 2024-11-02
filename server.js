@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 
 
 const corsOptions = require('./src/config/corsOptions');
@@ -91,6 +92,7 @@ if (process.env.ENVIRONMENT !== 'dev') {
 }
 
 app.use(cors(corsOptions))
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(mongoSanitize());

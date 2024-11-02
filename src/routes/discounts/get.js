@@ -10,7 +10,7 @@ const { getQueryArgs } = require('../../lib/Functions');
 
 
 router.get('/GetAllFestivalProducts', async (req, res) => {
-    const args = getQueryArgs(req.query, {
+    const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         cityIds: 'string'
@@ -35,7 +35,7 @@ router.get('/GetAllMyFestivalProducts', setUserInfo, async (req, res) => {
 
 
 router.get('/GetAllMajorShoppingProducts', async (req, res) => {
-    const args = getQueryArgs(req.query, {
+    const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         cityIds: 'string'

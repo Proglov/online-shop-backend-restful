@@ -38,7 +38,7 @@ const GetAllFestivalProducts = async (args, _context) => {
     let { page, perPage, cityIds } = args;
 
     try {
-        cityIds = !!cityIds ? cityIds.split(',') : []
+        cityIds = !!cityIds ? JSON.parse(cityIds) : []
 
         const now = Date.now();
 

@@ -461,8 +461,8 @@ const getAllProductsOfACategory = async (args, _context) => {
     };
 
     try {
-        // Split cityIds into an array if they are provided
-        cityIds = cityIds ? cityIds.split(',') : [];
+        // Parse cityIds into an array if they are provided
+        cityIds = !!cityIds ? JSON.parse(cityIds) : []
 
         let aggregateQuery = [
             {
@@ -621,8 +621,8 @@ const getAllProductsOfASubcategory = async (args, _context) => {
     }
 
     try {
-        // Split cityIds into an array if they are provided
-        cityIds = cityIds ? cityIds.split(',') : [];
+        // Parse cityIds into an array if they are provided
+        cityIds = !!cityIds ? JSON.parse(cityIds) : []
 
         const aggregateQuery = [
             {
