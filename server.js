@@ -87,12 +87,13 @@ if (process.env.ENVIRONMENT !== 'dev') {
     app.disable('x-powered-by');
     app.use(limiter)
     app.use(cors(corsOptions))
-    app.use(express.urlencoded({ extended: true }));
-    app.use(express.json());
-    app.use(mongoSanitize());
+} else if (process.env.ENVIRONMENT === 'dev') {
     swaggerDocs(app)
 }
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(mongoSanitize());
 
 app.use('/userGet', setUserInfo, usersRouterGet);
 app.use('/userPost', setUserInfo, usersRouterPost);
