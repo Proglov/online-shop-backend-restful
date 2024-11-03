@@ -1,4 +1,4 @@
-const { Seller, User } = require('../../models/dbModels');
+const { Seller, User, City } = require('../../models/dbModels');
 const { hash, compare } = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 const { isWorkingPhoneValid, isEmailValid, isPhoneValid } = require('../../lib/Functions');
@@ -81,6 +81,16 @@ const SellerSignUp = async (args, _context) => {
                 message: "email is not valid",
                 token: null,
                 status: 400
+            }
+        }
+
+        const city = await City.findById(officeAddress.cityId);
+
+        if (!city) {
+            return {
+                message: "City Doesn't Exist",
+                token: null,
+                status: 409
             }
         }
 
