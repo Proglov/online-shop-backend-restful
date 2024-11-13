@@ -55,6 +55,9 @@ const sellerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    telegramId: {
+        type: Number
+    },
     storeName: {
         type: String,
         required: true
@@ -108,6 +111,18 @@ const sellerSchema = new mongoose.Schema({
         default: false
     },
 });
+
+const temporaryTelegramCodeSchema = new mongoose.Schema({
+    sellerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        required: true
+    },
+    code: {
+        type: String,
+        required: true
+    }
+}, { timestamps: { createdAt: true } })
 
 const warehouseSchema = new mongoose.Schema({
     name: {
@@ -532,6 +547,7 @@ const User = mongoose.model('User', userSchema);
 const UserInPerson = mongoose.model('UserInPerson', userInPersonSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
+const TemporaryTelegramCode = mongoose.model('TemporaryTelegramCode', temporaryTelegramCodeSchema);
 const Warehouse = mongoose.model('Warehouse', warehouseSchema);
 const Product = mongoose.model('Product', productSchema);
 const ProductHistory = mongoose.model('ProductHistory', productHistorySchema);
@@ -551,4 +567,4 @@ const couponForAProduct = mongoose.model('couponForAProduct', couponForAProductS
 const couponForAllProducts = mongoose.model('couponForAllProducts', couponForAllProductsSchema);
 const complimentaryCoupon = mongoose.model('complimentaryCoupon', complimentaryCouponSchema);
 
-module.exports = { User, UserInPerson, Admin, Seller, Warehouse, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, TransActionInPerson, Province, City, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
+module.exports = { User, UserInPerson, Admin, Seller, TemporaryTelegramCode, Warehouse, Product, ProductHistory, Category, Subcategory, Comment, TemporaryImage, TransAction, TransActionInPerson, Province, City, Festival, MajorShopping, CompanyCouponForSomeProducts, FloorBuyShippingFree, couponForAProduct, couponForAllProducts, complimentaryCoupon };
