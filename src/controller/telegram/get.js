@@ -5,7 +5,7 @@ const timeToExpireMs = 3 * 60 * 1000
 
 const generateStringCode = () => {
     const getRandomDigit = () => Math.floor(Math.random() * 10).toString();
-    const getRandomCharacter = () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(Math.floor(Math.random() * 25))
+    const getRandomCharacter = () => 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.charAt(Math.floor(Math.random() * 25))
 
     // Generate 2 digits and 3 characters
     const digits = Array.from({ length: 2 }, getRandomDigit);
