@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 
 
 const corsOptions = require('./src/config/corsOptions');
-const { temporaryImageCronJob, festivalsCronJob } = require('./src/lib/cronJob');
+const { temporaryImageCronJob, festivalsCronJob, telegramCodeCronJob } = require('./src/lib/cronJob');
 const { setUserInfo } = require('./src/lib/middlewares');
 const swaggerDocs = require('./src/config/swagger');
 
@@ -24,6 +24,9 @@ const sellersRouterGet = require('./src/routes/seller/get');
 const sellersRouterPost = require('./src/routes/seller/post');
 const sellersRouterUpdate = require('./src/routes/seller/update');
 // const sellersRouterDelete = require('./src/routes/seller/delete');
+
+const telegramRouterGet = require('./src/routes/telegram/get');
+const telegramRouterPost = require('./src/routes/telegram/post');
 
 const productsRouterGet = require('./src/routes/product/get');
 const productsRouterPost = require('./src/routes/product/post');
@@ -110,6 +113,9 @@ app.use('/sellerPost', setUserInfo, sellersRouterPost);
 app.use('/sellerUpdate', setUserInfo, sellersRouterUpdate);
 // app.use('/sellerDelete', setUserInfo, sellersRouterDelete);
 
+app.use('/telegramGet', setUserInfo, telegramRouterGet);
+app.use('/telegramPost', telegramRouterPost);
+
 app.use('/productGet', productsRouterGet);
 app.use('/productPost', setUserInfo, productsRouterPost);
 app.use('/productUpdate', setUserInfo, productsRouterUpdate);
@@ -157,5 +163,6 @@ app.use('/festivalsDelete', setUserInfo, festivalsRouterDelete);
 app.listen(PORT, () => {
     temporaryImageCronJob.start()
     festivalsCronJob.start()
+    telegramCodeCronJob.start()
     console.log(`server running on port ${PORT}`.blue)
 })
