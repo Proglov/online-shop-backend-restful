@@ -9,26 +9,30 @@ const CheckCodeForTelegram = async (args, _context) => {
     try {
         if (!code || !telegramId || auth !== 'IMADMIN') return {
             status: 400,
-            message: 'کد و ایدی تلگرام الزامیست'
+            message: 'کد و ایدی تلگرام الزامیست',
+            storeName: null
         }
 
         const existingCode = await TemporaryTelegramCode.findOneAndDelete({ code });
 
         if (!existingCode) return {
             status: 400,
-            message: 'کد صحیح نیست'
+            message: 'کد دریافتی صحیح نمیباشد',
+            storeName: null
         }
 
-        await Seller.findByIdAndUpdate(existingCode.sellerId, { $set: { telegramId } });
+        const seller = await Seller.findByIdAndUpdate(existingCode.sellerId, { $set: { telegramId } });
 
         return {
             message: 'The Seller has been Updated successfully',
-            status: 201
+            status: 201,
+            storeName: seller?.storeName
         }
 
     } catch (error) {
         return {
-            ...error500
+            ...error500,
+            storeName: null
         }
     }
 }
@@ -57,8 +61,36 @@ const logoutFromTelegram = async (args, _context) => {
     }
 }
 
+const CheckTelegramStatusFromBot = async (args, _context) => {
+    const { telegramId, auth } = args
+
+    try {
+        if (!telegramId || auth !== 'IMADMIN') return {
+            status: 400,
+            message: 'ایدی تلگرام الزامیست',
+            storeName: null
+        }
+
+        const seller = await Seller.findOne({ telegramId });
+        if (!seller) return {
+            status: 202,
+            message: 'شما به هیچ فروشگاهی متصل نیستید',
+            storeName: null
+        };
+
+        return {
+            storeName: seller.storeName,
+            message: null,
+            status: 200,
+        };
+
+    } catch (error) {
+        return { ...error500, storeName: null };
+    }
+};
 
 module.exports = {
     CheckCodeForTelegram,
-    logoutFromTelegram
+    logoutFromTelegram,
+    CheckTelegramStatusFromBot
 }

@@ -1,7 +1,8 @@
-const { TransAction, Product } = require('../../models/dbModels');
+const { TransAction, Product, Seller } = require('../../models/dbModels');
 const { extractCoupon } = require('../../lib/Functions');
 const { verifyCompanyCouponForSomeProductsToken, getOneCompanyCouponForSomeProducts } = require('../discounts/companyCouponSomeProducts/serverActions');
 const mongoose = require('mongoose');
+const { sendNotification } = require('../../services/telegram');
 
 
 const TransActionCreate = async (args, context) => {
@@ -213,6 +214,14 @@ const TransActionCreate = async (args, context) => {
         await Product.bulkWrite(bulkOps);
 
 
+        // send telegram notification
+        const seller = await Seller.findById(products[0].sellerId).select('telegramId')
+
+        const telegramId = seller?.telegramId || 0
+
+        if (!!telegramId)
+            sendNotification({ telegramId, price: totalPrice })
+
         return {
             transactionId: newTransAction?._id,
             message: "TransAction is successfully added",
@@ -221,6 +230,7 @@ const TransActionCreate = async (args, context) => {
 
 
     } catch (error) {
+        console.log(error);
         return {
             transactionId: null,
             message: error,
