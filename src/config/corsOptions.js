@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 
-var allowlist = ["https://shop-front.liara.run/", "https://www.sitrino.ir", "https://sitrino.ir"]
+var allowlist = ["https://shop-front.liara.run", "https://www.sitrino.ir", "https://sitrino.ir"]
 
 if (process.env.ENVIRONMENT === 'dev') allowlist.push("http://localhost:3000")
 
