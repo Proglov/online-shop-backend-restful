@@ -1,7 +1,10 @@
 require('dotenv').config();
 
 
-var allowlist = ["https://shop-front.liara.run", "https://www.sitrino.ir", "https://sitrino.ir"]
+var allowlist = []
+
+const corsAllowed = process.env.corsAllowed
+corsAllowed.split(',').map(str => allowlist.push(str))
 
 if (process.env.ENVIRONMENT === 'dev') allowlist.push("http://localhost:3000")
 
