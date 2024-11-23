@@ -36,7 +36,7 @@ const updateImage = async (args, context) => {
         }
 
         // resize
-        const newBuffer = await sharp(buffer).resize({ height: 1920, width: 1080, fit: "contain" }).toBuffer()
+        const newBuffer = await sharp(buffer).resize({ height: 600, width: 800, fit: "cover" }).toBuffer()
 
         const params = {
             Body: newBuffer,
