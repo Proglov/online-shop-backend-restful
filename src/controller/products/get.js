@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const { Product } = require('../../models/dbModels');
 const { getImages } = require('../image/get');
@@ -46,8 +47,50 @@ const getProductsWithTrueImagesUrl = async (input) => {
     return null; // Invalid input
 };
 
-//this belong to getAllProductsOfACategory only
 const getProductsWithTrueImagesUrl2 = async (input) => {
+    if (Array.isArray(input)) {
+        const newProds = [];
+
+        for (const product of input) {
+            if (product.imagesUrl.length !== 0) {
+                const filenames = product.imagesUrl
+                const args = { filenames };
+                const { urls } = await getImages(args, null);
+
+                const updatedProduct = {
+                    ...product?._doc,
+                    imagesUrl: urls,
+                    imagesName: filenames
+                };
+
+                newProds.push(updatedProduct);
+            } else {
+                newProds.push(product);
+            }
+
+        }
+
+        return newProds;
+    } else if (typeof input === 'object') {
+        if (input.imagesUrl.length !== 0) {
+            const filenames = input.imagesUrl
+            const args = { filenames };
+            const { urls } = await getImages(args, null);
+
+            return {
+                ...input?._doc,
+                imagesUrl: urls,
+                imagesName: filenames
+            };
+        }
+        return input
+    }
+
+    return null; // Invalid input
+};
+
+//this belong to getAllProductsOfACategory only
+const getProductsWithTrueImagesUrl3 = async (input) => {
     if (Array.isArray(input)) {
         const output = []
 
@@ -451,6 +494,33 @@ const getSomeProducts = async (args, _context) => {
     }
 }
 
+const getPopularProducts = async (_args, _context) => {
+    try {
+        const ids = ['6740a359a728dfb50f2f4d4e', '6740a4a5a728dfb50f2f4d8a', '6740a51aa728dfb50f2f4d98', '6740a560a728dfb50f2f4dae', '6740a5d0a728dfb50f2f4dcd', '6740a5f5a728dfb50f2f4ddf', '6740a638a728dfb50f2f4df1', '6740a667a728dfb50f2f4e03']
+        const devIds = ['6697a70df8be559bd3949cac']
+
+
+        let newIds;
+
+        if (process.env.ENVIRONMENT === 'dev') newIds = devIds.map(id => new mongoose.Types.ObjectId(id))
+        else newIds = ids.map(id => new mongoose.Types.ObjectId(id))
+
+        const products = await Product.find({ _id: { $in: newIds } }).select('_id name imagesUrl').exec()
+
+        const newProds = await getProductsWithTrueImagesUrl2(products);
+        return {
+            products: newProds,
+            status: 200,
+            message: null
+        }
+    } catch (error) {
+        return {
+            ...error500,
+            products: null
+        }
+    }
+}
+
 const getAllProductsOfACategory = async (args, _context) => {
     let { categoryId, page, perPage, cityIds } = args;
 
@@ -593,7 +663,7 @@ const getAllProductsOfACategory = async (args, _context) => {
         }
 
         const products = await Product.aggregate(aggregateQuery).exec();
-        const newProds = await getProductsWithTrueImagesUrl2(products);
+        const newProds = await getProductsWithTrueImagesUrl3(products);
 
         return {
             products: newProds,
@@ -765,6 +835,7 @@ module.exports = {
     getOneProduct,
     getOneProductParams,
     getSomeProducts,
+    getPopularProducts,
     getAllProductsOfACategory,
     getAllProductsOfASubcategory
 }

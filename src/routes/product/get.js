@@ -7,7 +7,8 @@ const {
     getOneProductParams,
     getAllProductsOfACategory,
     getAllProductsOfASubcategory,
-    getSomeProducts
+    getSomeProducts,
+    getPopularProducts
 } = require('../../controller/products/get');
 
 const { setUserInfo } = require('../../lib/middlewares');
@@ -217,6 +218,26 @@ router.get('/getSomeProducts', async (req, res) => {
     const args = req.query
 
     const { products, status, message } = await getSomeProducts(args, null)
+
+    res.status(status).json({ products, message });
+})
+
+/**
+    *@openapi
+    *'/productGet/getPopularProducts':
+    *   get:
+    *      tags:
+    *      - Products
+    *      summary: Get Popular Products
+    *      responses:
+    *       200:
+    *           description: Fetched Successfully
+    *       500:
+    *           description: Unexpected Error
+*/
+router.get('/getPopularProducts', async (_req, res) => {
+
+    const { products, status, message } = await getPopularProducts(null, null)
 
     res.status(status).json({ products, message });
 })
