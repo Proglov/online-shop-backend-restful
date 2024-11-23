@@ -82,12 +82,11 @@ const ProductUpdate = async (args, context) => {
         }
 
         const existingProduct = await Product.findById(id).populate({
-            path: "subcategoryId",
-            select: 'categoryId name',
-            populate: {
-                path: 'categoryId name'
+            path: "subcategoryId", select: 'categoryId name', populate: {
+                path: 'categoryId',
+                select: 'name'
             },
-        });
+        }).exec();
 
         if (!existingProduct) {
             return {
@@ -144,7 +143,7 @@ const ProductUpdate = async (args, context) => {
         await existingProduct.save();
 
         const newProd = await getProductsWithTrueImagesUrl(existingProduct);
-
+        console.log(existingProduct.subcategoryId);
         return {
             product: {
                 _id: id,
@@ -169,7 +168,7 @@ const ProductUpdate = async (args, context) => {
 
     } catch (error) {
         return {
-            error500,
+            ...error500,
             product: null
         }
     }
