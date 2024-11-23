@@ -36,14 +36,14 @@ const postProductSchema = {
         label: 'نام محصول',
         type: 'string',
         trim: true,
-        max: 20,
+        max: 40,
         min: 3,
     },
     desc: {
         label: 'توضیحات محصول',
         type: 'string',
         trim: true,
-        max: 50,
+        max: 100,
         min: 5,
     },
     price: {
@@ -83,7 +83,7 @@ const updateProductSchema = {
         label: 'نام محصول',
         type: 'string',
         trim: true,
-        max: 20,
+        max: 40,
         min: 3,
         optional: true
     },
@@ -91,7 +91,7 @@ const updateProductSchema = {
         label: 'توضیحات محصول',
         type: 'string',
         trim: true,
-        max: 50,
+        max: 100,
         min: 5,
         optional: true
     },
