@@ -2,6 +2,28 @@ const { TemporaryImage } = require("../../models/dbModels");
 const { deleteImages } = require("../image/delete");
 
 
+const deleteSomeTemporaryImages = async (filenames) => {
+    if (Array.isArray(filenames) && filenames.length > 0) {
+        try {
+            await deleteImages({ filenames }, { userInfo: null }, true)
+            await TemporaryImage.deleteMany({
+                name: {
+                    $in: filenames
+                }
+            });
+            return { message: 'temporary images deleted', status: 200 }
+        } catch (error) {
+            console.log(error);
+            return { message: error, status: 500 }
+        }
+    }
+
+    return {
+        message: 'no file is passed',
+        status: 202
+    }
+}
+
 const deleteOldTemporaryImages = async () => {
     try {
 
@@ -28,5 +50,6 @@ const deleteOldTemporaryImages = async () => {
 }
 
 module.exports = {
+    deleteSomeTemporaryImages,
     deleteOldTemporaryImages
 }

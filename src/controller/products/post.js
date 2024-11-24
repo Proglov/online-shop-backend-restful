@@ -5,6 +5,7 @@ const { getImages } = require('../image/get');
 const { validator } = require('../../schemas/main');
 const { postProductSchema } = require('../../schemas/product');
 const { error401, error500 } = require('../../lib/errors');
+const { deleteSomeTemporaryImages } = require('../temporaryImage/delete');
 
 const getProductsWithTrueImagesUrl = async (input) => {
     if (Array.isArray(input)) {
@@ -134,6 +135,8 @@ const ProductCreate = async (args, context) => {
         })
 
         await newProdHistory.save();
+
+        await deleteSomeTemporaryImages(imagesUrl)
 
         return {
             product: {
