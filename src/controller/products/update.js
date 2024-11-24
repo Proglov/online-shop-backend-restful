@@ -82,10 +82,12 @@ const ProductUpdate = async (args, context) => {
         }
 
         const existingProduct = await Product.findById(id).populate({
-            path: "subcategoryId", select: 'categoryId name', populate: {
+            path: 'subcategoryId',
+            select: 'name categoryId',
+            populate: {
                 path: 'categoryId',
                 select: 'name'
-            },
+            }
         }).exec();
 
         if (!existingProduct) {
@@ -103,29 +105,36 @@ const ProductUpdate = async (args, context) => {
             }
         }
 
-        if (!!name) {
+        if (!!name && name !== existingProduct.name) {
             existingProduct.name = name
         }
 
-        if (!!desc) {
+        if (!!desc && desc !== existingProduct.desc) {
             existingProduct.desc = desc
         }
 
-        if (!!price) {
+        if (!!price && price !== existingProduct.price) {
             existingProduct.price = price
         }
 
-        if (!!subcategoryId) {
-            const subcategory = await Subcategory.findById(subcategoryId);
-            if (!!subcategory)
-                existingProduct.subcategoryId = subcategoryId
+        let subcategory;
+        if (!!subcategoryId && subcategoryId !== existingProduct.subcategoryId._id) {
+            subcategory = await Subcategory.findById(subcategoryId).populate('categoryId', 'name');
         }
+        //we need this for returning the data and setting new data
+        if (!!subcategory)
+            existingProduct.subcategoryId = subcategoryId
+        else subcategory = existingProduct.subcategoryId
 
-        if (!!warehouseId) {
-            const warehouse = await Warehouse.findById(warehouseId);
-            if (!!warehouse && warehouse.sellerId === userInfo.userId)
-                existingProduct.warehouseId = warehouseId
+
+        let warehouse;
+        if (!!warehouseId && warehouseId !== existingProduct.warehouseId) {
+            warehouse = await Warehouse.findById(warehouseId);
         }
+        //we need this for returning the data and setting new data
+        if (!!warehouse && warehouse.sellerId === userInfo.userId)
+            existingProduct.warehouseId = warehouseId
+        else warehouse = existingProduct.warehouseId
 
         if (imagesUrl !== undefined && imagesUrl !== null && Array.isArray(imagesUrl)) {
             existingProduct.imagesUrl = imagesUrl
@@ -143,7 +152,7 @@ const ProductUpdate = async (args, context) => {
         await existingProduct.save();
 
         const newProd = await getProductsWithTrueImagesUrl(existingProduct);
-        console.log(existingProduct.subcategoryId);
+
         return {
             product: {
                 _id: id,
@@ -153,13 +162,13 @@ const ProductUpdate = async (args, context) => {
                 count: existingProduct.count,
                 imagesUrl: newProd.imagesUrl,
                 subcategoryId: {
-                    name: existingProduct.subcategoryId.name,
+                    name: subcategory.name,
                     categoryId: {
-                        name: existingProduct.subcategoryId.categoryId.name,
+                        name: subcategory.categoryId.name,
                     }
                 },
                 warehouseId: {
-                    name: existingProduct.warehouseId.name,
+                    name: warehouse.name,
                 }
             },
             message: "Product updated successfully",
