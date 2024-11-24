@@ -119,7 +119,7 @@ const ProductUpdate = async (args, context) => {
 
         let subcategory;
         if (!!subcategoryId && subcategoryId !== existingProduct.subcategoryId._id) {
-            subcategory = await Subcategory.findById(subcategoryId).populate('categoryId', 'name');
+            subcategory = await Subcategory.findById(subcategoryId).populate('categoryId', 'name').populate('warehouseId');
         }
         //we need this for returning the data and setting new data
         if (!!subcategory)
