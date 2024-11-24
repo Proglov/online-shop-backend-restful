@@ -16,7 +16,6 @@ const SellerUpdate = async (args, context) => {
         phone,
         workingPhone,
         bio,
-        officeAddress,
         warehouseAddresses
     } = args;
     const { userInfo } = context;
@@ -166,13 +165,6 @@ const SellerUpdate = async (args, context) => {
             }
         }
 
-        if (!!officeAddress && (!officeAddress?.cityId || !officeAddress?.completeAddress)) {
-            return {
-                message: "officeAddress is not valid",
-                token: null,
-                status: 400
-            }
-        }
         if (!!warehouseAddresses && (warehouseAddresses?.length === 0)) {
             return {
                 message: "warehouseAddresses is not valid",
@@ -195,7 +187,6 @@ const SellerUpdate = async (args, context) => {
         if (password) userObject.password = hashedPassword;
         if (phone) userObject.phone = phone;
         if (workingPhone) userObject.workingPhone = workingPhone;
-        if (officeAddress) userObject.officeAddress = officeAddress;
         if (warehouseAddresses) userObject.warehouseAddresses = warehouseAddresses;
         if (bio) userObject.bio = bio;
 
