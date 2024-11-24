@@ -80,7 +80,7 @@ const TransActionInPersonCreate = async (args, context) => {
             if (!product?.count || product?.count < product?.quantity)
                 return {
                     transaction: null,
-                    message: `product is not available. Maximum: ${product.count || 0}, ProductName: ${product.name}`,
+                    message: `از محصول ${product.name} به مقدار ${product.count || 0} عدد در انبار موجود است`,
                     status: 409
                 }
         }
