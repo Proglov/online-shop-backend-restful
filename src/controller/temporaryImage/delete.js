@@ -5,7 +5,6 @@ const { deleteImages } = require("../image/delete");
 const deleteSomeTemporaryImages = async (filenames) => {
     if (Array.isArray(filenames) && filenames.length > 0) {
         try {
-            await deleteImages({ filenames }, { userInfo: null }, true)
             await TemporaryImage.deleteMany({
                 name: {
                     $in: filenames
