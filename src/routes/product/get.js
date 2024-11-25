@@ -8,7 +8,8 @@ const {
     getAllProductsOfACategory,
     getAllProductsOfASubcategory,
     getSomeProducts,
-    getPopularProducts
+    getPopularProducts,
+    searchForProducts
 } = require('../../controller/products/get');
 
 const { setUserInfo } = require('../../lib/middlewares');
@@ -344,5 +345,48 @@ router.get('/getAllProductsOfASubcategory', async (req, res) => {
     res.status(status).json({ products, message });
 })
 
+/**
+    *@openapi
+    *'/productGet/searchForProducts':
+    *   get:
+    *      tags:
+    *      - Products
+    *      summary: get Products with search
+    *      parameters:
+    *        - in: query
+    *          name: str
+    *          required: true
+    *          description: name of the product
+    *          schema:
+    *              type: string
+    *        - in: query
+    *          name: page
+    *          required: false
+    *          description: page number for pagination
+    *          schema:
+    *              type: integer
+    *        - in: query
+    *          name: perPage
+    *          required: false
+    *          description: items per page for pagination
+    *          schema:
+    *              type: integer
+    *      responses:
+    *       200:
+    *           description: Fetched Successfully
+    *       500:
+    *           description: Unexpected Error
+*/
+router.get('/searchForProducts', async (req, res) => {
+    const args = getQueryArgs(req.query, {
+        str: 'string',
+        page: 'posInt',
+        perPage: 'posInt'
+    })
+
+    const { products, status, message } = await searchForProducts(args, null)
+
+    res.status(status).json({ products, message });
+})
 
 module.exports = router;

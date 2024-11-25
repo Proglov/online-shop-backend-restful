@@ -1,6 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { Product } = require('../../models/dbModels');
+const { Product, Subcategory, Category } = require('../../models/dbModels');
 const { getImages } = require('../image/get');
 const { error500, error401 } = require('../../lib/errors');
 
@@ -680,7 +680,6 @@ const getAllProductsOfACategory = async (args, _context) => {
     }
 };
 
-
 const getAllProductsOfASubcategory = async (args, _context) => {
 
     let { subcategoryId, page, perPage, cityIds } = args;
@@ -828,6 +827,140 @@ const getAllProductsOfASubcategory = async (args, _context) => {
     }
 }
 
+const searchForProducts = async (args, _context) => {
+    const { str, page, perPage } = args;
+
+    if (!str || typeof str !== 'string') return {
+        products: null,
+        message: "str is required",
+        status: 400
+    };
+
+    try {
+        // Step 1: Find related categories and subcategories
+        const categories = await Category.find({ name: new RegExp(str, 'i') }).exec();
+        const categoryIds = categories.map(category => new mongoose.Types.ObjectId(category._id));
+
+        const subcategories = await Subcategory.find({
+            $or: [
+                { name: new RegExp(str, 'i') },
+                { categoryId: { $in: categoryIds } }
+            ]
+        }).exec();
+        const subcategoryIds = subcategories.map(subcategory => new mongoose.Types.ObjectId(subcategory._id));
+
+        // Step 2: Construct the aggregate query
+        const aggregateQuery = [
+            {
+                // Match products based on name, desc, or related subcategories
+                $match: {
+                    $or: [
+                        { name: new RegExp(str, 'i') }, // Products containing str in name
+                        { desc: new RegExp(str, 'i') }, // Products containing str in description
+                        { subcategoryId: { $in: subcategoryIds } }, // Products matching found subcategories
+                    ]
+                }
+            },
+            {
+                // Lookup for subcategory
+                "$lookup": {
+                    from: "subcategories",
+                    localField: "subcategoryId",
+                    foreignField: "_id",
+                    as: "subcategory"
+                }
+            },
+            {
+                // Unwind the subcategory array
+                "$unwind": {
+                    path: "$subcategory",
+                    preserveNullAndEmptyArrays: true // Keep products without subcategories
+                }
+            },
+            {
+                // Lookup for festival data
+                "$lookup": {
+                    from: "festivals",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "festivalData"
+                }
+            },
+            {
+                // Lookup for major shopping data
+                "$lookup": {
+                    from: "majorshoppings",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "majorShoppingData"
+                }
+            },
+            {
+                "$addFields": {
+                    "subcategoryName": "$subcategory.name",
+                    "which": {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $gt: [{ $size: "$festivalData" }, 0] },
+                                    then: "festival"
+                                },
+                                {
+                                    case: { $gt: [{ $size: "$majorShoppingData" }, 0] },
+                                    then: "major"
+                                }
+                            ],
+                            default: ""
+                        }
+                    },
+                    "festivalOffPercentage": { $arrayElemAt: ["$festivalData.offPercentage", 0] },
+                    "until": { $arrayElemAt: ["$festivalData.until", 0] },
+                    "quantity": { $arrayElemAt: ["$majorShoppingData.quantity", 0] },
+                    "majorOffPercentage": { $arrayElemAt: ["$majorShoppingData.offPercentage", 0] }
+                }
+            },
+            {
+                "$project": {
+                    "subcategoryName": 1,
+                    "subcategoryId": 1,
+                    "name": 1,
+                    "desc": 1,
+                    "sellerId": 1,
+                    "price": 1,
+                    "imagesUrl": 1,
+                    "which": 1,
+                    "festivalOffPercentage": 1,
+                    "until": 1,
+                    "quantity": 1,
+                    "majorOffPercentage": 1
+                }
+            }
+        ];
+
+        // Step 3: Handle pagination
+        if (page && perPage) {
+            const skip = (page - 1) * perPage;
+            aggregateQuery.push({ $skip: skip }, { $limit: perPage });
+        }
+
+        // Step 4: Execute the aggregation query
+        const products = await Product.aggregate(aggregateQuery).exec();
+        const newProds = await getProductsWithTrueImagesUrl(products);
+
+        return {
+            products: newProds,
+            status: 200,
+            message: null
+        };
+    } catch (error) {
+        return {
+            ...error500,
+            products: null
+        };
+    }
+}
+
+
 module.exports = {
     getAllProducts,
     getAllMyProducts,
@@ -837,5 +970,6 @@ module.exports = {
     getSomeProducts,
     getPopularProducts,
     getAllProductsOfACategory,
-    getAllProductsOfASubcategory
+    getAllProductsOfASubcategory,
+    searchForProducts
 }
