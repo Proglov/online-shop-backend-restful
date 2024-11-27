@@ -13,7 +13,7 @@ const getAllCities = async (args, _context) => {
         let allCitiesCount = 0
         const cities = await query.lean().exec();
 
-        if (!skip) allCitiesCount = cities.length
+        if (!skip && skip !== 0) allCitiesCount = cities.length
         else allCitiesCount = await City.where().countDocuments().exec();
 
         return {

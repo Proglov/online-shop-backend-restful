@@ -144,7 +144,7 @@ const getAllProducts = async (args, _context) => {
         const products = await query.lean().exec();
         const newProds = await getProductsWithTrueImagesUrl(products);
 
-        if (!skip) allProductsCount = products.length
+        if (!skip && skip !== 0) allProductsCount = products.length
         else allProductsCount = await Product.where().countDocuments().exec();
 
         return {
@@ -191,7 +191,7 @@ const getAllMyProducts = async (args, context) => {
         const products = await query.lean().exec();
         const newProds = await getProductsWithTrueImagesUrl(products);
 
-        if (!skip) allProductsCount = products.length
+        if (!skip && skip !== 0) allProductsCount = products.length
         else allProductsCount = await Product.where(condition).countDocuments().exec();
 
         return {
@@ -236,7 +236,7 @@ const getAllProductsOfASeller = async (args, context) => {
         const products = await query.lean().exec();
         const newProds = await getProductsWithTrueImagesUrl(products);
 
-        if (!skip) allProductsCount = products.length
+        if (!skip && skip !== 0) allProductsCount = products.length
         else allProductsCount = await Product.where(condition).countDocuments().exec();
 
         return {

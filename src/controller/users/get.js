@@ -113,7 +113,7 @@ const getUsers = async (args, context) => {
         let usersCount = 0
         const users = await query.lean().exec();
 
-        if (!skip) usersCount = users.length
+        if (!skip && skip !== 0) usersCount = users.length
         else usersCount = await User.where().countDocuments().exec();
 
         return {

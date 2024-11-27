@@ -16,7 +16,7 @@ const getAllComments = async (args, _context) => {
         let allCommentsCount = 0
         const comments = await query.lean().exec();
 
-        if (!skip) allCommentsCount = comments.length
+        if (!skip && skip !== 0) allCommentsCount = comments.length
         else allCommentsCount = await Comment.where(condition).countDocuments().exec();
 
         return {
@@ -110,7 +110,7 @@ const getCommentsOfAProductForSeller = async (args, _context) => {
         let allCommentsCount = 0
         const comments = await query.lean().exec();
 
-        if (!skip) allCommentsCount = comments.length
+        if (!skip && skip !== 0) allCommentsCount = comments.length
         else allCommentsCount = await Comment.where(condition).countDocuments().exec();
 
         return {
@@ -147,7 +147,7 @@ const getAllCommentsOfAUser = async (args, _context) => {
         let allCommentsCount = 0
         const comments = await query.lean().exec();
 
-        if (!skip) allCommentsCount = comments.length
+        if (!skip && skip !== 0) allCommentsCount = comments.length
         else allCommentsCount = await Comment.where(condition).countDocuments().exec();
 
         return {

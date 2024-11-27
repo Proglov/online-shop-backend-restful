@@ -17,7 +17,7 @@ const getAllWarehouses = async (args, _context) => {
         let allWarehousesCount = 0
         const warehouses = await query.lean().exec();
 
-        if (!skip) allWarehousesCount = warehouses.length
+        if (!skip && skip !== 0) allWarehousesCount = warehouses.length
         else allWarehousesCount = await Warehouse.where().countDocuments().exec();
 
         return {
@@ -63,7 +63,7 @@ const getAllMyWarehouses = async (args, context) => {
         let allWarehousesCount = 0
         const warehouses = await query.lean().exec();
 
-        if (!skip) allWarehousesCount = warehouses.length
+        if (!skip && skip !== 0) allWarehousesCount = warehouses.length
         else allWarehousesCount = await Warehouse.where(condition).countDocuments().exec();
 
         return {
@@ -107,7 +107,7 @@ const getAllWarehousesOfASeller = async (args, context) => {
         let allWarehousesCount = 0
         const warehouses = await query.lean().exec();
 
-        if (!skip) allWarehousesCount = warehouses.length
+        if (!skip && skip !== 0) allWarehousesCount = warehouses.length
         else allWarehousesCount = await Warehouse.where(condition).countDocuments().exec();
 
         return {

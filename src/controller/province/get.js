@@ -13,7 +13,7 @@ const getAllProvinces = async (args, _context) => {
         let allProvincesCount = 0
         const provinces = await query.lean().exec();
 
-        if (!skip) allProvincesCount = provinces.length
+        if (!skip && skip !== 0) allProvincesCount = provinces.length
         else allProvincesCount = await Province.where().countDocuments().exec();
 
         return {

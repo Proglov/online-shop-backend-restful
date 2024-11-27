@@ -12,7 +12,7 @@ const getAllSubcategories = async (args, _context) => {
         let allSubcategoriesCount = 0
         const subcategories = await query.lean().exec();
 
-        if (!skip) allSubcategoriesCount = subcategories.length
+        if (!skip && skip !== 0) allSubcategoriesCount = subcategories.length
         else allSubcategoriesCount = await Subcategory.where().countDocuments().exec();
 
         return {

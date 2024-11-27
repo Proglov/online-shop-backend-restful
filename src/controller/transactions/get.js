@@ -39,7 +39,7 @@ const getAllTransActions = async (args, context) => {
         let count = 0
         const tx = await query.lean().exec();
 
-        if (!skip) count = tx.length
+        if (!skip && skip !== 0) count = tx.length
         else count = await TransAction.where(condition).countDocuments().exec();
 
         return {
@@ -203,7 +203,7 @@ const getAllMyTransActions = async (args, context) => {
         let count = 0
         const tx = await query.lean().exec();
 
-        if (!skip) count = tx.length
+        if (!skip && skip !== 0) count = tx.length
         else count = await TransAction.where(condition).countDocuments().exec();
 
         return {
@@ -309,7 +309,7 @@ const getAllTransActionsOfAUser = async (args, context) => {
         let count = 0
         const tx = await query.lean().exec();
 
-        if (!skip) count = tx.length
+        if (!skip && skip !== 0) count = tx.length
         else count = await TransAction.where(condition).countDocuments().exec();
 
         return {
@@ -376,7 +376,7 @@ const getAllTransActionsOfAProduct = async (args, context) => {
         let count = 0
         const tx = await query.lean().exec();
 
-        if (!skip) count = tx.length
+        if (!skip && skip !== 0) count = tx.length
         else count = await TransAction.where(condition).countDocuments().exec();
 
         return {

@@ -55,7 +55,7 @@ const getAllCategories = async (args, _context) => {
         let allCategoriesCount = 0
         const Categories = await query.lean().exec();
 
-        if (!skip) allCategoriesCount = Categories.length
+        if (!skip && skip !== 0) allCategoriesCount = Categories.length
         else allCategoriesCount = await Category.where().countDocuments().exec();
 
         const newCategories = await getCategoriesWithTrueImageUrl(Categories);

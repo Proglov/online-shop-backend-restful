@@ -114,7 +114,7 @@ const getSellers = async (args, context) => {
         let allSellersCount = 0
         const sellers = await query.lean().exec();
 
-        if (!skip) allSellersCount = sellers.length
+        if (!skip && skip !== 0) allSellersCount = sellers.length
         else allSellersCount = await Seller.where(condition).countDocuments().exec();
 
         return {
