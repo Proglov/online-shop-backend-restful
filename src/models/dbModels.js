@@ -324,7 +324,27 @@ const transActionSchema = new mongoose.Schema({
         type: String,
         enum: ['Requested', 'Sent', 'Received', 'Canceled'],
         default: 'Requested'
-    }
+    },
+    canceled: {
+        canceledBy: {
+            type: String,
+            enum: ['seller', 'user'],
+            default: 'seller'
+        },
+        reason: {
+            type: String
+        }
+    },
+    opinion: {
+        rate: {
+            type: Number,
+            default: 0
+        },
+        comment: {
+            type: String,
+            default: ''
+        }
+    },
 }, { timestamps: { createdAt: true } })
 
 const transActionInPersonSchema = new mongoose.Schema({
