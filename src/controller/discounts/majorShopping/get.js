@@ -59,9 +59,6 @@ const GetAllMajorShoppingProducts = async (args, _context) => {
         // Count query variables
         let countQuery = [
             {
-                $match: { until: { $gt: now } },
-            },
-            {
                 $count: 'count'
             }
         ];
