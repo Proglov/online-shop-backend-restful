@@ -3,20 +3,31 @@ const { setUserInfo } = require('../../lib/middlewares');
 
 const router = express.Router();
 
-const { GetAllFestivalProducts, GetAllMyFestivalProducts } = require('../../controller/discounts/festival/get');
-const { GetAllMajorShoppingProducts, GetMyAllMajorShoppingProducts } = require('../../controller/discounts/majorShopping/get');
+const { GetAllFestivalProducts, GetAllFestivalProductsHomePage, GetAllMyFestivalProducts } = require('../../controller/discounts/festival/get');
+const { GetAllMajorShoppingProducts, GetAllMajorShoppingProductsHomePage, GetMyAllMajorShoppingProducts } = require('../../controller/discounts/majorShopping/get');
 const { GetAllMyCompanyCouponForSomeProducts, GetAllCompanyCouponForSomeProducts, GetOneCompanyCouponForSomeProducts } = require('../../controller/discounts/companyCouponSomeProducts/get');
 const { getQueryArgs } = require('../../lib/Functions');
 
 
 router.get('/GetAllFestivalProducts', async (req, res) => {
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
+
+    const { status, message, products, allProductsCount } = await GetAllFestivalProducts(args, null);
+
+    res.status(status).json({ message, products, allProductsCount });
+})
+
+router.get('/GetAllFestivalProductsHomePage', async (req, res) => {
     const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         cityIds: 'string'
     })
 
-    const { status, message, products, allProductsCount } = await GetAllFestivalProducts(args, null);
+    const { status, message, products, allProductsCount } = await GetAllFestivalProductsHomePage(args, null);
 
     res.status(status).json({ message, products, allProductsCount });
 })
@@ -35,13 +46,24 @@ router.get('/GetAllMyFestivalProducts', setUserInfo, async (req, res) => {
 
 
 router.get('/GetAllMajorShoppingProducts', async (req, res) => {
+    const args = getQueryArgs(req.query, {
+        page: 'posInt',
+        perPage: 'posInt'
+    })
+
+    const { status, message, products, allProductsCount } = await GetAllMajorShoppingProducts(args, null);
+
+    res.status(status).json({ message, products, allProductsCount });
+})
+
+router.get('/GetAllMajorShoppingProductsHomePage', async (req, res) => {
     const args = getQueryArgs({ ...req.query, ...req.cookies }, {
         page: 'posInt',
         perPage: 'posInt',
         cityIds: 'string'
     })
 
-    const { status, message, products, allProductsCount } = await GetAllMajorShoppingProducts(args, null);
+    const { status, message, products, allProductsCount } = await GetAllMajorShoppingProductsHomePage(args, null);
 
     res.status(status).json({ message, products, allProductsCount });
 })

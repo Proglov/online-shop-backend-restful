@@ -561,6 +561,22 @@ const getAllProductsOfACategory = async (args, _context) => {
             },
             {
                 "$lookup": {
+                    from: "sellers", // Join with the sellers collection
+                    localField: "sellerId",
+                    foreignField: '_id',
+                    as: 'seller'
+                }
+            },
+            {
+                "$unwind": "$seller" // Flatten the seller information
+            },
+            {
+                "$match": {
+                    "seller.validated": true // Filter to include only validated sellers
+                }
+            },
+            {
+                "$lookup": {
                     from: "festivals",
                     localField: "_id",
                     foreignField: "productId",
@@ -650,8 +666,8 @@ const getAllProductsOfACategory = async (args, _context) => {
         }
 
         // Handle Pagination
-        if (page && perPage) {
-            const skip = (page - 1) * perPage;
+        const skip = (page - 1) * perPage;
+        if (!skip && skip !== 0) {
             aggregateQuery.push(
                 {
                     $project: {
@@ -681,7 +697,6 @@ const getAllProductsOfACategory = async (args, _context) => {
 };
 
 const getAllProductsOfASubcategory = async (args, _context) => {
-
     let { subcategoryId, page, perPage, cityIds } = args;
     if (!subcategoryId) return {
         products: null,
@@ -712,6 +727,22 @@ const getAllProductsOfASubcategory = async (args, _context) => {
             },
             {
                 "$lookup": {
+                    from: "sellers", // Join with the sellers collection
+                    localField: "sellerId",
+                    foreignField: '_id',
+                    as: 'seller'
+                }
+            },
+            {
+                "$unwind": "$seller" // Flatten the seller information
+            },
+            {
+                "$match": {
+                    "seller.validated": true // Filter to include only validated sellers
+                }
+            },
+            {
+                "$lookup": {
                     from: "festivals",
                     localField: "_id",
                     foreignField: "productId",
@@ -727,6 +758,7 @@ const getAllProductsOfASubcategory = async (args, _context) => {
                 }
             }
         ]
+
         let resultQuery = [
             ...aggregateQuery,
             {
@@ -772,7 +804,6 @@ const getAllProductsOfASubcategory = async (args, _context) => {
             }
         ]
 
-
         // If cityIds are provided, add warehouse lookup and filter
         if (cityIds.length > 0) {
             const beforeFestivalIndex = 4;
@@ -799,6 +830,7 @@ const getAllProductsOfASubcategory = async (args, _context) => {
             ]
         }
 
+        // Handle Pagination
         if (!page || !perPage) {
             const products = await Product.aggregate(resultQuery).exec();
             const newProds = await getProductsWithTrueImagesUrl(products);
@@ -809,9 +841,8 @@ const getAllProductsOfASubcategory = async (args, _context) => {
             }
         }
 
-
         const skip = (page - 1) * perPage;
-        const products = await Product.aggregate(resultQuery).skip(skip).limit(perPage);
+        const products = await Product.aggregate(resultQuery).skip(skip).limit(perPage).exec();
         const newProds = await getProductsWithTrueImagesUrl(products);
         return {
             products: newProds,

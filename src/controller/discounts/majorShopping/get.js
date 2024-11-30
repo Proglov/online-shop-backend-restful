@@ -35,7 +35,80 @@ const getProductsWithTrueImageUrl = async (input) => {
 };
 
 
+//this is for the admin
 const GetAllMajorShoppingProducts = async (args, _context) => {
+    let { page, perPage } = args;
+
+    try {
+
+        // Common query stages for aggregating products
+        const commonQuery = [
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productId',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            {
+                $unwind: '$productDetails'
+            }
+        ];
+
+        // Count query variables
+        let countQuery = [
+            {
+                $match: { until: { $gt: now } },
+            },
+            {
+                $count: 'count'
+            }
+        ];
+
+        // Fetching product count
+        const countResult = await MajorShopping.aggregate(countQuery);
+        const allProductsCount = countResult.length > 0 ? countResult[0].count : 0;
+
+        // Aggregate products query
+        const aggregateQuery = [
+            ...commonQuery,
+            {
+                $project: {
+                    _id: 1,
+                    productId: '$productDetails._id',
+                    name: '$productDetails.name',
+                    price: '$productDetails.price',
+                    imagesUrl: '$productDetails.imagesUrl',
+                    sellerId: '$productDetails.sellerId',
+                    offPercentage: 1,
+                    quantity: 1
+                }
+            }
+        ];
+
+        const skip = (page - 1) * perPage;
+        const products = await MajorShopping.aggregate(aggregateQuery).skip(skip).limit(perPage);
+        const newProds = await getProductsWithTrueImageUrl(products);
+
+        return {
+            products: newProds,
+            allProductsCount,
+            status: 200,
+            message: null
+        };
+
+    } catch (error) {
+        return {
+            products: null,
+            allProductsCount: 0,
+            status: 500,
+            message: error
+        };
+    }
+}
+
+const GetAllMajorShoppingProductsHomePage = async (args, _context) => {
     let { page, perPage, cityIds } = args;
 
     try {
@@ -55,6 +128,24 @@ const GetAllMajorShoppingProducts = async (args, _context) => {
             },
             {
                 $unwind: '$productDetails'
+            },
+            {
+                // Lookup to join seller data
+                $lookup: {
+                    from: 'sellers',
+                    localField: 'productDetails.sellerId',
+                    foreignField: '_id',
+                    as: 'sellerDetails'
+                }
+            },
+            {
+                $unwind: '$sellerDetails'
+            },
+            {
+                // Match only validated sellers
+                $match: {
+                    'sellerDetails.validated': true
+                }
             }
         ];
 
@@ -94,6 +185,24 @@ const GetAllMajorShoppingProducts = async (args, _context) => {
             countQuery = [
                 {
                     $match: { until: { $gt: now } },
+                },
+                {
+                    // Lookup to join seller data
+                    $lookup: {
+                        from: 'sellers',
+                        localField: 'productDetails.sellerId',
+                        foreignField: '_id',
+                        as: 'sellerDetails'
+                    }
+                },
+                {
+                    $unwind: '$sellerDetails'
+                },
+                {
+                    // Match only validated sellers
+                    $match: {
+                        'sellerDetails.validated': true
+                    }
                 },
                 {
                     $count: 'count'
@@ -201,5 +310,6 @@ const GetMyAllMajorShoppingProducts = async (args, context) => {
 
 module.exports = {
     GetAllMajorShoppingProducts,
+    GetAllMajorShoppingProductsHomePage,
     GetMyAllMajorShoppingProducts
 }

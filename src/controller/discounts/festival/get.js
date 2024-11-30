@@ -34,7 +34,80 @@ const getProductsWithTrueImageUrl = async (input) => {
     return newProds;
 };
 
+
+//this is for admin
 const GetAllFestivalProducts = async (args, _context) => {
+    let { page, perPage } = args;
+
+    try {
+
+
+        // Common query stages for aggregating products
+        const commonQuery = [
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productId',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            {
+                $unwind: '$productDetails'
+            }
+        ];
+
+        // Count query variables
+        let countQuery = [
+            {
+                $count: 'count'
+            }
+        ]
+
+
+        // Fetching product count
+        const countResult = await Festival.aggregate(countQuery);
+        const allProductsCount = countResult.length > 0 ? countResult[0].count : 0;
+
+        // Aggregate products query
+        const aggregateQuery = [
+            ...commonQuery,
+            {
+                $project: {
+                    _id: 1,
+                    productId: '$productDetails._id',
+                    name: '$productDetails.name',
+                    price: '$productDetails.price',
+                    imagesUrl: '$productDetails.imagesUrl',
+                    sellerId: '$productDetails.sellerId',
+                    offPercentage: 1,
+                    until: 1
+                }
+            }
+        ];
+
+        const skip = (page - 1) * perPage;
+        const products = await Festival.aggregate(aggregateQuery).skip(skip).limit(perPage);
+        const newProds = await getProductsWithTrueImageUrl(products);
+
+        return {
+            products: newProds,
+            allProductsCount,
+            status: 200,
+            message: null
+        };
+
+    } catch (error) {
+        return {
+            products: null,
+            allProductsCount: 0,
+            status: 500,
+            message: error
+        };
+    }
+}
+
+const GetAllFestivalProductsHomePage = async (args, _context) => {
     let { page, perPage, cityIds } = args;
 
     try {
@@ -57,6 +130,24 @@ const GetAllFestivalProducts = async (args, _context) => {
             },
             {
                 $unwind: '$productDetails'
+            },
+            {
+                // Lookup to join seller data
+                $lookup: {
+                    from: 'sellers',
+                    localField: 'productDetails.sellerId',
+                    foreignField: '_id',
+                    as: 'sellerDetails'
+                }
+            },
+            {
+                $unwind: '$sellerDetails'
+            },
+            {
+                // Match only validated sellers
+                $match: {
+                    'sellerDetails.validated': true
+                }
             }
         ];
 
@@ -98,6 +189,24 @@ const GetAllFestivalProducts = async (args, _context) => {
                     $match: { until: { $gt: now } },
                 },
                 {
+                    // Lookup to join seller data
+                    $lookup: {
+                        from: 'sellers',
+                        localField: 'productDetails.sellerId',
+                        foreignField: '_id',
+                        as: 'sellerDetails'
+                    }
+                },
+                {
+                    $unwind: '$sellerDetails'
+                },
+                {
+                    // Match only validated sellers
+                    $match: {
+                        'sellerDetails.validated': true
+                    }
+                },
+                {
                     $count: 'count'
                 }
             ];
@@ -136,7 +245,6 @@ const GetAllFestivalProducts = async (args, _context) => {
         };
 
     } catch (error) {
-        console.log(error);
         return {
             products: null,
             allProductsCount: 0,
@@ -145,7 +253,6 @@ const GetAllFestivalProducts = async (args, _context) => {
         };
     }
 }
-
 
 const GetAllMyFestivalProducts = async (args, context) => {
     let { page, perPage } = args;
@@ -204,5 +311,6 @@ const GetAllMyFestivalProducts = async (args, context) => {
 
 module.exports = {
     GetAllFestivalProducts,
+    GetAllFestivalProductsHomePage,
     GetAllMyFestivalProducts
 }
