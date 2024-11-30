@@ -76,7 +76,7 @@ const CancelTXByUser = async (args, context) => {
             status: 400
         }
 
-        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId" }).select('status userId')
+        const tx = await TransAction.findById(id).select('status userId')
 
         if (!tx) return {
             transaction: null,
