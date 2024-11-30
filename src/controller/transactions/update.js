@@ -186,7 +186,6 @@ const OpinionTX = async (args, context) => {
     const { userInfo } = context;
 
     try {
-        //check if req contains token
         if (!userInfo || !userInfo?.userId) {
             return {
                 transaction: null,
@@ -195,7 +194,7 @@ const OpinionTX = async (args, context) => {
             }
         }
 
-        if (!(!comment || typeof comment !== 'string') && !(!rate || !([1, 2, 3, 4, 5].includes(rate)))) return {
+        if ((!comment || typeof comment !== 'string') && (!rate || !([1, 2, 3, 4, 5].includes(rate)))) return {
             transaction: null,
             message: "نظر یا ستاره الزامیست",
             status: 400
@@ -207,6 +206,12 @@ const OpinionTX = async (args, context) => {
             transaction: null,
             message: "No transaction found!",
             status: 404
+        }
+
+        if (tx.status !== 'Received' && (tx.status !== 'Canceled' || tx?.canceled?.canceledBy !== 'seller')) return {
+            transaction: null,
+            message: "you can't opinion",
+            status: 400
         }
 
         if (tx.userId != userInfo?.userId && !(await isAdmin(userInfo.userId))) return {
