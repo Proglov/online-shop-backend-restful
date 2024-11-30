@@ -76,12 +76,18 @@ const CancelTXByUser = async (args, context) => {
             status: 400
         }
 
-        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId" })
+        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId" }).select('status userId')
 
         if (!tx) return {
             transaction: null,
             message: "No transaction found!",
             status: 404
+        }
+
+        if (tx.status !== 'Requested') return {
+            transaction: null,
+            message: "Transaction can not be canceled",
+            status: 400
         }
 
         if (tx.userId != userInfo?.userId && !(await isAdmin(userInfo.userId))) return {
@@ -103,7 +109,6 @@ const CancelTXByUser = async (args, context) => {
             message: "TransAction is successfully canceled",
             status: 202
         }
-
 
     } catch (error) {
         return {
@@ -132,12 +137,18 @@ const CancelTXBySeller = async (args, context) => {
             status: 400
         }
 
-        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId' })
+        const tx = await TransAction.findById(id).populate({ path: "boughtProducts.productId", select: 'sellerId status' })
 
         if (!tx) return {
             transaction: null,
             message: "No transaction found!",
             status: 404
+        }
+
+        if (tx.status !== 'Requested') return {
+            transaction: null,
+            message: "Transaction can not be canceled",
+            status: 400
         }
 
         if (tx.boughtProducts[0].productId.sellerId != userInfo?.userId && !(await isAdmin(userInfo.userId))) return {
