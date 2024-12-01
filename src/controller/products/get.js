@@ -902,10 +902,24 @@ const searchForProducts = async (args, _context) => {
                 }
             },
             {
-                // Unwind the subcategory array
                 "$unwind": {
-                    path: "$subcategory",
-                    preserveNullAndEmptyArrays: true // Keep products without subcategories
+                    path: "$subcategory"
+                }
+            },
+            {
+                "$lookup": {
+                    from: "sellers", // Join with the sellers collection
+                    localField: "sellerId",
+                    foreignField: '_id',
+                    as: 'seller'
+                }
+            },
+            {
+                "$unwind": "$seller" // Flatten the seller information
+            },
+            {
+                "$match": {
+                    "seller.validated": true // Filter to include only validated sellers
                 }
             },
             {
@@ -969,8 +983,8 @@ const searchForProducts = async (args, _context) => {
         ];
 
         // Step 3: Handle pagination
-        if (page && perPage) {
-            const skip = (page - 1) * perPage;
+        const skip = (page - 1) * perPage;
+        if (!skip && skip !== 0) {
             aggregateQuery.push({ $skip: skip }, { $limit: perPage });
         }
 
