@@ -80,6 +80,10 @@ connectDB()
 
 const PORT = process.env.PORT || 3500;
 
+
+// Trust proxy settings (i do this tp prevent X-Forwarded-For error for limiter)
+app.set('trust proxy', true);
+
 //limit configuration
 const limiter = rateLimit({
     windowMs: 3_600_000,
