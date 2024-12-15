@@ -17,7 +17,17 @@ router.post('/CityCreate', async (req, res) => {
     res.status(status).json({ message, city });
 })
 
+router.post('/set-cityIds', (req, res) => {
+    const { ids } = req.body;
 
+    if (Array.isArray(ids)) {
+        // Set a cookie with the key "IDs" and value as the JSON string of the array
+        res.cookie('cityIds', JSON.stringify(ids), { httpOnly: false, maxAge: 86400000 }); // Max age is set to 1 day
+        return res.status(200).send('Cookie has been set!');
+    } else {
+        return res.status(400).send('Invalid input. Please send an array.');
+    }
+});
 
 
 module.exports = router;
