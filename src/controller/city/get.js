@@ -33,6 +33,34 @@ const getAllCities = async (args, _context) => {
 
 }
 
+const getAllCitiesForNavbar = async (args, _context) => {
+    let { cityIds } = args;
+
+    try {
+        const preSelectedCities = !!cityIds ? JSON.parse(cityIds) : []
+
+        const query = City.find().populate({ path: "provinceId", select: 'name' })
+
+        const cities = await query.lean().exec();
+
+
+        return {
+            cities,
+            preSelectedCities,
+            status: 200,
+            message: null
+        }
+
+    } catch (error) {
+        return {
+            ...error500,
+            cities: null,
+            preSelectedCities
+        }
+    }
+
+}
+
 const getOneCity = async (args, _context) => {
     const { id } = args
     if (!id) {
@@ -62,5 +90,6 @@ const getOneCity = async (args, _context) => {
 
 module.exports = {
     getAllCities,
+    getAllCitiesForNavbar,
     getOneCity
 }
